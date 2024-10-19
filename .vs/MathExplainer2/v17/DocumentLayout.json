@@ -1,0 +1,90 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Work\\Math\\MathExplainer2-main\\MathExplainer2\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{5C9329F8-F1D6-AB74-113B-B0388A596E68}|Assembly-CSharp.csproj|d:\\work\\math\\mathexplainer2-main\\mathexplainer2\\assets\\project\\mathsproblemsenglish\\basicproblems\\onedigitmultiplication\\scripts\\onedigitmultiplicationscript.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5C9329F8-F1D6-AB74-113B-B0388A596E68}|Assembly-CSharp.csproj|solutionrelative:assets\\project\\mathsproblemsenglish\\basicproblems\\onedigitmultiplication\\scripts\\onedigitmultiplicationscript.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5C9329F8-F1D6-AB74-113B-B0388A596E68}|Assembly-CSharp.csproj|d:\\work\\math\\mathexplainer2-main\\mathexplainer2\\assets\\project\\mathsproblemsenglish\\basicproblems\\addition\\scripts\\additionscript.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5C9329F8-F1D6-AB74-113B-B0388A596E68}|Assembly-CSharp.csproj|solutionrelative:assets\\project\\mathsproblemsenglish\\basicproblems\\addition\\scripts\\additionscript.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5C9329F8-F1D6-AB74-113B-B0388A596E68}|Assembly-CSharp.csproj|D:\\Work\\Math\\MathExplainer2-main\\MathExplainer2\\assets\\resources\\handanimation\\counting\\ajanimationhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5C9329F8-F1D6-AB74-113B-B0388A596E68}|Assembly-CSharp.csproj|solutionrelative:assets\\resources\\handanimation\\counting\\ajanimationhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{02D1616E-AA83-4E74-FC1C-7B72BAD6BCD6}|CFXRDemo.csproj|D:\\Work\\Math\\MathExplainer2-main\\MathExplainer2\\Assets\\JMO Assets\\Cartoon FX Remaster\\Demo Assets\\CFXR_Demo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{02D1616E-AA83-4E74-FC1C-7B72BAD6BCD6}|CFXRDemo.csproj|solutionrelative:Assets\\JMO Assets\\Cartoon FX Remaster\\Demo Assets\\CFXR_Demo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "OneDigitMultiplicationScript.cs",
+              "DocumentMoniker": "D:\\Work\\Math\\MathExplainer2-main\\MathExplainer2\\Assets\\Project\\MathsProblemsEnglish\\BasicProblems\\OneDigitMultiplication\\Scripts\\OneDigitMultiplicationScript.cs",
+              "RelativeDocumentMoniker": "Assets\\Project\\MathsProblemsEnglish\\BasicProblems\\OneDigitMultiplication\\Scripts\\OneDigitMultiplicationScript.cs",
+              "ToolTip": "D:\\Work\\Math\\MathExplainer2-main\\MathExplainer2\\Assets\\Project\\MathsProblemsEnglish\\BasicProblems\\OneDigitMultiplication\\Scripts\\OneDigitMultiplicationScript.cs",
+              "RelativeToolTip": "Assets\\Project\\MathsProblemsEnglish\\BasicProblems\\OneDigitMultiplication\\Scripts\\OneDigitMultiplicationScript.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-30T11:24:15.511Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "CFXR_Demo.cs",
+              "DocumentMoniker": "D:\\Work\\Math\\MathExplainer2-main\\MathExplainer2\\Assets\\JMO Assets\\Cartoon FX Remaster\\Demo Assets\\CFXR_Demo.cs",
+              "RelativeDocumentMoniker": "Assets\\JMO Assets\\Cartoon FX Remaster\\Demo Assets\\CFXR_Demo.cs",
+              "ToolTip": "D:\\Work\\Math\\MathExplainer2-main\\MathExplainer2\\Assets\\JMO Assets\\Cartoon FX Remaster\\Demo Assets\\CFXR_Demo.cs",
+              "RelativeToolTip": "Assets\\JMO Assets\\Cartoon FX Remaster\\Demo Assets\\CFXR_Demo.cs",
+              "ViewState": "AgIAAO0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-30T10:47:06.374Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "AJAnimationHandler.cs",
+              "DocumentMoniker": "D:\\Work\\Math\\MathExplainer2-main\\MathExplainer2\\Assets\\Resources\\HandAnimation\\Counting\\AJAnimationHandler.cs",
+              "RelativeDocumentMoniker": "Assets\\Resources\\HandAnimation\\Counting\\AJAnimationHandler.cs",
+              "ToolTip": "D:\\Work\\Math\\MathExplainer2-main\\MathExplainer2\\Assets\\Resources\\HandAnimation\\Counting\\AJAnimationHandler.cs",
+              "RelativeToolTip": "Assets\\Resources\\HandAnimation\\Counting\\AJAnimationHandler.cs",
+              "ViewState": "AgIAADkAAAAAAAAAAAAowFYAAAAmAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-26T18:27:24.478Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "AdditionScript.cs",
+              "DocumentMoniker": "D:\\Work\\Math\\MathExplainer2-main\\MathExplainer2\\Assets\\Project\\MathsProblemsEnglish\\BasicProblems\\Addition\\Scripts\\AdditionScript.cs",
+              "RelativeDocumentMoniker": "Assets\\Project\\MathsProblemsEnglish\\BasicProblems\\Addition\\Scripts\\AdditionScript.cs",
+              "ToolTip": "D:\\Work\\Math\\MathExplainer2-main\\MathExplainer2\\Assets\\Project\\MathsProblemsEnglish\\BasicProblems\\Addition\\Scripts\\AdditionScript.cs",
+              "RelativeToolTip": "Assets\\Project\\MathsProblemsEnglish\\BasicProblems\\Addition\\Scripts\\AdditionScript.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-25T11:03:12.886Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

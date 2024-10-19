@@ -1,0 +1,69 @@
+# Unity generated files
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Mm]emoryCaptures/
+
+# Asset meta files
+[Aa]ssets/**/*.meta
+
+# Visual Studio / MonoDevelop files
+.vscode/
+.idea/
+*.sln
+*.userprefs
+*.csproj
+*.pidb
+*.user
+
+# User-specific files
+*.swp
+*.swo
+*.tmp
+
+# Unity specific files
+*.pidb.meta
+*.sln.meta
+*.user.meta
+*.booproj
+*.svd
+
+# Visual Studio Code settings
+.vscode/
+
+# Mac specific files
+.DS_Store
+
+# Backup files
+*.bak
+*.tmp
+*.old
+*.orig
+
+# Other IDE files
+*.unityproj
+*.sublime-project
+*.sublime-workspace
+*.sublime-settings
+
+# Crashlytics generated files
+Crashlytics/
+
+# Android Studio files
+*.iml
+.gradle/
+local.properties
+.idea/
+captures/
+.externalNativeBuild/
+
+# iOS specific files
+DerivedData/
+*.xcworkspace
+*.xcodeproj/
+*.xcuserstate
+*.xcuserdatad/
+*.xcworkspace/

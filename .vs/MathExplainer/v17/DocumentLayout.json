@@ -1,0 +1,76 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Work\\Math\\MathExplainer\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{11C9FC61-3E6D-A01D-D537-02B4B1E07283}|Assembly-CSharp.csproj|d:\\work\\math\\mathexplainer\\assets\\project\\mathsproblemsenglish\\basicproblems\\longdivision\\scripts\\longdivisionscript.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{11C9FC61-3E6D-A01D-D537-02B4B1E07283}|Assembly-CSharp.csproj|solutionrelative:assets\\project\\mathsproblemsenglish\\basicproblems\\longdivision\\scripts\\longdivisionscript.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{11C9FC61-3E6D-A01D-D537-02B4B1E07283}|Assembly-CSharp.csproj|d:\\work\\math\\mathexplainer\\assets\\project\\mathsproblemsenglish\\basicproblems\\subtraction\\scripts\\subtractionscript.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{11C9FC61-3E6D-A01D-D537-02B4B1E07283}|Assembly-CSharp.csproj|solutionrelative:assets\\project\\mathsproblemsenglish\\basicproblems\\subtraction\\scripts\\subtractionscript.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{11C9FC61-3E6D-A01D-D537-02B4B1E07283}|Assembly-CSharp.csproj|d:\\work\\math\\mathexplainer\\assets\\project\\mathsproblemsenglish\\basicproblems\\twodigitsmultiplication\\scripts\\twodigitsmultiplicationscript.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{11C9FC61-3E6D-A01D-D537-02B4B1E07283}|Assembly-CSharp.csproj|solutionrelative:assets\\project\\mathsproblemsenglish\\basicproblems\\twodigitsmultiplication\\scripts\\twodigitsmultiplicationscript.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "TwoDigitsMultiplicationScript.cs",
+              "DocumentMoniker": "D:\\Work\\Math\\MathExplainer\\Assets\\Project\\MathsProblemsEnglish\\BasicProblems\\TwoDigitsMultiplication\\Scripts\\TwoDigitsMultiplicationScript.cs",
+              "RelativeDocumentMoniker": "Assets\\Project\\MathsProblemsEnglish\\BasicProblems\\TwoDigitsMultiplication\\Scripts\\TwoDigitsMultiplicationScript.cs",
+              "ToolTip": "D:\\Work\\Math\\MathExplainer\\Assets\\Project\\MathsProblemsEnglish\\BasicProblems\\TwoDigitsMultiplication\\Scripts\\TwoDigitsMultiplicationScript.cs",
+              "RelativeToolTip": "Assets\\Project\\MathsProblemsEnglish\\BasicProblems\\TwoDigitsMultiplication\\Scripts\\TwoDigitsMultiplicationScript.cs",
+              "ViewState": "AgIAAA4CAAAAAAAAAAAuwBACAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-17T11:16:40.71Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "SubtractionScript.cs",
+              "DocumentMoniker": "D:\\Work\\Math\\MathExplainer\\Assets\\Project\\MathsProblemsEnglish\\BasicProblems\\Subtraction\\Scripts\\SubtractionScript.cs",
+              "RelativeDocumentMoniker": "Assets\\Project\\MathsProblemsEnglish\\BasicProblems\\Subtraction\\Scripts\\SubtractionScript.cs",
+              "ToolTip": "D:\\Work\\Math\\MathExplainer\\Assets\\Project\\MathsProblemsEnglish\\BasicProblems\\Subtraction\\Scripts\\SubtractionScript.cs",
+              "RelativeToolTip": "Assets\\Project\\MathsProblemsEnglish\\BasicProblems\\Subtraction\\Scripts\\SubtractionScript.cs",
+              "ViewState": "AgIAAA0BAAAAAAAAAAAQwCoBAAAdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-17T19:34:00.926Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "LongDivisionScript.cs",
+              "DocumentMoniker": "D:\\Work\\Math\\MathExplainer\\Assets\\Project\\MathsProblemsEnglish\\BasicProblems\\LongDivision\\Scripts\\LongDivisionScript.cs",
+              "RelativeDocumentMoniker": "Assets\\Project\\MathsProblemsEnglish\\BasicProblems\\LongDivision\\Scripts\\LongDivisionScript.cs",
+              "ToolTip": "D:\\Work\\Math\\MathExplainer\\Assets\\Project\\MathsProblemsEnglish\\BasicProblems\\LongDivision\\Scripts\\LongDivisionScript.cs",
+              "RelativeToolTip": "Assets\\Project\\MathsProblemsEnglish\\BasicProblems\\LongDivision\\Scripts\\LongDivisionScript.cs",
+              "ViewState": "AgIAAFEAAAAAAAAAAAAAwGEAAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-17T19:14:17.68Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
