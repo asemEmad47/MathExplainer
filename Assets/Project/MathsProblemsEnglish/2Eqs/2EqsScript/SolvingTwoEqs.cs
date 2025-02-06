@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -48,6 +49,13 @@ public class SolvingTwoEqs : MonoBehaviour
     private TwoEqsParent parent;
     [SerializeField] private TextMeshProUGUI lineRenderer;
 
+    public static string FirstNum = "";
+    public static string SecNum = "";
+    public static string ThirdNum = "";
+    public static string ForthNum = "";
+    public static string FifthNum = "";
+    public static string SicthNum = "";
+
     public void PauseNow()
     {
         Pause = true;
@@ -65,6 +73,64 @@ public class SolvingTwoEqs : MonoBehaviour
     }
     void Start()
     {
+        if (!FirstNum.Equals(""))
+        {
+            try
+            {
+                X1.text = FirstNum;
+            }
+            catch (System.Exception e)
+            {
+                Debug.Log(e);
+            }
+            
+            try
+            {
+                Y1.text = SecNum;
+            }
+            catch (System.Exception e)
+            {
+                Debug.Log(e);
+            }   
+
+            try
+            {
+                Res1.text = ThirdNum;
+            }
+            catch (System.Exception e)
+            {
+                Debug.Log(e);
+            }            
+            
+            try
+            {
+                X2.text = ForthNum;
+            }
+            catch (System.Exception e)
+            {
+                Debug.Log(e);
+            }           
+            
+            try
+            {
+                Y2.text = FifthNum;
+            }
+            catch (System.Exception e)
+            {
+                Debug.Log(e);
+            }         
+            
+            try
+            {
+                Res2.text = SicthNum;
+            }
+            catch (System.Exception e)
+            {
+                Debug.Log(e);
+            }
+
+            
+        }
         PauseBtn.onClick.AddListener(PauseNow);
         ResumeBtn.onClick.AddListener(Resume);
         //LangButton.onClick.AddListener(ChangeLang);

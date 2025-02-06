@@ -210,7 +210,7 @@ MonoBehaviour:
       - m_Target: {fileID: 282218457}
         m_TargetAssemblyTypeName: DynamicBack, Assembly-CSharp
         m_MethodName: Back
-        m_Mode: 5
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -269,6 +269,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aef777dcd7b07614fb2eb96f901c98af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SceneName: DirectorScene
 --- !u!1 &874590619
 GameObject:
   m_ObjectHideFlags: 0
@@ -545,8 +546,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.69649994}
   m_AnchorMax: {x: 0.5, y: 0.69649994}
-  m_AnchoredPosition: {x: 18, y: -41}
-  m_SizeDelta: {x: 307, y: 147}
+  m_AnchoredPosition: {x: 2.1553955, y: -44}
+  m_SizeDelta: {x: 350.2192, y: 211.3754}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1495537342
 MonoBehaviour:
@@ -595,7 +596,7 @@ MonoBehaviour:
       - m_Target: {fileID: 1495537345}
         m_TargetAssemblyTypeName: DynamicBack, Assembly-CSharp
         m_MethodName: Back
-        m_Mode: 5
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -654,6 +655,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aef777dcd7b07614fb2eb96f901c98af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SceneName: OrderTheShapes
 --- !u!1 &1527412446
 GameObject:
   m_ObjectHideFlags: 0
@@ -689,8 +691,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 8, y: 24}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: 17.6336, y: 40}
+  m_SizeDelta: {x: 219.8107, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1527412448
 MonoBehaviour:
@@ -745,7 +747,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
   m_textAlignment: 65535
@@ -824,8 +826,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.58100003}
   m_AnchorMax: {x: 0.5, y: 0.58100003}
-  m_AnchoredPosition: {x: 28, y: -4}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: -0.8912, y: -4}
+  m_SizeDelta: {x: 174.7413, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1539394382
 MonoBehaviour:
@@ -880,7 +882,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
   m_textAlignment: 65535
@@ -936,6 +938,7 @@ GameObject:
   - component: {fileID: 1917505973}
   - component: {fileID: 1917505972}
   - component: {fileID: 1917505971}
+  - component: {fileID: 1917505975}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -1028,6 +1031,19 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &1917505975
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1917505970}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3fd8f5c80907eb4d917a0adb2ee5f90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SceneName: DirectorScene
 --- !u!1 &2137653184
 GameObject:
   m_ObjectHideFlags: 0
@@ -1066,8 +1082,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.53425926, y: 0.45579168}
   m_AnchorMax: {x: 0.53425926, y: 0.45579168}
-  m_AnchoredPosition: {x: -13, y: -28}
-  m_SizeDelta: {x: 307, y: 148}
+  m_AnchoredPosition: {x: -28, y: -227.6997}
+  m_SizeDelta: {x: 350.2192, y: 212.8134}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2137653187
 MonoBehaviour:
@@ -1116,7 +1132,7 @@ MonoBehaviour:
       - m_Target: {fileID: 2137653190}
         m_TargetAssemblyTypeName: DynamicBack, Assembly-CSharp
         m_MethodName: Back
-        m_Mode: 5
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -1175,3 +1191,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aef777dcd7b07614fb2eb96f901c98af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SceneName: ChooseTheOperation

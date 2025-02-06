@@ -12,16 +12,22 @@ public class AdditionVoiceSpeaker : MonoBehaviour
     public static AudioSource audioSource;
     public static string VoiceClipsPlace = "AdditionTerms/AdditionSound";
     public static string NumPlace = "EngNumsSonya";
-
-    public static IEnumerator PlayByAddress(String address)
+    public static string SpeakerName = "EngNumsSonya";
+    public static bool IsEng = false;
+    public static IEnumerator PlayByAddress(string address)
     {
         LoadAllAudioClips();
         GameObject audioObject = new GameObject("VoiceAudioSource");
         audioSource = audioObject.AddComponent<AudioSource>();
+
         AudioClip AnyClip = Resources.Load<AudioClip>(address);
         audioSource.clip = AnyClip;
         audioSource.Play();
-        yield return new WaitForSeconds(audioSource.clip.length +0.5f);
+
+        float clipDurationWithoutSilence = GetSoundDurationWithoutSilence(AnyClip);
+
+        yield return new WaitForSeconds(clipDurationWithoutSilence + 1f);
+
         audioSource.Stop();
         Destroy(audioObject);
         audioSource.clip = null;
@@ -37,10 +43,10 @@ public class AdditionVoiceSpeaker : MonoBehaviour
             audioSource = audioObject.AddComponent<AudioSource>();
             if (text[0].Equals('-'))
             {
-                AudioClip MinusAudioClip = Resources.Load<AudioClip>("AdditionTerms/AdditionSound/minus_Sonya_Eng");
+                AudioClip MinusAudioClip = Resources.Load<AudioClip>(VoiceClipsPlace+"/minus"+SpeakerName);
                 audioSource.clip = MinusAudioClip;
                 audioSource.Play();
-                yield return new WaitForSeconds(audioSource.clip.length + 1f);
+                yield return new WaitForSeconds(GetSoundDurationWithoutSilence(audioSource.clip) + 1f);
                 StringBuilder MinusRemoval = new StringBuilder(text);
                 MinusRemoval.Remove(0, 1);
                 text = MinusRemoval.ToString();
@@ -58,31 +64,29 @@ public class AdditionVoiceSpeaker : MonoBehaviour
                     string temp = "";
                     temp += text[0];
                     temp += "0";
-                    if (NumPlace.Equals("EngNums"))
+                    if (NumPlace.Equals("EngNums") || IsEng)
                     {
                         audioSource.clip = GetUnder20Numbers(temp);
                         audioSource.Play();
-                        yield return new WaitForSeconds(audioSource.clip.length);
+                        yield return new WaitForSeconds(GetSoundDurationWithoutSilence(audioSource.clip));
                         audioSource.clip = GetUnder10Numbers(text[1].ToString());
                         audioSource.Play();
-                        yield return new WaitForSeconds(audioSource.clip.length);
+                        yield return new WaitForSeconds(GetSoundDurationWithoutSilence(audioSource.clip));
                     }
                     else
                     {
-
                         audioSource.clip = GetUnder10Numbers(text[1].ToString());
                         audioSource.Play();
-                        yield return new WaitForSeconds(audioSource.clip.length);
+                        yield return new WaitForSeconds(GetSoundDurationWithoutSilence(audioSource.clip));
 
                         AudioClip AnyClip = Resources.Load<AudioClip>("AdditionTerms/AdditionSound/and_Heba_Egy");
                         audioSource.clip = AnyClip;
                         audioSource.Play();
-                        yield return new WaitForSeconds(audioSource.clip.length);
+                        yield return new WaitForSeconds(GetSoundDurationWithoutSilence(audioSource.clip));
 
                         audioSource.clip = GetUnder20Numbers(temp);
                         audioSource.Play();
-                        yield return new WaitForSeconds(audioSource.clip.length);
-
+                        yield return new WaitForSeconds(GetSoundDurationWithoutSilence(audioSource.clip));
                     }
                     IsComplex = true;
                 }
@@ -96,6 +100,19 @@ public class AdditionVoiceSpeaker : MonoBehaviour
                 else
                 {
                     int charIndex = text.IndexOf('.');
+                    if (charIndex == -1)
+                    {
+                        foreach (char c in text)
+                        {
+                            audioSource.clip = GetUnder10Numbers(c.ToString());
+                            audioSource.Play();
+                            yield return new WaitForSeconds(GetSoundDurationWithoutSilence(audioSource.clip));
+                        }
+                        audioSource.Stop();
+                        Destroy(audioObject);
+                        audioSource = null;
+                        yield break;
+                    }
                     if (charIndex == 2)
                     {
                         audioSource.clip = GetUnder20Numbers(text.Substring(0, 2));
@@ -106,7 +123,7 @@ public class AdditionVoiceSpeaker : MonoBehaviour
                             temp += "0";
                             audioSource.clip = GetUnder20Numbers(temp);
                             audioSource.Play();
-                            yield return new WaitForSeconds(audioSource.clip.length);
+                            yield return new WaitForSeconds(GetSoundDurationWithoutSilence(audioSource.clip));
                             audioSource.clip = GetUnder10Numbers(text[1].ToString());
                         }
                     }
@@ -114,37 +131,37 @@ public class AdditionVoiceSpeaker : MonoBehaviour
                     {
                         audioSource.clip = GetUnder10Numbers(text.Substring(0, 1));
                     }
-                    if(charIndex != -1)
+                    if (charIndex != -1)
                     {
                         audioSource.Play();
-                        yield return new WaitForSeconds(audioSource.clip.length);
+                        yield return new WaitForSeconds(GetSoundDurationWithoutSilence(audioSource.clip));
+
                         AudioClip PointClip = Resources.Load<AudioClip>("AdditionTerms/AdditionSound/POINT_Sonya_Eng");
                         audioSource.clip = PointClip;
                         audioSource.Play();
-
-
                     }
-                    yield return new WaitForSeconds(audioSource.clip.length);
+                    yield return new WaitForSeconds(GetSoundDurationWithoutSilence(audioSource.clip));
+
                     for (int i = charIndex + 1; i < text.Length && i < charIndex + 4; i++)
                     {
                         audioSource.clip = GetUnder10Numbers(text[i].ToString());
                         audioSource.Play();
-                        yield return new WaitForSeconds(audioSource.clip.length);
+                        yield return new WaitForSeconds(GetSoundDurationWithoutSilence(audioSource.clip));
                     }
-
                     IsComplex = true;
                 }
             }
             if (!IsComplex)
             {
                 audioSource.Play();
-                yield return new WaitForSeconds(audioSource.clip.length);
+                yield return new WaitForSeconds(GetSoundDurationWithoutSilence(audioSource.clip));
             }
             audioSource.Stop();
             Destroy(audioObject);
             audioSource = null;
         }
     }
+
     public static AudioClip GetUnder10Numbers(String text)
     {
         switch (text)
@@ -221,5 +238,25 @@ public class AdditionVoiceSpeaker : MonoBehaviour
     {
         voiceClips = Resources.LoadAll<AudioClip>(VoiceClipsPlace);
         Numbers = Resources.LoadAll<AudioClip>(NumPlace);
+    }
+    public static float GetSoundDurationWithoutSilence(AudioClip clip)
+    {
+        float silenceThreshold = 0.01f;
+        float[] samples = new float[clip.samples * clip.channels];
+        clip.GetData(samples, 0);
+
+        // Scan through the samples and find the last point above the silence threshold
+        int lastSoundSample = 0;
+        for (int i = 0; i < samples.Length; i++)
+        {
+            if (Mathf.Abs(samples[i]) > silenceThreshold)
+            {
+                lastSoundSample = i;
+            }
+        }
+
+        // Convert the last sound sample position to time (in seconds)
+        float lastSoundTime = (float)lastSoundSample / clip.frequency;
+        return lastSoundTime;
     }
 }

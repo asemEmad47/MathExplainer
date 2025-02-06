@@ -6,7 +6,6 @@ using UnityEngine.SceneManagement;
 public class DirectorScript : MonoBehaviour
 {
     [SerializeField] private string SceneName;
-
     public void Direct()
     {
         SceneManager.LoadScene(SceneName);

@@ -1051,7 +1051,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.808, y: 0.75020844}
   m_AnchorMax: {x: 0.808, y: 0.75020844}
-  m_AnchoredPosition: {x: -16.597992, y: -17}
+  m_AnchoredPosition: {x: -16.598022, y: 0}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &270904459
@@ -1723,6 +1723,7 @@ GameObject:
   - component: {fileID: 559280539}
   - component: {fileID: 559280538}
   - component: {fileID: 559280537}
+  - component: {fileID: 559280540}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -1819,6 +1820,18 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!114 &559280540
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 559280535}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28c7ba19ebe29204b9ca397ae4f8af7d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &566485711
 GameObject:
   m_ObjectHideFlags: 0
@@ -5246,7 +5259,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.7847779, y: 0.25939587}
   m_AnchorMax: {x: 0.7847779, y: 0.25939587}
-  m_AnchoredPosition: {x: 5.055786, y: -30}
+  m_AnchoredPosition: {x: 5.055786, y: 0}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1405530927
@@ -6087,7 +6100,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3adebcb5720614b448892576fa8e74b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SceneName: DecimalIntScene
+  SceneName: MathProblemPage
 --- !u!1 &1482514315
 GameObject:
   m_ObjectHideFlags: 0
@@ -6524,7 +6537,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.7847779, y: 0.9302918}
   m_AnchorMax: {x: 0.7847779, y: 0.9302918}
-  m_AnchoredPosition: {x: 7.2900085, y: -41}
+  m_AnchoredPosition: {x: 7.290039, y: 0}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1565250191
@@ -7161,7 +7174,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.35644445, y: 0.07775001}
   m_AnchorMax: {x: 0.35644445, y: 0.07775001}
-  m_AnchoredPosition: {x: 12, y: 0}
+  m_AnchoredPosition: {x: 12, y: 33}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1729758530
@@ -7367,6 +7380,7 @@ GameObject:
   - component: {fileID: 1760992819}
   - component: {fileID: 1760992817}
   - component: {fileID: 1760992816}
+  - component: {fileID: 1760992821}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -7456,6 +7470,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1760992821
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1760992815}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3fd8f5c80907eb4d917a0adb2ee5f90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SceneName: MathProblemPage
 --- !u!1 &1761537305
 GameObject:
   m_ObjectHideFlags: 0
@@ -7998,7 +8025,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.7847779, y: 0.095000006}
   m_AnchorMax: {x: 0.7847779, y: 0.095000006}
-  m_AnchoredPosition: {x: 5.055786, y: -33}
+  m_AnchoredPosition: {x: 5.055786, y: 0}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1882625733

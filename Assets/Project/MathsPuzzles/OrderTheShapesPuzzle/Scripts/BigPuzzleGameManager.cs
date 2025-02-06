@@ -1,8 +1,11 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BigPuzzleGameManager : MonoBehaviour
 {
@@ -16,6 +19,9 @@ public class BigPuzzleGameManager : MonoBehaviour
 
     [SerializeField] TMPro.TextMeshProUGUI scoreText;
 
+    [SerializeField] TextMeshProUGUI ScoreTxt;
+    [SerializeField] RawImage Emoji;
+    [SerializeField] GameObject EndGamePanel;
     public int[] numbers; //numbers in the scene
 
     public int currentNum; //smallest number
@@ -27,6 +33,9 @@ public class BigPuzzleGameManager : MonoBehaviour
     public static BigPuzzleGameManager instance;
 
     public int difficulty = 1;
+
+    private bool IsEnded = false;
+
 
     Timer timer;
 
@@ -46,7 +55,7 @@ public class BigPuzzleGameManager : MonoBehaviour
         ResetspawnPoints();
         numbers = GenerateNumbers();
         Debug.Log($"{numbers[0]} {numbers[1]} {numbers[2]} {numbers[3]}");
-        for(int i = 0; i < spawnPoints.Length && i < difficulty + 1; i++)
+        for (int i = 0; i < spawnPoints.Length && i < difficulty + 1 && !IsEnded; i++)
         {
             Vector3 prefabspawnPoints = RandomSpawnPoints() + new Vector3(UnityEngine.Random.Range(-150, 150), 0, 0);
             Instantiate(bigPrefab, prefabspawnPoints, Quaternion.identity, spawnPoints[i]);
@@ -57,7 +66,7 @@ public class BigPuzzleGameManager : MonoBehaviour
 
     void ResetspawnPoints()
     {
-        for(int i  = 0; i< spawnPointsUsed.Length;i++)
+        for (int i = 0; i < spawnPointsUsed.Length; i++)
         {
             spawnPointsUsed[i] = false;
         }
@@ -66,20 +75,20 @@ public class BigPuzzleGameManager : MonoBehaviour
     Vector3 RandomSpawnPoints()
     {
 
-         // Iterate until a valid spawn point is found
-         int randomIndex;
-         do
-         {
-             // Get a random index from the array
-             randomIndex = UnityEngine.Random.Range(0, spawnPoints.Length);
+        // Iterate until a valid spawn point is found
+        int randomIndex;
+        do
+        {
+            // Get a random index from the array
+            randomIndex = UnityEngine.Random.Range(0, spawnPoints.Length);
 
-         } while (spawnPointsUsed[randomIndex]); // Repeat if the spawn point is already used
+        } while (spawnPointsUsed[randomIndex]); // Repeat if the spawn point is already used
 
-         // Mark the spawn point as used
-         spawnPointsUsed[randomIndex] = true;
+        // Mark the spawn point as used
+        spawnPointsUsed[randomIndex] = true;
 
-         // Get the random transform from the array
-         return spawnPoints[randomIndex].position;
+        // Get the random transform from the array
+        return spawnPoints[randomIndex].position;
 
     }
 
@@ -89,15 +98,19 @@ public class BigPuzzleGameManager : MonoBehaviour
         {
             difficulty = 2;
         }
-        if (timer.remainingDuration == 20)
+        else if (timer.remainingDuration == 20)
         {
             difficulty = 3;
+        }
+        else if(timer.isDone&& !IsEnded)
+        {
+            EndGame();
         }
     }
 
     public void UpdateCurrentNum()
     {
-        if(index < ButtonGameLogic.index - 1)
+        if (index < ButtonGameLogic.index - 1)
         {
             index++;
             currentNum = numbers[index];
@@ -137,14 +150,15 @@ public class BigPuzzleGameManager : MonoBehaviour
     int[] GenerateNumbers()
     {
         index = 0;
-        int[] numbers = {0, 0, 0, 0};
+        int[] numbers = { 0, 0, 0, 0 };
         int randomNum;
         for (int i = 0; i < numbers.Length; i++)
         {
-            while(true)
+            while (true)
             {
                 randomNum = UnityEngine.Random.Range(-50, 100);
-                if (!numbers.Contains(randomNum)){
+                if (!numbers.Contains(randomNum))
+                {
                     numbers[i] = randomNum;
                     break;
                 }
@@ -153,5 +167,13 @@ public class BigPuzzleGameManager : MonoBehaviour
         }
         return numbers;
     }
+    private void EndGame()
+    {
+        IsEnded = true;
+        EndGamePanel.SetActive(true);
 
+        EndGameScript endGameScript = gameObject.AddComponent<EndGameScript>();
+        endGameScript.IntilizeComponents(score, ScoreTxt, Emoji);
+        endGameScript.EndGame();
+    }
 }

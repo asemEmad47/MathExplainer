@@ -4,6 +4,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 
@@ -23,51 +24,86 @@ public class MutiplyByScript : MonoBehaviour
     private bool Explain = false;
     string SpeakerName = "_Sonya_Eng";
     bool IsEng = true;
+    public static string FirstNumber = "";
+    public static string SecNumber = "";
+
+
     public void Start()
     {
-        UnityAction langBtnClickAction = () => AdditionScript.LangBtnClick(ref IsEng, ref SpeakerName, ref loop);
+        Screen.orientation = ScreenOrientation.LandscapeLeft;
+
+        FrstNum.text = FirstNumber;
+        SecNum.text = SecNumber;
+        UnityAction langBtnClickAction = () => LangBtnActions.LangBtnClick(ref IsEng, ref SpeakerName, ref loop);
         LangBtn.onClick.AddListener(langBtnClickAction);
 
         AdditionScript.IscalledFromOutSide = true;
         FrstNum.onValueChanged.AddListener((input) => OnInputChanged(FrstNum, input));
 
-        FrstNum.onValidateInput = DecimmalScript.ValidateDecimalInput;
+        FrstNum.onValidateInput = InputFieldsActions.ValidateDecimalObsInput;
         SecNum.onValidateInput = ValidateSecInput;
 
 
-        AdditionScript.InitializePlaceholders(FrstNum);
-        AdditionScript.InitializePlaceholders(SecNum);
+        InputFieldsActions.InitializePlaceholders(FrstNum);
+        InputFieldsActions.InitializePlaceholders(SecNum);
     }
     void Update()
     {
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
-        AdditionScript.EnableExplain(ref FrstNum, ref SecNum);
 
-        if (IsEng)
+        if (FrstNum.text.Length == 0 || SecNum.text.Length == 0 || Explain)
         {
-            SpeakerName = "_Sonya_Eng";
-            AdditionVoiceSpeaker.NumPlace = "EngNums";
+            GameObject ExplainBtn = GameObject.Find("Explain");
+            GameObject SolveBtn = GameObject.Find("Solve");
+            UnityEngine.UI.Button button = ExplainBtn.GetComponent<UnityEngine.UI.Button>();
+            button.interactable = false;
+
+            UnityEngine.UI.Button Solvebutton = SolveBtn.GetComponent<UnityEngine.UI.Button>();
+            Solvebutton.interactable = false;
 
         }
-        else
+        if (FrstNum.text.Length != 0 && SecNum.text.Length != 0 && !Explain)
         {
-            SpeakerName = "_Heba_Egy";
-            AdditionVoiceSpeaker.NumPlace = "EgyNums";
+            GameObject SolveBtn = GameObject.Find("Solve");
+            UnityEngine.UI.Button Solvebutton = SolveBtn.GetComponent<UnityEngine.UI.Button>();
+            Solvebutton.interactable = true;
 
+            GameObject ExplainBtn = GameObject.Find("Explain");
+            UnityEngine.UI.Button button = ExplainBtn.GetComponent<UnityEngine.UI.Button>();
+            button.interactable = true;
         }
+        if (!AdditionVoiceSpeaker.NumPlace.Equals("JennySound/JennyNumbers"))
+        {
+            if (IsEng)
+            {
+                SpeakerName = "_Sonya_Eng";
+                AdditionVoiceSpeaker.NumPlace = "EngNums";
 
+            }
+            else
+            {
+                SpeakerName = "_Heba_Egy";
+                AdditionVoiceSpeaker.NumPlace = "EgyNums";
+
+            }
+        }
     }
-    public void explain()
+    public void ExplainBtnAction()
     {
         Explain = true;
         audioSource = GetComponent<AudioSource>();
+        StartCoroutine(solve());
+    }
+    public void SolveBtnAction()
+    {
+        Explain = false;
         StartCoroutine(solve());
     }
     public IEnumerator solve()
     {
         FirstNumPlace.gameObject.SetActive(false);
         SecNumPlace.gameObject.SetActive(false);
-        SubtractionScript.ResetAllValues(ResPlace, FirstNumPlace, SecNumPlace, sign);
+        ResetValues.ResetAllValues(ResPlace, FirstNumPlace, SecNumPlace, sign);
         GameObject ExplainBtn = GameObject.Find("Explain");
         Button button = ExplainBtn.GetComponent<Button>();
         button.interactable = false;
@@ -80,9 +116,9 @@ public class MutiplyByScript : MonoBehaviour
         string FirstNumCpy = FrstNum.text;// to save real value of the first input
         string SecNumCpy = SecNum.text; // to save real value of the second input
 
-        yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/first" + SpeakerName)));
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"first" + SpeakerName , Explain)));
 
-        yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/write the first number" + SpeakerName)));
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"write the first number" + SpeakerName , Explain)));
 
 
         string TempFrstNum = "";
@@ -95,13 +131,13 @@ public class MutiplyByScript : MonoBehaviour
         FirstNumPlace.gameObject.SetActive(true);
         if (!FrstNum.text.Contains('.'))
         {
-            yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/we dont have a decimal" + SpeakerName)));
+            yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"we dont have a decimal" + SpeakerName , Explain)));
             FirstNumPlace.text += ". ";
 
         }
-        yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/then" + SpeakerName)));
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"then" + SpeakerName , Explain)));
 
-        yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/write the second number" + SpeakerName)));
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"write the second number" + SpeakerName , Explain)));
 
 
         TempFrstNum = "";
@@ -132,23 +168,23 @@ public class MutiplyByScript : MonoBehaviour
 
                 int NumberOfZeros = SecNum.text.Substring(1).Length;
 
-                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/count the zeros of the second number" + SpeakerName)));
+                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"count the zeros of the second number" + SpeakerName , Explain)));
 
-                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/its" + SpeakerName)));
+                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"its" + SpeakerName , Explain)));
 
-                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait(NumberOfZeros.ToString())));
+                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,NumberOfZeros.ToString() ,Explain)));
 
-                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/count" + SpeakerName)));
+                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"count" + SpeakerName , Explain)));
 
-                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait(NumberOfZeros.ToString())));
+                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,NumberOfZeros.ToString(), Explain)));
 
-                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/digits" + SpeakerName)));
+                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"digits" + SpeakerName , Explain)));
 
                 if(FrstNum.text.Contains('.'))
-                    yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/starting from the decimal point" + SpeakerName)));
+                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"starting from the decimal point" + SpeakerName , Explain)));
 
                 else
-                    yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/starting from right" + SpeakerName)));
+                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"starting from right" + SpeakerName , Explain)));
 
                 int DecimalPlace = FirstNumPlace.text.IndexOf(".");
                 if(DecimalPlace == -1)
@@ -160,7 +196,7 @@ public class MutiplyByScript : MonoBehaviour
                 int counter = 0;
                 while (counter!=NumberOfZeros)
                 {
-                    yield return (StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait((counter+1).ToString())));
+                    yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,(counter+1).ToString() , Explain)));
 
                     try
                     {
@@ -193,7 +229,7 @@ public class MutiplyByScript : MonoBehaviour
                     // Handle the coroutine outside of the catch block
                     if (caughtException)
                     {
-                        yield return StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/nothing in the next digit so put zero" + SpeakerName));
+                        yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"nothing in the next digit so put zero" + SpeakerName , Explain));
 
                         FirstNumPlace.text += $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.red)}>{"0 "}</color>";
                     }
@@ -201,14 +237,14 @@ public class MutiplyByScript : MonoBehaviour
                     i += 2;
                     counter++;
                 }
-                    yield return StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/and put the decimal point after you finished" + SpeakerName));
+                    yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"and put the decimal point after you finished" + SpeakerName , Explain));
 
                 i = FirstNumPlace.text.LastIndexOf("</color>") +8;
 
                 FirstNumPlace.text = FirstNumPlace.text.Insert(i, " .");
                 if (caughtException  || FirstNumPlace.text.Substring(i + 1).Equals(". "))
                 {
-                    yield return StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/you should put a value" + SpeakerName));
+                    yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"you should put a value" + SpeakerName , Explain));
 
                     FirstNumPlace.text += $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.red)}>{"0 "}</color>";
                 }
@@ -218,7 +254,7 @@ public class MutiplyByScript : MonoBehaviour
             }
             if (FrstNum.text[0].Equals('0'))
             {
-                yield return StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/Remove useless zeros" + SpeakerName));
+                yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"Remove useless zeros" + SpeakerName , Explain));
                 FirstNumPlace.text = FirstNumPlace.text.Substring(2);
                 while (true)
                 {
@@ -247,8 +283,8 @@ public class MutiplyByScript : MonoBehaviour
                 }
             }
         }
-        yield return StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/so" + SpeakerName));
-        yield return StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/the answer is" + SpeakerName));
+        yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"so" + SpeakerName , Explain));
+        yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"the answer is" + SpeakerName , Explain));
         ResPlace.gameObject.SetActive(true);
         ResPlace.text += FirstNumPlace.text;
         button.interactable = true;

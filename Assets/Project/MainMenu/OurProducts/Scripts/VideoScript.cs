@@ -10,6 +10,7 @@ public class VideoScript : MonoBehaviour
 
     private void Start()
     {
+        videoPlayer.Pause();
         playPauseButton.onClick.AddListener(TogglePlayPause);
 
     }

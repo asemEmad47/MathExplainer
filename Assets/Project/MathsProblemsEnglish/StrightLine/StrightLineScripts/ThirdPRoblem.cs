@@ -1,379 +1,326 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class PointsScript : MonoBehaviour
+public class ThirdProblem : MonoBehaviour
 {
-
-    [SerializeField] private TextMeshProUGUI Answer;
-    [SerializeField] private GameObject Point1Message;
-    [SerializeField] private GameObject Point2Message;
-    [SerializeField] private TMP_InputField X1Axis;
-    [SerializeField] private TMP_InputField Y1Axis;
-    [SerializeField] GameObject Circle;
+    [SerializeField] TMP_InputField X1;
+    [SerializeField] TMP_InputField Y1;
+    [SerializeField] TextMeshProUGUI FirstNumPlace;
+    [SerializeField] GameObject Line;
     [SerializeField] GameObject Arrow;
-    [SerializeField] private Button PauseBtn;
-    [SerializeField] private Button ResumeBtn;
-    [SerializeField] private Button SolveQ;
-    [SerializeField] private Button Explain;
-    private string numeratorStr = "Y<sub style='font-size: larger;'>2</sub> - Y<sub style='font-size: larger;'>1</sub>";
-    private string DenoStr = "X<sub style='font-size: larger;'>2</sub> - X<sub style='font-size: larger;'>1</sub>";
-    private string nue = "";
-    private string deno = "";
-    private String TempCpy = "";
-    public static bool IsAnimatedPart2 = false;
-    private bool IsAnimatedPart = false;
-    private bool Pause = false;
-    private bool InExplain = false;
-    public float screenTimeoutDuration = 300f;
-    public int clipIndex = 0;
-    public static AudioClip[] voiceClips;
+    [SerializeField] GameObject FirstProblemObj;
+
+    [SerializeField] float XPos;
+    [SerializeField] float Ypos;
+    private bool Explain = false;
     public static AudioSource audioSource;
-    public GameObject go;
-    public void OnDisable()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    }
-    public void PauseNow()
-    {
-        Pause = true;
-        ResumeBtn.gameObject.SetActive(true);
-        PauseBtn.gameObject.SetActive(false);
-        StartCoroutine(ResumeCoroutine());
-    }
+    public static string SpeakerName = "_Jenny_Eng";
+    private float XTemp = 0;
 
-    public void Resume()
-    {
-        Pause = false;
-        ResumeBtn.gameObject.SetActive(false);
-        PauseBtn.gameObject.SetActive(true);
-    }
+    private int SlopeNue = 0;
+    private int SlopeDeno = 0;
 
-    void Start()
+
+    Color BackGroundColor;
+
+    TextMeshProUGUI X1Point;
+    TextMeshProUGUI Y1Point;
+    TextMeshProUGUI X2Point;
+    TextMeshProUGUI Y2Point;
+
+    public static string X = "";
+    public static string Y = "";
+
+    private void OnDisable()
     {
-        PauseBtn.onClick.AddListener(PauseNow);
-        ResumeBtn.onClick.AddListener(Resume);
-        SolveQ.onClick.AddListener(solveQuestion);
+        XTemp = XPos;
+        XPos = -470;
+        Ypos = 500;
+        Arrow.SetActive(false);
+        SLStaicFunctions.RemoveTexts();
+
     }
-    void Update()
+    private void Start()
     {
-        if (Input.touchCount > 0 || Input.GetMouseButtonDown(0))
+        if (!X.Equals(""))
         {
-            Screen.sleepTimeout = (int)screenTimeoutDuration;
+            X1.text = X;
         }
-    }
-    IEnumerator ResumeCoroutine()
-    {
-        while (Pause)
+        if (!Y.Equals(""))
         {
-            yield return null;
+            Y1.text = Y;
         }
-    }
-    public bool ValidateInputs(string X1, string y1, string X2, string y2)
-    {
-        bool isX1Number = float.TryParse(X1, out _);
-        bool isY1Number = float.TryParse(y1, out _);
-        bool isX2Number = float.TryParse(X2, out _);
-        bool isy2Number = float.TryParse(y2, out _);
+        AdditionVoiceSpeaker.NumPlace = "JennySound/JennyNumbers";
+        AdditionVoiceSpeaker.VoiceClipsPlace = "JennySound";
+        AdditionVoiceSpeaker.SpeakerName = SpeakerName;
+        SLStaicFunctions.SpeakerName = SpeakerName;
 
-        if (isX1Number && isX2Number && isY1Number && isy2Number)
+        X1.onValidateInput = InputFieldsActions.ValidateEqsInput;
+        Y1.onValidateInput = InputFieldsActions.ValidateEqsInput;
+        BackGroundColor = Y1.GetComponent<Image>().color;
+
+    }
+
+    public void Solve()
+    {
+        Explain = false;
+        StartCoroutine(SolveStepByStep());
+    }
+    private void Update()
+    {
+        Screen.sleepTimeout = SleepTimeout.NeverSleep;
+        Button SolveBtn = GameObject.Find("Solve").GetComponent<Button>();
+        Button ExplainBtn = GameObject.Find("Explain").GetComponent<Button>();
+
+        if (Explain || X1.text.Equals("")  || Y1.text.Equals("") )
         {
-            Point1Message.active = false;
-            Point2Message.active = false;
-            Answer.text = "";
-            return true;
+            SolveBtn.interactable = false;
+            ExplainBtn.interactable = false;
         }
         else
         {
-            if (!isX1Number && !isY1Number)
-            {
-                Point1Message.active = true;
-            }
-            else
-                Point1Message.active = false;
-            if (!isX2Number && !isy2Number)
-            {
-                Point2Message.active = true;
-            }
-            else
-                Point2Message.active = false;
-            Answer.text = "";
-            return false;
+            SolveBtn.interactable = true;
+            ExplainBtn.interactable = true;
+
         }
     }
-    public void solveQuestion()
+    public void explain()
     {
-        if(!InExplain)
-        {
-            CalcSlope();
-            if (ValidateInputs(X1Axis.text, Y1Axis.text, X1Axis.text, Y1Axis.text))
-            {
-                int Nue = int.Parse(nue);
-                int Deno = int.Parse(deno);
-                Debug.Log(Nue + " " + Deno);
-                Answer.text += "St. Line intersect two axes at\n(" + X1Axis.text + ", 0),(0," + Y1Axis.text + ")\n";
-                Answer.text += $"<line-height=25%>{FractionCalculator.GetStringFrec("m = ", numeratorStr, DenoStr)}</line-height>\n";
-                Answer.text += $"<line-height=25%>{FractionCalculator.GetStringFrec("m = ", " " + Y1Axis.text + " - 0", " 0 - " + X1Axis.text)}</line-height>\n";
-                FractionCalculator.SimplifyFraction(ref Nue, ref Deno);
-                Nue = -Nue;
-                Deno = -Deno;
-                Solve solve = go.GetComponent<Solve>();
-                solve.SetSolve(Point1Message, Point2Message, Point2Message, X1Axis, Y1Axis, Nue.ToString(), Deno.ToString(), Answer, true, 1, Circle, Arrow, PauseBtn, ResumeBtn);
-                solve.SolveQuestion();
-            }
-        }
+        Explain = true;
+        StartCoroutine(SolveStepByStep());
+    }
+    public IEnumerator SolveStepByStep()
+    {
+        XTemp = XPos;
+        XPos = -470;
+        Ypos = 500;
+        SLStaicFunctions.RemoveTexts();
+        Arrow.SetActive(false);
+        yield return StartCoroutine(GetLineOneSol());
+        yield return StartCoroutine(GetLineTwoSol());
+        FirstProblem.IsCalledFromOutSide = true;
+        FirstProblem firstProblem = FirstProblemObj.GetComponent<FirstProblem>();
+        GameObject inputFieldObject = new GameObject("DynamicInputField");
+        TMP_InputField inputField = inputFieldObject.AddComponent<TMP_InputField>();
+        inputField.text = "0";
+        firstProblem.SetComponents(X1, inputField, FirstNumPlace, Line, Arrow, -470, Ypos, SlopeNue, SlopeDeno, Explain, BackGroundColor);
+        yield return StartCoroutine(firstProblem.SolveStepByStep());
+        Explain = false;
+    }
+    public IEnumerator GetLineOneSol()
+    {
+
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "straight line intersects with x" + SpeakerName, Explain)));
+
+        yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, X1.text, Explain)));
+        TextInstantiator.InstantiateText(FirstNumPlace, "(" , XPos, Ypos, 0, false);
+        TextInstantiator.InstantiateText(FirstNumPlace,   X1.text , XPos + 50, Ypos, 0, false , -88);
+        TextInstantiator.InstantiateText(FirstNumPlace,   ", " , XPos + 100, Ypos, 0, false);
+
+
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "and" + SpeakerName, Explain)));
+
+        yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, "0", Explain)));
+        TextInstantiator.InstantiateText(FirstNumPlace, "0" , XPos + 170, Ypos, 0, false , -77);
+        TextInstantiator.InstantiateText(FirstNumPlace, ")" , XPos + 230, Ypos, 0, false );
+
+
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "and with y axis at" + SpeakerName, Explain)));
+
+        yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, "0", Explain)));
+        TextInstantiator.InstantiateText(FirstNumPlace, "(" , XPos + 300, Ypos, 0, false);
+        TextInstantiator.InstantiateText(FirstNumPlace, "0" , XPos + 350, Ypos, 0, false, -66);
+        TextInstantiator.InstantiateText(FirstNumPlace, "," , XPos + 420, Ypos, 0, false);
+
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "and" + SpeakerName, Explain)));
+
+        yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, Y1.text, Explain)));
+
+        TextInstantiator.InstantiateText(FirstNumPlace, Y1.text , XPos + 490, Ypos, 0, false , -55);
+        TextInstantiator.InstantiateText(FirstNumPlace, ")", XPos + 540, Ypos, 0, false );
+        Ypos -= 150;
+
+    }
+    public IEnumerator GetLineTwoSol()
+    {
+        X1Point = GameObject.Find("-88").GetComponent<TextMeshProUGUI>();
+        Y1Point = GameObject.Find("-77").GetComponent<TextMeshProUGUI>();       
         
-    }
-    public void ExplainQuestion()
-    {
-        if (!InExplain)
+        X2Point = GameObject.Find("-66").GetComponent<TextMeshProUGUI>();
+        Y2Point = GameObject.Find("-55").GetComponent<TextMeshProUGUI>();
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "so m equals to" + SpeakerName, Explain)));
+
+        TextInstantiator.InstantiateText(FirstNumPlace, "m = ", XPos, Ypos, 0, false);
+        XPos += 150;
+        Ypos += 50;
+
+
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "y2" + SpeakerName, Explain)));
+        TextInstantiator.InstantiateText(FirstNumPlace, $"y<sub>2</sub>", XPos, Ypos, 0, false);
+        XPos += 50;
+
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "minus" + SpeakerName, Explain)));
+
+        TextInstantiator.InstantiateText(FirstNumPlace, "-", XPos, Ypos, 0, false, 0);
+
+        XPos += 50;
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "y1" + SpeakerName, Explain)));
+
+        TextInstantiator.InstantiateText(FirstNumPlace, $"y<sub>1</sub>", XPos, Ypos, 0, false);
+
+        Ypos -= 50;
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "over" + SpeakerName, Explain)));
+        yield return (StartCoroutine(SLStaicFunctions.SpawnAndAnimate(Line, new Vector3(XPos - 50, Ypos - 30, 0), "BigLine", FirstNumPlace, Explain)));
+
+        XPos -= 100;
+        Ypos -= 50;
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "x2" + SpeakerName, Explain)));
+
+        TextInstantiator.InstantiateText(FirstNumPlace, $"x<sub>2</sub>", XPos, Ypos, 0, false);
+
+        XPos += 50;
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "minus" + SpeakerName, Explain)));
+        TextInstantiator.InstantiateText(FirstNumPlace, "-", XPos, Ypos, 0, false);
+
+        XPos += 50;
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "x1" + SpeakerName, Explain)));
+        TextInstantiator.InstantiateText(FirstNumPlace, $"x<sub>1</sub>", XPos, Ypos, 0, false);
+
+        XPos += 100;
+        Ypos += 50;
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "equal" + SpeakerName, Explain)));
+        TextInstantiator.InstantiateText(FirstNumPlace, " = ", XPos, Ypos, 0, false);
+
+        //----------------------------------------------------------------------------
+
+        Ypos += 50;
+        XPos += 100;
+        Y1.GetComponent<Image>().color = Color.red;
+        Y2Point.color = Color.red;
+        yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, Y1.text, Explain)));
+        if (int.Parse(Y1.text) < 0)
+            XPos += 30;
+        TextInstantiator.InstantiateText(FirstNumPlace, Y1.text, XPos, Ypos, 0, false, 1);
+        XPos += 50;
+        Y1.GetComponent<Image>().color = BackGroundColor;
+
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "minus" + SpeakerName, Explain)));
+        TextInstantiator.InstantiateText(FirstNumPlace, "-", XPos + 20, Ypos, 0, false, 0);
+
+
+        XPos += 60;
+        yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, "0", Explain)));
+        Y1Point.color = Color.red;
+        TextInstantiator.InstantiateText(FirstNumPlace, "0", XPos, Ypos, 0, false, 11);
+
+        Ypos -= 50;
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "over" + SpeakerName, Explain)));
+        yield return (StartCoroutine(SLStaicFunctions.SpawnAndAnimate(Line, new Vector3(XPos - 50, Ypos - 30, 0), "BigLine", FirstNumPlace, Explain)));
+
+        XPos -= 100;
+        Ypos -= 50;
+        X2Point.color = Color.red;
+        yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, "0", Explain)));
+        TextInstantiator.InstantiateText(FirstNumPlace, "0", XPos, Ypos, 0, false, 2);
+
+        XPos += 40;
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "minus" + SpeakerName, Explain)));
+        TextInstantiator.InstantiateText(FirstNumPlace, "-", XPos + 20, Ypos, 0, false);
+        X1.GetComponent<Image>().color = Color.red;
+        X1Point.color = Color.red;
+
+        XPos += 60;
+        yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, X1.text, Explain)));
+        if (int.Parse(X1.text) < 0)
+            XPos += 30;
+        TextInstantiator.InstantiateText(FirstNumPlace, X1.text, XPos, Ypos, 0, false, 22);
+        X1.GetComponent<Image>().color = BackGroundColor;
+
+        XPos += 100;
+        Ypos += 50;
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "equal" + SpeakerName, Explain)));
+
+        TextInstantiator.InstantiateText(FirstNumPlace, " = ", XPos, Ypos, 0, false);
+
+        //----------------------------------------------------------------------------
+
+        TextMeshProUGUI y2 = GameObject.Find("1").GetComponent<TextMeshProUGUI>();
+        TextMeshProUGUI y1 = GameObject.Find("11").GetComponent<TextMeshProUGUI>();
+        TextMeshProUGUI x2 = GameObject.Find("2").GetComponent<TextMeshProUGUI>();
+        TextMeshProUGUI x1 = GameObject.Find("22").GetComponent<TextMeshProUGUI>();
+
+        yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, Y1.text, Explain)));
+        y2.color = Color.red;
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "minus" + SpeakerName, Explain)));
+        yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, "0", Explain)));
+        y1.color = Color.red;
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "equal" + SpeakerName, Explain)));
+
+        Ypos += 50;
+        yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, Y1.text, Explain)));
+
+        TextInstantiator.InstantiateText(FirstNumPlace, Y1.text, XPos + 100, Ypos, 0, false);
+        SlopeNue = (int.Parse(Y1.text));
+
+        // voice for over 
+        Ypos -= 50;
+
+        yield return (StartCoroutine(SLStaicFunctions.SpawnAndAnimate(Line, new Vector3(XPos + 100, Ypos - 20, 0), "SmallLine", FirstNumPlace, Explain)));
+
+        Ypos -= 50;
+        yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, "0", Explain)));
+        x2.color = Color.red;
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "minus" + SpeakerName, Explain)));
+        yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, X1.text, Explain)));
+        x1.color = Color.red;
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "equal" + SpeakerName, Explain)));
+        yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, (- int.Parse(X1.text)).ToString(), Explain)));
+
+
+        TextInstantiator.InstantiateText(FirstNumPlace, ( - int.Parse(X1.text)).ToString(), XPos + 100, Ypos, 0, false);
+        SlopeDeno =  - int.Parse(X1.text);
+
+        int OldNue = SlopeNue;
+
+        FractionCalculator.SimplifyFraction(ref SlopeNue, ref SlopeDeno);
+        if (SlopeNue > 0 && SlopeDeno < 0)
         {
-            if (ValidateInputs(X1Axis.text, Y1Axis.text, X1Axis.text, Y1Axis.text))
-            {
-                InExplain = true;
-                PauseBtn.gameObject.SetActive(true);
-                List<string> WritingSteps = new List<string> {
-                "#St. Line intersect two axes at (" + X1Axis.text + " , 0 ), ( 0 , " + Y1Axis.text + " )#",
-                "|m = " + "#Y2-Y1/X2-X1#" + '\n',
-                "|m = " + '#'+Y1Axis.text + " - 0 "+ '/'+ " 0 - "+X1Axis.text +'#'+ '\n',
-                };
-                StartCoroutine(SpeakSteps(WritingSteps));
-
-            }
+            SlopeNue = -SlopeNue;
+            SlopeDeno = -SlopeDeno;
         }
-
-    }
-    public IEnumerator SpeakSteps(List<string> writingSteps)
-    {
-        CalcSlope();
-
-        for (int i = 0; i < writingSteps.Count; i++)
+        if (OldNue != SlopeNue && SlopeDeno!=1)
         {
-            yield return StartCoroutine(ResumeCoroutine());
+            yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "equal" + SpeakerName, Explain)));
 
-            yield return StartCoroutine(SpeakAndWait(writingSteps[i], i));
-            if (i == writingSteps.Count - 1)
-            {
-                PauseBtn.gameObject.SetActive(false);
-                ResumeBtn.gameObject.SetActive(false);
-                InExplain = false;
-                Solve solve = go.GetComponent<Solve>();
-                solve.SetSolve(Point1Message, Point2Message, Point2Message, X1Axis, Y1Axis, nue, deno, Answer, true, 1, Circle, Arrow, PauseBtn, ResumeBtn);
-                solve.SolveStepByStep();
-            }
+            TextInstantiator.InstantiateText(FirstNumPlace, " = ", XPos + 180, Ypos + 50, 0, false);
+
+            yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, SlopeNue.ToString(), Explain)));
+
+            TextInstantiator.InstantiateText(FirstNumPlace, SlopeNue.ToString(), XPos + 280, Ypos + 100, 0, false);
+            yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "over" + SpeakerName, Explain)));
+
+            yield return (StartCoroutine(SLStaicFunctions.SpawnAndAnimate(Line, new Vector3(XPos + 280, Ypos + 30, 0), "SmallLine", FirstNumPlace, Explain)));
+            yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, SlopeDeno.ToString(), Explain)));
+
+            TextInstantiator.InstantiateText(FirstNumPlace, SlopeDeno.ToString(), XPos + 280, Ypos, 0, false);
+
         }
-    }
-    public IEnumerator SpeakAndWait(string written, int index)
-    {
-        int i = 0;
-        
-        while (i < written.Length)
+        else if(SlopeDeno ==1)
         {
-            if (written[i].Equals('#'))
-            {
-                IsAnimatedPart = false;
-                StartCoroutine(PlayVoiceClipAndWait(clipIndex));
-                while (!IsAnimatedPart)
-                    yield return null;
-                clipIndex++;
-                if (index == 0)
-                {
-                    Answer.text += "St. Line intersect two axes at"+'\n';
-                    StartCoroutine(VoiceSpeaker.PlayVoiceNumberAndWait("0"));
-                    IsAnimatedPart2 = false;
-                    while (!IsAnimatedPart2)
-                        yield return null;
-                    Answer.text += "(0,";
-                    StartCoroutine(VoiceSpeaker.PlayByAddress("AsemEng/and"));
-                    IsAnimatedPart2 = false;
-                    while (!IsAnimatedPart2)
-                        yield return null;
-                    Y1Axis.GetComponent<Image>().color = Color.black;
+            yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "equal" + SpeakerName, Explain)));
 
-                    StartCoroutine(VoiceSpeaker.PlayVoiceNumberAndWait(Y1Axis.text));
-                    IsAnimatedPart2 = false;
-                    while (!IsAnimatedPart2)
-                        yield return null;
-                    Answer.text += Y1Axis.text+")";
-                    Y1Axis.GetComponent<Image>().color = Color.white;
-                    IsAnimatedPart = false;
-                    StartCoroutine(PlayVoiceClipAndWait(clipIndex));
-                    while (!IsAnimatedPart)
-                        yield return null;
-                    clipIndex++;
-                    X1Axis.GetComponent<Image>().color = Color.black;
+            TextInstantiator.InstantiateText(FirstNumPlace, " = ", XPos + 180, Ypos + 50, 0, false);
 
-                    StartCoroutine(VoiceSpeaker.PlayVoiceNumberAndWait(X1Axis.text));
-                    IsAnimatedPart2 = false;
-                    while (!IsAnimatedPart2)
-                        yield return null;
-                    Answer.text += "(" + X1Axis.text+",";
-                    X1Axis.GetComponent<Image>().color = Color.white;
-                    StartCoroutine(VoiceSpeaker.PlayByAddress("AsemEng/and"));
-                    IsAnimatedPart2 = false;
-                    while (!IsAnimatedPart2)
-                        yield return null;
-                    StartCoroutine(VoiceSpeaker.PlayVoiceNumberAndWait("0"));
-                    IsAnimatedPart2 = false;
-                    while (!IsAnimatedPart2)
-                        yield return null;
-                    Answer.text += "0)";
-                    i = written.Length;
-                    TempCpy = Answer.text + '\n';
-                }
-                if (index == 1)
-                {
-                    Answer.text = "";
-                    Answer.text += TempCpy + "m = ";
-                    IsAnimatedPart = false;
-                    StartCoroutine(PlayVoiceClipAndWait(clipIndex));
-                    while (!IsAnimatedPart)
-                        yield return null;
+            yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, SlopeNue.ToString(), Explain)));
 
-                    clipIndex++;
-                    Answer.text += "Y<sub style='font-size: larger;'>2</sub>";
-                    StartCoroutine(VoiceSpeaker.PlayByAddress("AsemEng/minus"));
-                    IsAnimatedPart2 = false;
-                    while (!IsAnimatedPart2)
-                        yield return null;
+            TextInstantiator.InstantiateText(FirstNumPlace, SlopeNue.ToString(), XPos + 250, Ypos + 50, 0, false);
 
-                    Answer.text += "- ";
-                    IsAnimatedPart = false;
-                    StartCoroutine(PlayVoiceClipAndWait(clipIndex));
-                    while (!IsAnimatedPart)
-                        yield return null;
-
-                    clipIndex++;
-                    Answer.text += "Y<sub style='font-size: larger;'>1</sub>";
-                    IsAnimatedPart2 = false;
-                    StartCoroutine(VoiceSpeaker.PlayByAddress("AsemEng/Over"));
-                    while (!IsAnimatedPart2)
-                        yield return null;
-
-                    Answer.text = "";
-                    Answer.text += TempCpy;
-                    Answer.text += FractionCalculator.GetStringFrec("m = ", numeratorStr, "");
-                    IsAnimatedPart = false;
-                    StartCoroutine(PlayVoiceClipAndWait(clipIndex));
-                    while (!IsAnimatedPart)
-                        yield return null;
-
-                    clipIndex++;
-                    Answer.text = "";
-                    Answer.text += TempCpy;
-                    Answer.text += FractionCalculator.GetStringFrec("m = ", numeratorStr, "X<sub style='font-size: larger;'>2</sub>");
-                    StartCoroutine(VoiceSpeaker.PlayByAddress("AsemEng/minus"));
-                    IsAnimatedPart2 = false;
-                    while (!IsAnimatedPart2)
-                        yield return null;
-
-                    Answer.text = "";
-                    Answer.text += TempCpy;
-                    Answer.text += FractionCalculator.GetStringFrec("m = ", numeratorStr, "X<sub style='font-size: larger;'>2</sub> - ");
-                    IsAnimatedPart = false;
-                    StartCoroutine(PlayVoiceClipAndWait(clipIndex));
-                    while (!IsAnimatedPart)
-                        yield return null;
-
-                    clipIndex++;
-                    Answer.text = "";
-                    Answer.text += TempCpy;
-                    Answer.text += FractionCalculator.GetStringFrec("m = ", numeratorStr, "X<sub style='font-size: larger;'>2</sub> - X<sub style='font-size: larger;'>1</sub>");
-                    i = written.Length;
-                }
-                else if(index == 2)
-                {
-                    int CurrentLen = Answer.text.Length;
-                    Answer.text += "m = ";
-                    IsAnimatedPart2 = false;
-                    Y1Axis.GetComponent<Image>().color = Color.black;
-
-                    StartCoroutine(VoiceSpeaker.PlayVoiceNumberAndWait(Y1Axis.text));
-                    while (!IsAnimatedPart2)
-                        yield return null;
-
-                    Answer.text = Answer.text.Substring(0, CurrentLen);
-                    Answer.text += "m = " + Y1Axis.text;
-                    Y1Axis.GetComponent<Image>().color = Color.white;
-                    IsAnimatedPart2 = false;
-                    StartCoroutine(VoiceSpeaker.PlayByAddress("AsemEng/minus"));
-                    while (!IsAnimatedPart2)
-                        yield return null;
-
-                    Answer.text = Answer.text.Substring(0, CurrentLen);
-                    Answer.text += "m = " + Y1Axis.text + " - ";
-                    IsAnimatedPart2 = false;
-                    StartCoroutine(VoiceSpeaker.PlayVoiceNumberAndWait("0"));
-                    while (!IsAnimatedPart2)
-                        yield return null;
-
-                    Answer.text = Answer.text.Substring(0, CurrentLen);
-                    Answer.text += "m = " + Y1Axis.text + " - 0";
-                    IsAnimatedPart2 = false;
-                    StartCoroutine(VoiceSpeaker.PlayByAddress("AsemEng/Over"));
-                    while (!IsAnimatedPart2)
-                        yield return null;
-
-                    Answer.text = Answer.text.Substring(0, CurrentLen);
-                    Answer.text += FractionCalculator.GetStringFrec("m = ", Y1Axis.text + " - 0", "");
-
-                    IsAnimatedPart2 = false;
-                    StartCoroutine(VoiceSpeaker.PlayVoiceNumberAndWait("0"));
-                    while (!IsAnimatedPart2)
-                        yield return null;
-
-                    Answer.text = Answer.text.Substring(0, CurrentLen);
-                    Answer.text += FractionCalculator.GetStringFrec("m = ", Y1Axis.text + " - 0" , "0");
-                    IsAnimatedPart2 = false;
-                    StartCoroutine(VoiceSpeaker.PlayByAddress("AsemEng/minus"));
-                    while (!IsAnimatedPart2)
-                        yield return null;
-
-                    Answer.text = Answer.text.Substring(0, CurrentLen);
-                    Answer.text += FractionCalculator.GetStringFrec("m = ", Y1Axis.text + " - 0" ,"0 - ");
-                    IsAnimatedPart2 = false;
-                    X1Axis.GetComponent<Image>().color = Color.black;
-
-                    StartCoroutine(VoiceSpeaker.PlayVoiceNumberAndWait(X1Axis.text));
-                    while (!IsAnimatedPart2)
-                        yield return null;
-                    Answer.text = Answer.text.Substring(0, CurrentLen);
-                    Answer.text += FractionCalculator.GetStringFrec("m = ", Y1Axis.text + " - 0","0 - " + X1Axis.text);
-                    X1Axis.GetComponent<Image>().color = Color.white;
-                    i = written.Length;
-                }
-            }
-            i++;
         }
-        Answer.text += '\n';
+        Ypos -= 100;
+
     }
-    public IEnumerator PlayVoiceClipAndWait(int index)
-    {
-        audioSource.clip = voiceClips[index];
-        audioSource.Play();
-        yield return new WaitForSeconds(audioSource.clip.length);
-        IsAnimatedPart = true;
-    }
-    public void CalcSlope()
-    {
-        audioSource = GetComponent<AudioSource>();
-        voiceClips = Resources.LoadAll<AudioClip>("AsemEng/Q3");
-        int nueInt = -int.Parse(Y1Axis.text);
-        int DenoInt =int.Parse(X1Axis.text);
-        FractionCalculator.SimplifyFraction(ref nueInt, ref DenoInt);
-        if(DenoInt < 0) {
-            DenoInt = -DenoInt;
-            nueInt = -nueInt;
-        }
-        nue = nueInt.ToString();
-        deno = DenoInt.ToString();
-        Circle.active = false;
-        Arrow.active = false;
-        Answer.text = "";
-        clipIndex = 0;
-    }
+
 }

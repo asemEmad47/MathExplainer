@@ -5,6 +5,7 @@ using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
 
@@ -33,12 +34,21 @@ public class DecimmalScript : MonoBehaviour
     public GameObject SubtractionnObj;
     private int LongestInt = 0;
     public static bool  IsWrited = false;
+
+    public static string FirstNumber = "";
+    public static string SecNumber = "";
+
+
     public void Start()
     {
         FirstNumPlace.gameObject.SetActive(false);
         SecNumPlace.gameObject.SetActive(false);
-        SubtractionScript.ResetAllValues(Line, FirstNumPlace, SecNumPlace, sign);
-        UnityAction langBtnClickAction = () => AdditionScript.LangBtnClick(ref IsEng, ref SpeakerName, ref loop);
+        ResetValues.ResetAllValues(Line, FirstNumPlace, SecNumPlace, sign);
+
+        FrstNum.text = FirstNumber;
+        SecNum.text = SecNumber;
+
+        UnityAction langBtnClickAction = () => LangBtnActions.LangBtnClick(ref IsEng, ref SpeakerName, ref loop);
         LangBtn.onClick.AddListener(langBtnClickAction);
 
         GameObject sign2 = GameObject.Find("Sign2");
@@ -57,51 +67,75 @@ public class DecimmalScript : MonoBehaviour
         }
         FrstNum.onValueChanged.AddListener((input) => OnInputChanged(FrstNum, input));
         SecNum.onValueChanged.AddListener((input) => OnInputChanged(SecNum, input));
-        FrstNum.onValidateInput = ValidateDecimalInput;
-        SecNum.onValidateInput = ValidateDecimalInput;
+        FrstNum.onValidateInput = InputFieldsActions.ValidateDecimalObsInput;
+        SecNum.onValidateInput = InputFieldsActions.ValidateDecimalObsInput;
 
+        InputFieldsActions.InitializePlaceholders(FrstNum);
+        InputFieldsActions.InitializePlaceholders(SecNum);
 
-
-        AdditionScript.InitializePlaceholders(FrstNum);
-        AdditionScript.InitializePlaceholders(SecNum);
     }
     void Update()
     {
-        AdditionScript.EnableExplain(ref FrstNum, ref SecNum);
+        ExplainEnableMent.EnableExplain(ref FrstNum, ref SecNum);
 
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
-        if (IsEng)
-        {
-            SpeakerName = "_Sonya_Eng";
-            AdditionVoiceSpeaker.NumPlace = "EngNums";
-        }
-        else
-        {
-            SpeakerName = "_Heba_Egy";
-            AdditionVoiceSpeaker.NumPlace = "EgyNums";
 
+        if (FrstNum.text.Length == 0 || SecNum.text.Length == 0 || Explain)
+        {
+            GameObject ExplainBtn = GameObject.Find("Explain");
+            GameObject SolveBtn = GameObject.Find("Solve");
+            UnityEngine.UI.Button button = ExplainBtn.GetComponent<UnityEngine.UI.Button>();
+            button.interactable = false;
+
+            UnityEngine.UI.Button Solvebutton = SolveBtn.GetComponent<UnityEngine.UI.Button>();
+            Solvebutton.interactable = false;
+
+        }
+        if (FrstNum.text.Length != 0 && SecNum.text.Length != 0 && !Explain)
+        {
+            GameObject SolveBtn = GameObject.Find("Solve");
+            UnityEngine.UI.Button Solvebutton = SolveBtn.GetComponent<UnityEngine.UI.Button>();
+            Solvebutton.interactable = true;
+        }
+        if (!AdditionVoiceSpeaker.NumPlace.Equals("JennySound/JennyNumbers"))
+        {
+            if (IsEng)
+            {
+                SpeakerName = "_Sonya_Eng";
+                AdditionVoiceSpeaker.NumPlace = "EngNums";
+
+            }
+            else
+            {
+                SpeakerName = "_Heba_Egy";
+                AdditionVoiceSpeaker.NumPlace = "EgyNums";
+
+            }
         }
         AdditionScript.IsEng = IsEng;
         SubtractionScript.IsEng = IsEng;
-
     }
-    public void explain()
+    public void ExplainBtnAction()
     {
         Explain = true;
         audioSource = GetComponent<AudioSource>();
         StartCoroutine(solve());
     }
-
-
+    public void SolveBtnAction()
+    {
+        Explain = false;
+        StartCoroutine(solve());
+    }
     public IEnumerator solve()
     {
         AdditionScript.IscalledFromOutSide = true;
         SubtractionScript.IscalledFromOutSide = true;
         GameObject ExplainBtn = GameObject.Find("Explain");
+        ResetValues.ResetAllValues(Line, FirstNumPlace, SecNumPlace, sign);
         UnityEngine.UI.Button button = ExplainBtn.GetComponent<UnityEngine.UI.Button>();
         button.interactable = false;
 
-        SubtractionScript.ResetAllValues(Line, FirstNumPlace, SecNumPlace, sign);
+        ResetValues.ResetAllValues(Line, FirstNumPlace, SecNumPlace, sign);
         if (float.Parse(SecNum.text) > float.Parse(FrstNum.text))
         {
             (SecNum.text, FrstNum.text) = (FrstNum.text, SecNum.text);
@@ -111,13 +145,14 @@ public class DecimmalScript : MonoBehaviour
 
         if (!FrstNum.text.Contains('.'))
         {
+            Color FirstNumColor = FrstNum.GetComponent<UnityEngine.UI.Image>().color;
             FrstNum.GetComponent<UnityEngine.UI.Image>().color = Color.red;
-            yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound"+ "/the first number" + SpeakerName)));
-            yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound"+ "/has no decimal point so" + SpeakerName)));
+            yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"the first number" + SpeakerName, Explain)));
+            yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"has no decimal point so" + SpeakerName, Explain)));
             FrstNum.text += '.';
-            yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound"+ "/you should put a value" + SpeakerName)));
+            yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"you should put a value" + SpeakerName, Explain)));
             FrstNum.text += '0';
-            FrstNum.GetComponent<UnityEngine.UI.Image>().color = Color.white;
+            FrstNum.GetComponent<UnityEngine.UI.Image>().color = FirstNumColor;
 
 
         }
@@ -125,18 +160,20 @@ public class DecimmalScript : MonoBehaviour
 
         if (!SecNum.text.Contains('.'))
         {
+            Color SecNumColor = SecNum.GetComponent<UnityEngine.UI.Image>().color;
+
             SecNum.GetComponent<UnityEngine.UI.Image>().color = Color.red;
 
-            yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound"+ "/the second number" + SpeakerName)));
-            yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound"+ "/has no decimal point so" + SpeakerName)));
+            yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"the second number" + SpeakerName, Explain)));
+            yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"has no decimal point so" + SpeakerName, Explain)));
             SecNum.text += '.';
-            yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound"+ "/you should put a value" + SpeakerName)));
+            yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"you should put a value" + SpeakerName, Explain)));
             SecNum.text += '0';
-            SecNum.GetComponent<UnityEngine.UI.Image>().color = Color.white;
+            SecNum.GetComponent<UnityEngine.UI.Image>().color = SecNumColor;
         }
 
-        yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound"+ "/first" + SpeakerName)));
-        yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound"+ "/write the decimal points" + SpeakerName)));
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"first" + SpeakerName, Explain)));
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"write the decimal points" + SpeakerName , Explain)));
 
 
         FirstNumPlace.text = ".";
@@ -146,18 +183,22 @@ public class DecimmalScript : MonoBehaviour
         FirstNumPlace.gameObject.SetActive(true);
         SecNumPlace.gameObject.SetActive(true);
 
-        yield return (StartCoroutine(WriteNumber(true)));
-        yield return (StartCoroutine(WriteNumber(false)));
+        yield return (StartCoroutine(NumbersWriter.WriteNumber(true,SpeakerName,FrstNum,SecNum,FirstNumPlace,SecNumPlace,Explain,RightArrow,LeftArrow,this)));
+        yield return (StartCoroutine(NumbersWriter.WriteNumber(false, SpeakerName, FrstNum, SecNum, FirstNumPlace, SecNumPlace, Explain, RightArrow, LeftArrow, this)));
 
-        if(FrstNum.text.Length != SecNum.text.Length)
-            yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound" + "/put zeros in empty digits" + SpeakerName)));
-        FillWithZeros();
+
+        if (FrstNum.text.Length != SecNum.text.Length)
+            yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"put zeros in empty digits" + SpeakerName , Explain)));
+        ZerosOps.DecimalFillWithZeros(FrstNum, SecNum,LongestInt,FirstNumPlace,SecNumPlace);
         TMP_TextInfo textInfo = FirstNumPlace.GetTextInfo(FirstNumPlace.text);
         TMP_CharacterInfo charInfo = textInfo.characterInfo[FirstNumPlace.text.IndexOf('.')];
 
-        Vector3 characterPosition = AdditionScript.GetCharPoos(FirstNumPlace, charInfo, FirstNumPlace.text.IndexOf('.'));
+        Vector3 characterPosition = CharacterProbs.GetCharPoos(FirstNumPlace, charInfo, FirstNumPlace.text.IndexOf('.'));
+        if(PlayerPrefs.GetString("type").Equals("add"))
+            TextInstantiator.InstantiateText(FirstNumPlace, ".", characterPosition.x , FirstNumPlace.transform.position.y, -150, true, 999);
+        else
+            TextInstantiator.InstantiateText(FirstNumPlace, ".", characterPosition.x, FirstNumPlace.transform.position.y, -200, true,999);
 
-        AdditionScript.InstantiateText(FirstNumPlace, ".", characterPosition.x , FirstNumPlace.transform.position.y, -280, true, 999);
         GameObject res = GameObject.Find("999");
         TextMeshProUGUI ResText = res.GetComponent<TextMeshProUGUI>();
         ResText.color = FirstNumPlace.color;
@@ -169,243 +210,33 @@ public class DecimmalScript : MonoBehaviour
         {
             yield return null;
         }
-        StartCoroutine(RemoveUselessZeros());
+        yield return StartCoroutine(ZerosOps.DecimalRemoveUselessZeros(LongestInt , SpeakerName , Explain , this));
         AdditionScript.IscalledFromOutSide = false;
         SubtractionScript.IscalledFromOutSide = false;
     }
-    public IEnumerator WriteEachNumberInOrder(TMP_InputField number , bool IsRight , TextMeshProUGUI NumPlace)
-    {
-        string WritedNubmer = "";
-        if (IsRight)
-        {
-            WritedNubmer = number.text.Substring(number.text.IndexOf('.') + 1, number.text.Length - number.text.IndexOf('.') - 1);
-            for (int i = 0; i < WritedNubmer.Length; i++)
-            {
-                if (char.IsDigit(WritedNubmer[i]))
-                {
-                    yield return (StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait(WritedNubmer[i].ToString())));
-                    NumPlace.text =  "   "+NumPlace.text;
-                    if(i==0)
-                        NumPlace.text += " "+WritedNubmer[i] + " ";
-                    else
-                        NumPlace.text += WritedNubmer[i] + " ";
 
-                }
-            }
-        }
-        else
-        {
-            WritedNubmer = number.text.Substring(0, number.text.IndexOf('.'));
-            StringBuilder temp = new StringBuilder(NumPlace.text);
-            int CurrentSpace = NumPlace.text.IndexOf('.') - 2;
-            for (int i = WritedNubmer.Length-1; i >= 0; i--)
-            {
-                yield return StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait(WritedNubmer[i].ToString()));
-
-                temp = new StringBuilder(NumPlace.text);
-                if(CurrentSpace < 0)
-                {
-                    temp.Insert(0, WritedNubmer[i]);
-                }
-                else
-                {
-                    temp[CurrentSpace] = WritedNubmer[i];
-                }
-                CurrentSpace -= 2;
-                NumPlace.text = temp.ToString();
-            }
-
-        }
-
-    }
-    public IEnumerator WriteNumber(bool IsRight)
-    {
-        if(IsRight)
-            yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound"+ "/write the first number" + SpeakerName)));
-        else
-            yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound"+ "/write the second number" + SpeakerName)));
-
-        yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound"+ "/starting from the decimal point" + SpeakerName)));
-        yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound"+ "/go right" + SpeakerName)));
-
-
-        RightArrow.SetActive(true);
-
-        yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound"+ "/and write each number in order" + SpeakerName)));
-
-        if(IsRight)
-            yield return (StartCoroutine(WriteEachNumberInOrder(FrstNum, true, FirstNumPlace)));
-        else
-            yield return (StartCoroutine(WriteEachNumberInOrder(SecNum, true, SecNumPlace)));
-        RightArrow.SetActive(false);
-
-        yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound"+ "/go left" + SpeakerName)));
-
-        LeftArrow.SetActive(true);
-        if(IsRight)
-            yield return (StartCoroutine(WriteEachNumberInOrder(FrstNum, false, FirstNumPlace)));
-        else
-            yield return (StartCoroutine(WriteEachNumberInOrder(SecNum, false, SecNumPlace)));
-
-        LeftArrow.SetActive(false);
-
-    }
-
-    public void FillWithZeros()
-    {
-        // Parse inputs from the TMP_InputFields
-        if (float.TryParse(FrstNum.text, out float firstNumber) && float.TryParse(SecNum.text, out float secondNumber))
-        {
-            // Convert the numbers to strings
-            string firstStr = firstNumber.ToString();
-            string secondStr = secondNumber.ToString();
-
-            // Split into integer and decimal parts
-            string[] firstParts = firstStr.Split('.');
-            string[] secondParts = secondStr.Split('.');
-
-            string firstInteger = firstParts[0];
-            string firstDecimal = firstParts.Length > 1 ? firstParts[1] : "";
-
-            string secondInteger = secondParts[0];
-            string secondDecimal = secondParts.Length > 1 ? secondParts[1] : "";
-
-            // Make integer parts equal in length by padding with leading zeros
-            int maxIntegerLength = Mathf.Max(firstInteger.Length, secondInteger.Length);
-            LongestInt = maxIntegerLength;
-
-            firstInteger = firstInteger.PadLeft(maxIntegerLength, '0');
-            secondInteger = secondInteger.PadLeft(maxIntegerLength, '0');
-
-            // Make decimal parts equal in length by padding with trailing zeros
-            int maxDecimalLength = Mathf.Max(firstDecimal.Length, secondDecimal.Length);
-            firstDecimal = firstDecimal.PadRight(maxDecimalLength, '0');
-            secondDecimal = secondDecimal.PadRight(maxDecimalLength, '0');
-
-            // Format both integer and decimal parts with spaces
-            if (firstDecimal.Equals(""))
-            {
-                firstDecimal = "0";
-            }
-            if (secondDecimal.Equals(""))
-            {
-                secondDecimal = "0";
-            }
-
-            string formattedFirstNum = FormatNumberWithSpaces(firstInteger, firstDecimal, ".");
-            string formattedSecondNum = FormatNumberWithSpaces(secondInteger, secondDecimal, ".");
-
-            // Update the TextMeshProUGUI fields with formatted numbers
-
-            FirstNumPlace.text = formattedFirstNum;
-            SecNumPlace.text = formattedSecondNum;
-        }
-        else
-        {
-            Debug.LogError("Invalid input: Please ensure both input fields contain valid float numbers.");
-        }
-    }
-
-    // Helper function to format the number with spaces between digits
-    private string FormatNumberWithSpaces(string integerPart, string decimalPart, string separator)
-    {
-        // Add space between digits of the integer part
-        string formattedInteger = string.Join(" ", integerPart.ToCharArray());
-
-        // Add space between digits of the decimal part
-        string formattedDecimal = string.Join(" ", decimalPart.ToCharArray());
-
-        // Return the formatted number with separator between integer and decimal parts
-        return formattedInteger + " " + separator + " " + formattedDecimal;
-    }
-
-    public IEnumerator RemoveUselessZeros()
-    {
-        TextMeshProUGUI[] textMeshProObjects = FindObjectsOfType<TextMeshProUGUI>();
-
-        int counter = 0;
-        bool IsFirstTime = true;
-        if (textMeshProObjects.Length > 0)
-        {
-            foreach (TextMeshProUGUI textMeshPro in textMeshProObjects)
-            {
-                // Check if the text is a number and greater than or equal to 100
-                if (int.TryParse(textMeshPro.name, out int number) && number >= 100 && textMeshPro.text == "0" && counter < LongestInt-1)
-                {
-                    if (IsFirstTime)
-                    {
-                        yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound" + "/Remove useless zeros" + SpeakerName)));
-                        IsFirstTime = false;
-                        yield return new WaitForSeconds(0.5f);
-                    }
-                    textMeshPro.color = Color.grey;
-                    yield return new WaitForSeconds(0.5f);
-
-                    Destroy(textMeshPro.gameObject);
-                    counter++;
-                }
-                else
-                {
-                    break;
-                }
-            }
-        }
-
-    }
     public void DoOperation()
     {
         switch (PlayerPrefs.GetString("type"))
         {
             case "sub":
+                SubtractionScript.IscalledFromOutSide = true;
                 SubtractionScript subtraction = SubtractionnObj.GetComponent<SubtractionScript>();
                 subtraction.SetComponenets(FrstNum, SecNum, FirstNumPlace, SecNumPlace, Line, sign, LangBtn);
-                subtraction.explain();
+                subtraction.OutSideSolve(Explain);
                 break;
 
             case "add":
+                AdditionScript.IscalledFromOutSide = true;
                 AdditionScript addition = AdditionObj.GetComponent<AdditionScript>();
                 addition.SetComponenets(FrstNum, SecNum, FirstNumPlace, SecNumPlace, Line, sign, LangBtn);
-                addition.explain();
+                addition.OutSideSolve(Explain);
                 break;
 
             default:
                 break;
         }
     }
-
-    public static char ValidateDecimalInput(string text, int charIndex, char addedChar)
-    {
-        IsWrited = true;
-        if (char.IsDigit(addedChar))
-        {
-            return addedChar;
-        }
-        else if (!text.Contains('.') && addedChar.Equals('.'))
-        {
-            return addedChar;
-        }
-        else
-        {
-            return '\0'; // Invalid input
-        }
-    }      
-    public static char ValidateSecDecimalInput(string text, int charIndex, char addedChar)
-    {
-        IsWrited = true;
-        if (char.IsDigit(addedChar) && ((!text.Contains('.') && text.Length <=1) ||(text.Contains('.') && text.Length <= 2)))
-        {
-            return addedChar;
-        }
-        else if (!text.Contains('.') && addedChar.Equals('.') && text.Length<2)
-        {
-            return addedChar;
-        }
-        else
-        {
-            return '\0'; // Invalid input
-        }
-    }    
-
     private void OnInputChanged(TMP_InputField inputField, string input)
     {
         if (input == "0" &&IsWrited)
@@ -433,6 +264,4 @@ public class DecimmalScript : MonoBehaviour
         // Set caret to the end of the input (after the '.')
         inputField.caretPosition = inputField.text.Length;
     }
-
-
 }

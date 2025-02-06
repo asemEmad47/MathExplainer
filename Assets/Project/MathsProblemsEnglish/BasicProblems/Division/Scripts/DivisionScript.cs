@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class DivisionScript : MonoBehaviour
@@ -21,43 +22,85 @@ public class DivisionScript : MonoBehaviour
     public static bool IscalledFromOutSide = false;
 
     public static bool IsFinshed = false;
+
+    public static string FirstNumber = "";
+    public static string SecNumber = "";
+
     public void Start()
     {
+        AdditionVoiceSpeaker.VoiceClipsPlace = "AdditionTerms/AdditionSound";
+        AdditionVoiceSpeaker.NumPlace = "AdditionTerms/AdditionSound/EngLoop";
+        FrstNum.text = FirstNumber;
+        SecNum.text = SecNumber;
         IsFinshed = false;
 
-        UnityAction langBtnClickAction = () => AdditionScript.LangBtnClick(ref IsEng, ref SpeakerName, ref loop);
+        UnityAction langBtnClickAction = () => LangBtnActions.LangBtnClick(ref IsEng, ref SpeakerName, ref loop);
         LangBtn.onClick.AddListener(langBtnClickAction);
 
-        FrstNum.onValidateInput = AdditionScript.ValidateInput;
+        FrstNum.onValidateInput = InputFieldsActions.ValidateEqsInput;
         SecNum.onValidateInput = ValidateSecInput;
 
-        AdditionScript.InitializePlaceholders(FrstNum);
-        AdditionScript.InitializePlaceholders(SecNum);
+        InputFieldsActions.InitializePlaceholders(FrstNum);
+        InputFieldsActions.InitializePlaceholders(SecNum);
     }
     void Update()
     {
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
         AdditionScript.IsEng = IsEng;
-        AdditionScript.EnableExplain(ref FrstNum, ref SecNum);
 
-        if (IsEng)
+        if (FrstNum.text.Length == 0 || SecNum.text.Length == 0 || Explain)
         {
-            SpeakerName = "_Sonya_Eng";
-            AdditionVoiceSpeaker.NumPlace = "EngNums";
+            GameObject ExplainBtn = GameObject.Find("Explain");
+            GameObject SolveBtn = GameObject.Find("Solve");
+            UnityEngine.UI.Button button = ExplainBtn.GetComponent<UnityEngine.UI.Button>();
+            button.interactable = false;
+
+            UnityEngine.UI.Button Solvebutton = SolveBtn.GetComponent<UnityEngine.UI.Button>();
+            Solvebutton.interactable = false;
 
         }
-        else
+        if (FrstNum.text.Length != 0 && SecNum.text.Length != 0 && !Explain)
         {
-            SpeakerName = "_Heba_Egy";
-            AdditionVoiceSpeaker.NumPlace = "EgyNums";
+            GameObject SolveBtn = GameObject.Find("Solve");
+            UnityEngine.UI.Button Solvebutton = SolveBtn.GetComponent<UnityEngine.UI.Button>();
+            Solvebutton.interactable = true;
 
+            GameObject ExplainBtn = GameObject.Find("Explain");
+            UnityEngine.UI.Button button = ExplainBtn.GetComponent<UnityEngine.UI.Button>();
+            button.interactable = true;
+        }
+        if (!AdditionVoiceSpeaker.NumPlace.Equals("JennySound/JennyNumbers"))
+        {
+            if (IsEng)
+            {
+                SpeakerName = "_Sonya_Eng";
+                AdditionVoiceSpeaker.NumPlace = "EngNums";
+
+            }
+            else
+            {
+                SpeakerName = "_Heba_Egy";
+                AdditionVoiceSpeaker.NumPlace = "EgyNums";
+
+            }
         }
     }
-    public void explain()
+    public void ExplainBtnAction()
     {
         Explain = true;
         audioSource = GetComponent<AudioSource>();
         StartCoroutine(solve());
+    }
+    public void SolveBtnAction()
+    {
+        Explain = false;
+        StartCoroutine(solve());
+    }
+    public void OutSideSolve(bool Explain)
+    {
+        this.Explain = Explain;
+        StartCoroutine(solve());
+
     }
     public IEnumerator solve()
     {
@@ -65,7 +108,7 @@ public class DivisionScript : MonoBehaviour
         GameObject ExplainBtn = GameObject.Find("Explain");
         Button button = ExplainBtn.GetComponent<Button>();
         button.interactable = false;
-        SubtractionScript.ResetAllValues( Line, FirstNumPlace, FirstNumPlace, sign);
+        ResetValues.ResetAllValues( Line, FirstNumPlace, FirstNumPlace, sign);
 
         FirstNumPlace.text = "";
         foreach (char latter in FrstNum.text)
@@ -78,20 +121,20 @@ public class DivisionScript : MonoBehaviour
         {
             // Populate textInfo manually
 
-            yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/first" + SpeakerName)));
+            yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"first" + SpeakerName , Explain)));
 
-            yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/write the first number" + SpeakerName)));
+            yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"write the first number" + SpeakerName, Explain)));
 
 
             FirstNumPlace.gameObject.SetActive(true);
 
-            yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/then" + SpeakerName)));
+            yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"then" + SpeakerName, Explain)));
 
-            yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/write the second number" + SpeakerName)));
+            yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"write the second number" + SpeakerName, Explain)));
 
             TMP_TextInfo textInfo = FirstNumPlace.GetTextInfo(FirstNumPlace.text);
             TMP_CharacterInfo charInfo = textInfo.characterInfo[0];
-            Vector3 characterPosition = AdditionScript.GetCharPoos(FirstNumPlace, charInfo, 0);
+            Vector3 characterPosition = CharacterProbs.GetCharPoos(FirstNumPlace, charInfo, 0);
 
 
 
@@ -114,7 +157,7 @@ public class DivisionScript : MonoBehaviour
 
             Line.gameObject.SetActive(true);
             sign.gameObject.SetActive(true);
-            yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/in division operation" + SpeakerName)));
+            yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"in division operation" + SpeakerName, Explain)));
 
 
             if (textInfo != null)
@@ -133,7 +176,7 @@ public class DivisionScript : MonoBehaviour
                     if (!FrstNumCpy[i].Equals(' '))
                     {
                         charInfo = textInfo.characterInfo[i];
-                        characterPosition = AdditionScript.GetCharPoos(FirstNumPlace, charInfo, i);
+                        characterPosition = CharacterProbs.GetCharPoos(FirstNumPlace, charInfo, i);
                         if (textInfo.characterInfo != null && i < textInfo.characterInfo.Length)
                         {
                             TextMeshProUGUI myText = new TextMeshProUGUI();
@@ -144,7 +187,7 @@ public class DivisionScript : MonoBehaviour
                                 FNum = myText.text + FNum;
 
                             }
-                            yield return (StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait(FNum)));
+                            yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,FNum, Explain)));
 
 
                             string temp = FirstNumPlace.text.Substring(0, i);
@@ -159,9 +202,9 @@ public class DivisionScript : MonoBehaviour
                             FirstNumPlace.text = temp + temp2;
                             myText.text = $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.red)}>{myText.text}</color>";
 
-                            yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/divide" + SpeakerName)));
+                            yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"divide" + SpeakerName, Explain)));
 
-                            yield return (StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait(SNum)));
+                            yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,SNum, Explain)));
 
 
                             temp2 = $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.red)}>{SNum}</color>";
@@ -170,35 +213,35 @@ public class DivisionScript : MonoBehaviour
                             if (int.Parse(FNum) < int.Parse(SNum) && i+3 < FrstNumCpy.Length)
                             {
                                 i += 3;
-                                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/doesnotgo" + SpeakerName)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"doesnotgo" + SpeakerName, Explain)));
 
-                                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/and" + SpeakerName)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"and" + SpeakerName, Explain)));
 
-                                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait(FNum)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,FNum, Explain)));
 
-                                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/is smaller than" + SpeakerName)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"is smaller than" + SpeakerName, Explain)));
 
-                                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait(SNum)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,SNum, Explain)));
 
 
-                                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/so" + SpeakerName)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"so" + SpeakerName, Explain)));
 
-                                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/put" + SpeakerName)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"put" + SpeakerName, Explain)));
 
-                                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait("0")));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,"0", Explain)));
 
-                                AdditionScript.InstantiateText(FirstNumPlace, "0", characterPosition.x + 15, characterPosition.y, -400, true);
+                                TextInstantiator.InstantiateText(FirstNumPlace, "0", characterPosition.x + 15, characterPosition.y, -400, true);
 
                                 FinalResult += "0";
 
                                 charInfo = textInfo.characterInfo[i];
-                                characterPosition = AdditionScript.GetCharPoos(FirstNumPlace, charInfo, i);
+                                characterPosition = CharacterProbs.GetCharPoos(FirstNumPlace, charInfo, i);
 
-                                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/and" + SpeakerName)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"and" + SpeakerName, Explain)));
 
-                                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait(FNum)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,FNum, Explain)));
 
-                                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/becomes" + SpeakerName)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"becomes" + SpeakerName, Explain)));
                                 FNum += FrstNumCpy[i];
 
                                 temp = FirstNumPlace.text.Substring(0,FirstNumPlace.text.LastIndexOf("</color>") + 10);
@@ -206,17 +249,17 @@ public class DivisionScript : MonoBehaviour
                                 temp += $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.red)}>{FNum[1]}</color>";
                                 FirstNumPlace.text = temp + temp2;
 
-                                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait(FNum)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,FNum, Explain)));
 
-                                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/so" + SpeakerName)));
-
-
-                                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait(FNum)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"so" + SpeakerName, Explain)));
 
 
-                                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/divide" + SpeakerName)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,FNum, Explain)));
 
-                                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait(SNum)));
+
+                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"divide" + SpeakerName, Explain)));
+
+                                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,SNum, Explain)));
 
 
                             }
@@ -224,32 +267,32 @@ public class DivisionScript : MonoBehaviour
                             {
                                 IsFinshed = true;
                                 reminder = int.Parse(FNum);
-                                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/doesnotgo" + SpeakerName)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"doesnotgo" + SpeakerName, Explain)));
 
-                                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/and" + SpeakerName)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"and" + SpeakerName, Explain)));
 
-                                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait(FNum)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,FNum, Explain)));
 
-                                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/is smaller than" + SpeakerName)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"is smaller than" + SpeakerName, Explain)));
 
-                                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait(SNum)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,SNum, Explain)));
 
-                                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/so" + SpeakerName)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"so" + SpeakerName, Explain)));
 
-                                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/put" + SpeakerName)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"put" + SpeakerName, Explain)));
 
-                                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait("0")));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,"0", Explain)));
 
 
 
-                                AdditionScript.InstantiateText(FirstNumPlace, "0", characterPosition.x + 15, characterPosition.y, -400, true);
+                                TextInstantiator.InstantiateText(FirstNumPlace, "0", characterPosition.x + 15, characterPosition.y, -400, true);
                                 FinalResult += '0';
 
-                                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/and" + SpeakerName)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"and" + SpeakerName, Explain)));
 
-                                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/the remainder is" + SpeakerName)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"the remainder is" + SpeakerName, Explain)));
 
-                                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait(FNum)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,FNum, Explain)));
 
                             }
                             float result = ((float)int.Parse(FNum) / int.Parse(SNum));
@@ -263,62 +306,62 @@ public class DivisionScript : MonoBehaviour
                                 result = float.Parse(FNum) / float.Parse(SecNum.text);
                                 while (float.Parse(FNum) % float.Parse(SecNum.text) != 0)
                                 {
-                                    yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/doesnotgo" + SpeakerName)));
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"doesnotgo" + SpeakerName, Explain)));
 
                                     if (!FirstTimeInLoop)
                                     {
-                                        yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/and" + SpeakerName)));
+                                        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"and" + SpeakerName, Explain)));
 
-                                        yield return (StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait(FNum)));
+                                        yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,FNum, Explain)));
 
-                                        yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/is greater than" + SpeakerName)));
+                                        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"is greater than" + SpeakerName, Explain)));
 
-                                        yield return (StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait(SNum)));
+                                        yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,SNum, Explain)));
 
                                         FNumCpy = FNum;
 
                                     }
-                                    yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/so" + SpeakerName))
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"so" + SpeakerName, Explain))
                                         );
-                                    yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/reduce one" + SpeakerName)));
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"reduce one" + SpeakerName, Explain)));
 
                                     FNum = (int.Parse(FNum) - 1).ToString();
                                     reminder += 1;
 
-                                    yield return (StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait(FNum)));
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,FNum, Explain)));
 
-                                    yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/divide" + SpeakerName)));
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"divide" + SpeakerName, Explain)));
 
-                                    yield return (StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait(SNum)));
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,SNum, Explain)));
 
                                     FirstTimeInLoop = true;
 
                                 }
 
-                                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/equal" + SpeakerName)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"equal" + SpeakerName, Explain)));
 
-                                yield return (StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait(((int)result).ToString())));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,((int)result).ToString(), Explain)));
 
 
-                                AdditionScript.InstantiateText(FirstNumPlace, ((int)result).ToString(), characterPosition.x + 15, characterPosition.y, -400, true);
+                                TextInstantiator.InstantiateText(FirstNumPlace, ((int)result).ToString(), characterPosition.x + 15, characterPosition.y, -400, true);
 
                                 FinalResult += ((int)result).ToString();
 
                                 if (FirstTimeInLoop)
                                 {
-                                    yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/we took" + SpeakerName)));
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"we took" + SpeakerName, Explain)));
 
-                                    yield return (StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait(FNum.ToString())));
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,FNum.ToString(), Explain)));
 
-                                    yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/from" + SpeakerName)));
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"from" + SpeakerName, Explain)));
 
-                                    yield return (StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait(FNumCpy)));
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,FNumCpy, Explain)));
 
-                                    yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/so" + SpeakerName)));
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"so" + SpeakerName, Explain)));
 
-                                    yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/the remainder is" + SpeakerName)));
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"the remainder is" + SpeakerName , Explain)));
 
-                                    yield return (StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait(reminder.ToString())));
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,reminder.ToString(), Explain)));
 
 
 
@@ -328,9 +371,9 @@ public class DivisionScript : MonoBehaviour
                             {
                                 if (FirstTimeInLoop)
                                 {
-                                    yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/put it beside the next digit" + SpeakerName)));
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"put it beside the next digit" + SpeakerName, Explain)));
 
-                                    AdditionScript.InstantiateText(FirstNumPlace, reminder.ToString(), characterPosition.x + 112, characterPosition.y, 55, true , i);
+                                    TextInstantiator.InstantiateText(FirstNumPlace, reminder.ToString(), characterPosition.x + 112, characterPosition.y, 55, true , i);
                                     GameObject textGameObject = GameObject.Find((i).ToString());
                                     myText = textGameObject.GetComponent<TextMeshProUGUI>();
                                     Color color = myText.color;
@@ -342,20 +385,25 @@ public class DivisionScript : MonoBehaviour
                             }
                             else
                             {
-                                FinalResult = int.Parse(FinalResult).ToString();
+                                if (reminder != 0)
+                                {
 
-                                AdditionScript.InstantiateText(FirstNumPlace, "R = ", characterPosition.x + 120, characterPosition.y, -400, true);
+                                    FinalResult = int.Parse(FinalResult).ToString();
 
-                                AdditionScript.InstantiateText(FirstNumPlace, reminder.ToString(), characterPosition.x + 220, characterPosition.y, -400, true);
+                                    TextInstantiator.InstantiateText(FirstNumPlace, "R ", characterPosition.x + 150, characterPosition.y, -400, true);
 
-                                AdditionScript.InstantiateText(FirstNumPlace, FinalResult, characterPosition.x-120 , characterPosition.y, -550, true);
+                                    TextInstantiator.InstantiateText(FirstNumPlace, reminder.ToString(), characterPosition.x + 300, characterPosition.y, -400, true);
 
-                                AdditionScript.InstantiateText(FirstNumPlace, reminder.ToString(), characterPosition.x, characterPosition.y, -500, true);
+                                    TextInstantiator.InstantiateText(FirstNumPlace, FinalResult, characterPosition.x - 120, characterPosition.y, -550, true);
 
-                                AdditionScript.InstantiateText(FirstNumPlace, "\u2015", characterPosition.x , characterPosition.y, -550, true);
+                                    TextInstantiator.InstantiateText(FirstNumPlace, reminder.ToString(), characterPosition.x, characterPosition.y, -500, true);
 
-                                AdditionScript.InstantiateText(FirstNumPlace, SecNum.text.ToString(), characterPosition.x, characterPosition.y, -600, true);
+                                    TextInstantiator.InstantiateText(FirstNumPlace, "\u2015", characterPosition.x, characterPosition.y, -550, true);
 
+                                    TextInstantiator.InstantiateText(FirstNumPlace, SecNum.text.ToString(), characterPosition.x, characterPosition.y, -600, true);
+
+
+                                }
                             }
 
                             if (!FirstTimeInLoop)
@@ -368,7 +416,7 @@ public class DivisionScript : MonoBehaviour
                 }
             }
         }
-
+        Explain = false;
         button.interactable = true;
         IsFinshed = true;
     }

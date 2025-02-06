@@ -3,15 +3,15 @@ using UnityEngine.SceneManagement;
 
 public class DynamicBack : MonoBehaviour
 {
-    public void Back(string SceneName)
+    [SerializeField] private string SceneName;
+    public void Back()
     {
-
+        Debug.Log(SceneName);
         SceneManager.LoadScene(SceneName);
-
     }
     public void LoadTwoDigits()
     {
-        if (TwoDigitsMultiplicationScript.IsCalledFromOutSide == true)
+        if (!AdditionScript.IsBasic)
         {
             SceneManager.LoadScene("DecimaMainScene");
 

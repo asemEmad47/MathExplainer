@@ -31,13 +31,25 @@ public class FractionCalculator
         denominator2 *= denominator1;
         SimplifyFraction(ref numerator2, ref denominator2);
     }
+    public static void SubtractFractionFromNumber(int wholeNumber, ref int numerator, ref int denominator)
+    {
+        // Convert the whole number to a fraction with the same denominator
+        numerator = wholeNumber * denominator - numerator;
 
+        // Simplify the resulting fraction
+        SimplifyFraction(ref numerator, ref denominator);
+    }
     // Function for simplifying a fraction
     public static void SimplifyFraction(ref int numerator, ref int denominator)
     {
         int gcd = GCD(numerator, denominator);
         numerator /= gcd;
         denominator /= gcd;
+
+        if (numerator > 0 && denominator < 0) {
+            numerator = -numerator;
+            denominator = -denominator;
+        }
     }
 
     // Helper function to calculate the greatest common divisor (GCD)

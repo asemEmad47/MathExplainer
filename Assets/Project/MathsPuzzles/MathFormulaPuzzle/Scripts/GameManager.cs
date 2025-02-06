@@ -1,6 +1,7 @@
 using System.CodeDom.Compiler;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SocialPlatforms.Impl;
 using UnityEngine.UI;
@@ -29,6 +30,11 @@ public class GameManager : MonoBehaviour
 
     public static GameManager instance;
 
+    [SerializeField] TextMeshProUGUI ScoreTxt;
+    [SerializeField] RawImage Emoji;
+    [SerializeField] GameObject EndGamePanel;
+    private bool IsEnded = false;
+
     private void Awake()
     {
         instance = this;
@@ -55,6 +61,10 @@ public class GameManager : MonoBehaviour
         if(timer.remainingDuration == 20)
         {
             GameLogic.instance.difficulty = 3;
+        }
+        else if (timer.isDone && !IsEnded)
+        {
+            EndGame();
         }
     }
 
@@ -125,10 +135,19 @@ public class GameManager : MonoBehaviour
         endGameUI.SetActive(true);
         alarmAudioSource.Play();
         clockAudioSource.Stop();
+
+        IsEnded = true;
+        EndGamePanel.SetActive(true);
+
+        EndGameScript endGameScript = gameObject.AddComponent<EndGameScript>();
+        endGameScript.IntilizeComponents(score, ScoreTxt, Emoji);
+        endGameScript.EndGame();
     }
 
     void UpdateScore(int score)
     {
         scoreText.text = "Score: " + score.ToString();
     }
+
+
 }

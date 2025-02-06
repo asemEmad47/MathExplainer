@@ -62,16 +62,16 @@ public class AdditionEng : MonoBehaviour, TwoEqsParent
             {
                 Answer.text += "  " + X1Sign + X1Val + "X " + Y1Sign.ToString() + " " + $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.green)}>{Y1Val}</color>" + "Y = " + ResFloat1 +"<line-height=0.5em> \n\n</line-height>";
 
-                Answer.text += "  " + X2Sign + X2Val + "X " + Y2Sign.ToString() + " " + Y2Val+ "Y = " + ResFloat2+ " x (" + $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.green)}>{-Y1Val / Y2Val}</color>" + ")\n";
+                Answer.text += "  " + X2Sign + X2Val + "X " + Y2Sign.ToString() + " " + Y2Val+ "Y = " + ResFloat2+ $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.black)}>{" x ("}</color>" + $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.green)}>{-Y1Val / Y2Val}</color>" + $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.black)}>{")"}</color>"+ "\n\n";
                 X2Val *= -(Y1Val/Y2Val);
                 ResFloat2 *= -(Y1Val / Y2Val);
                 Y2Val *= -(Y1Val / Y2Val);
             }
             else
             {
-                Answer.text += "  " + X1Sign + X1Val + "X " + Y1Sign.ToString() + " " + Y1Val+ "Y = " + ResFloat1 + "x (" + $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.green)}>{(-Y2Val / Y1Val)}</color>" +")"+ "<line-height=0.5em> \n\n</line-height>";
+                Answer.text += "  " + X1Sign + X1Val + "X " + Y1Sign.ToString() + " " + Y1Val+ "Y = " + ResFloat1 + $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.black)}>{" x ("}</color>" + $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.green)}>{(-Y2Val / Y1Val)}</color>" + $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.black)}>{")"}</color>" + "<line-height=0.5em> \n\n</line-height>";
 
-                Answer.text += "  " + X2Sign + X2Val + "X " + Y2Sign.ToString() + " " + $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.green)}>{Y2Val}</color>" + "Y = " + ResFloat2+"\n";
+                Answer.text += "  " + X2Sign + X2Val + "X " + Y2Sign.ToString() + " " + $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.green)}>{Y2Val}</color>" + "Y = " + ResFloat2+ "\n\n";
                 X1Val *= -(Y2Val / Y1Val); 
                 ResFloat1 *= -(Y2Val / Y1Val);
                 Y1Val *= -(Y2Val / Y1Val);
@@ -81,7 +81,7 @@ public class AdditionEng : MonoBehaviour, TwoEqsParent
         {
             Answer.text += "  "+X1Sign + X1Val + "X " + Y1Sign.ToString() + " " + Y1Val + "Y = " + ResFloat1 +"<line-height=0.5em> \n\n</line-height>";
 
-            Answer.text += "  "+X2Sign + X2Val+ "X " + Y2Sign.ToString() + " " + Y2Val + "Y = " + ResFloat2 +"\n";
+            Answer.text += "  "+X2Sign + X2Val+ "X " + Y2Sign.ToString() + " " + Y2Val + "Y = " + ResFloat2 + "\n\n";
         }
         if (Y1Val < 0)
             Y1Sign = "";
@@ -104,13 +104,13 @@ public class AdditionEng : MonoBehaviour, TwoEqsParent
             X2Sign = "";
         if(!notEqual) {
             Answer.text += "  " + X1Sign + X1Val + "X " + Y1Sign.ToString() + " " + Y1Val + " Y = " + ResFloat1 + "<line-height=0.5em> \n\n</line-height>";
-            Answer.text += "  " + X2Sign + X2Val + "X " + " "+ Y2Sign.ToString() + " " + Y2Val + " Y = " + ResFloat2 + "\n";
+            Answer.text += "  " + X2Sign + X2Val + "X " + " "+ Y2Sign.ToString() + " " + Y2Val + " Y = " + ResFloat2 + "\n\n";
         }
 
         Answer.text += "  " +X1Sign+ X1Val + "X " + " " + Y1Sign.ToString() + " " + Y1Val + "Y = " + ResFloat1 + "<line-height=0.5em> \n</line-height>";
         Answer.text += "<line-height=0.5em>+\n</line-height>";
         SolvingTwoEqs.DisplayLineRender(lineRenderer, Answer);
-        Answer.text += "  " +X2Sign+ X2Val + "X " + " " + Y2Sign.ToString() + " " + Y2Val + "Y = " + ResFloat2 + '\n';
+        Answer.text += "  " +X2Sign+ X2Val + "X " + " " + Y2Sign.ToString() + " " + Y2Val + "Y = " + ResFloat2 + '\n' + '\n';
 
         if ((ResFloat1 - ResFloat2) < 0)
             ResSubRes = "";
@@ -123,12 +123,12 @@ public class AdditionEng : MonoBehaviour, TwoEqsParent
         ResetValues();
         if (Y2Val < 0)
         {
-            Answer.text += "   " + X2Val + " × " + '('+" " +XFinalResult + ") " + Y2Val + "y " + " = " + ResFloat2 + " -->(Sec eq) \n";
+            Answer.text += "   " + X2Val + " × " + '('+" " + $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.green)}>{XFinalResult}</color>" + ") " + Y2Val + "y " + " = " + ResFloat2 + " -->(Sec eq) \n";
             Answer.text += "   " + (X2Val * XFinalResult) + " " + Y2Val.ToString() + "y " + " = " + ResFloat2 + "\n";
         }
         else
         {
-            Answer.text += "   " + X2Val + " × " + '(' + XFinalResult + ") + " + Y2Val + "y " + " = " + ResFloat2 + " -->(Sec eq) \n";
+            Answer.text += "   " + X2Val + " × " + '(' + $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.green)}>{XFinalResult}</color>" + ") + " + Y2Val + "y " + " = " + ResFloat2 + " -->(Sec eq) \n";
             Answer.text += "   " + (X2Val * XFinalResult) + " + " + Y2Val.ToString() + "y " + " = " + ResFloat2 + "\n";
         }
 
@@ -140,7 +140,7 @@ public class AdditionEng : MonoBehaviour, TwoEqsParent
         Answer.text += "   " + Y2Val.ToString() + "y " + " = " + (ResFloat2 -(X2Val * XFinalResult)) + "\n";
         Answer.text += "   " + "y " + " = " + (ResFloat2 - (X2Val * XFinalResult)) + " ÷ " + Y2Val + "\n";
         Answer.text += $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.gray)}>{"   " + "y " + " = " + ((ResFloat2 - (X2Val * XFinalResult)) / Y2Val)}</color>" + "\n";
-        Answer.text += "   " + "{" + '(' + XFinalResult + ',' + MathF.Round(((ResFloat2 - (X2Val * XFinalResult)) / Y2Val),2) + ')' + '}';
+        Answer.text += " S.S  " + "{" + '(' + XFinalResult + ',' + MathF.Round(((ResFloat2 - (X2Val * XFinalResult)) / Y2Val),2) + ')' + '}';
     }
     public IEnumerator SpeakAndWait(string written, int index)
     {
@@ -284,6 +284,7 @@ public class AdditionEng : MonoBehaviour, TwoEqsParent
         }
         else if (index == 7)
         {
+            Answer.text += '\n';
             yield return new WaitForSeconds(1f);
             yield return (VoiceSpeaker.PlayVoiceNumberAndWait((X1Y2Val).ToString()));
             yield return (VoiceSpeaker.PlayByAddress("SolvingTwoEqs/x_Sonya_Eng"));
@@ -348,7 +349,7 @@ public class AdditionEng : MonoBehaviour, TwoEqsParent
             yield return (VoiceSpeaker.PlayByAddress("SolvingTwoEqs/time_Sonya_Eng"));
             yield return (VoiceSpeaker.PlayVoiceNumberAndWait(XFinalResult.ToString()));
 
-            Answer.text += "   " + X2Val.ToString() + " × (" + XFinalResult+')';
+            Answer.text += "   " + X2Val.ToString() + $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.black)}>{" x ("}</color>" + $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.green)}>{XFinalResult}</color>" + $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.black)}>{")"}</color>";
 
             yield return (VoiceSpeaker.PlayByAddress("SolvingTwoEqs/plus_Sonya_Eng"));
             Answer.text += " + ";
@@ -530,7 +531,7 @@ public class AdditionEng : MonoBehaviour, TwoEqsParent
         List<string> WritingSteps = new List<string>
         {
             "!!  " + X1Sign + X1Val + "X " + Y1Sign.ToString() + " " + Y1Val + "Y = " + ResFloat1 + "<line-height=0.5em> \n\n</line-height>",
-            "!!  " + X2Sign + X2Val + "X " + Y2Sign.ToString() + " " + Y2Val + "Y = " + ResFloat2 + "\n"
+            "!!  " + X2Sign + X2Val + "X " + Y2Sign.ToString() + " " + Y2Val + "Y = " + ResFloat2 + "\n\n"
         };
         if (MathF.Abs(Y1Val) != MathF.Abs(Y2Val))
         {
@@ -539,9 +540,9 @@ public class AdditionEng : MonoBehaviour, TwoEqsParent
 
                 WritingSteps.Add("  " + X1Sign + X1Val + "X |" +Y1Sign+ Y1Val + " Y = |" + ResFloat1 + "<line-height=0.5em> \n\n</line-height>");
                 if (Y2Val * (-Y1Val / Y2Val)<0)
-                    WritingSteps.Add("  " + X2Sign + X2Val * (-Y1Val/Y2Val) + "X |" + Y2Val * (-Y1Val / Y2Val) + " Y = |" + ResFloat2 * (-Y1Val / Y2Val) + "\n");
+                    WritingSteps.Add("  " + X2Sign + X2Val * (-Y1Val/Y2Val) + "X |" + Y2Val * (-Y1Val / Y2Val) + " Y = |" + ResFloat2 * (-Y1Val / Y2Val) + "\n\n");
                 else
-                    WritingSteps.Add("  " + X2Sign + X2Val * (-Y1Val / Y2Val) + "X |+" + Y2Val * (-Y1Val / Y2Val) + " Y = |" + ResFloat2 * (-Y1Val / Y2Val) + "\n");
+                    WritingSteps.Add("  " + X2Sign + X2Val * (-Y1Val / Y2Val) + "X |+" + Y2Val * (-Y1Val / Y2Val) + " Y = |" + ResFloat2 * (-Y1Val / Y2Val) + "\n\n");
                 X2Val *= -(Y1Val / Y2Val);
                 ResFloat2 *= -(Y1Val / Y2Val);
                 Y2Val *= -(Y1Val / Y2Val);
@@ -578,12 +579,12 @@ public class AdditionEng : MonoBehaviour, TwoEqsParent
         WritingSteps.Add($"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.gray)}>{"              x = " + (ResFloat1 + ResFloat2) / (X1Val + X2Val)}</color>" + '\n');
         if (Y2Val < 0)
         {
-            WritingSteps.Add("   " + X2Val + " × " + '(' + " " + XFinalResult + ") " + Y2Val + "y " + " = " + ResFloat2 + " -->(Sec eq) \n");
+            WritingSteps.Add("   " + X2Val + " × " + '(' + " " + $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.green)}>{XFinalResult}</color>" + ") " + Y2Val + "y " + " = " + ResFloat2 + " -->(Sec eq) \n");
             WritingSteps.Add("   " + (X2Val * XFinalResult) + " " + Y2Val.ToString() + "y " + " = " + ResFloat2 + "\n");
         }
         else
         {
-            WritingSteps.Add("   " + X2Val + " × " + '(' + XFinalResult + ") + " + Y2Val + "y " + " = " + ResFloat2 + " -->(Sec eq) \n");
+            WritingSteps.Add("   " + X2Val + " × " + '(' + $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.green)}>{XFinalResult}</color>" + ") + " + Y2Val + "y " + " = " + ResFloat2 + " -->(Sec eq) \n");
             WritingSteps.Add("   " + (X2Val * XFinalResult) + " + " + Y2Val.ToString() + "y " + " = " + ResFloat2 + "\n");
         }
 
@@ -595,7 +596,7 @@ public class AdditionEng : MonoBehaviour, TwoEqsParent
         WritingSteps.Add("   " + Y2Val.ToString() + "y " + " = " + (ResFloat2 - (X2Val * XFinalResult)) + "\n");
         WritingSteps.Add("   " + "y " + " = " + (ResFloat2 - (X2Val * XFinalResult)) + " ÷ " + Y2Val + "\n");
         WritingSteps.Add($"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.gray)}>{"   " + "y " + " = " + ((ResFloat2 - (X2Val * XFinalResult)) / Y2Val)}</color>" + "\n");
-        WritingSteps.Add("   " + "{" + '(' + XFinalResult + ',' + ((ResFloat2 - (X2Val * XFinalResult)) / Y2Val) + ')' + '}');
+        WritingSteps.Add(" S.S  " + "{" + '(' + XFinalResult + ',' + ((ResFloat2 - (X2Val * XFinalResult)) / Y2Val) + ')' + '}');
         return WritingSteps;
     }
     public void ResetValues()

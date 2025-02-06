@@ -26,7 +26,6 @@ public class VoiceSpeaker : MonoBehaviour
         audioSource.Stop();
         Destroy(audioObject);
         audioSource = null;
-        MakeAnimatedTrue();
     }
     public static IEnumerator PlayVoiceNumberAndWait(String text)
     {
@@ -118,7 +117,6 @@ public class VoiceSpeaker : MonoBehaviour
             Destroy(audioObject);
             audioSource = null;
         }
-        MakeAnimatedTrue();
     }
     public static AudioClip GetUnder10Numbers(String text)
     {
@@ -198,12 +196,5 @@ public class VoiceSpeaker : MonoBehaviour
         voiceClips = Resources.LoadAll<AudioClip>(voiceClipsName);
         Numbers = Resources.LoadAll<AudioClip>(NumbersName);
     }
-    public static void MakeAnimatedTrue()
-    {
-        Solve.IsAnimatedPart2 = true;
-        TwoPointsScript.IsAnimatedPart2 = true;
-        PointsScript.IsAnimatedPart2 = true;
-        Parallel.IsAnimatedPart2 = true;
-        Perpendicular.IsAnimatedPart2 = true;
-    }
+
 }

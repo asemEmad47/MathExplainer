@@ -21,7 +21,6 @@ public class DecimalDirector : MonoBehaviour
     public void Multiply()
     {
         AdditionScript.IsBasic = false;
-        TwoDigitsMultiplicationScript.IsCalledFromOutSide = true;
         SceneManager.LoadScene("TwoDigitsMultiplicationScene");
     }
 
@@ -31,4 +30,26 @@ public class DecimalDirector : MonoBehaviour
         SceneManager.LoadScene("DecimalScene");
         PlayerPrefs.SetString("type", "division");
     }
+
+    public void LCM()
+    {
+        PlayerPrefs.SetString("type", "LCM");
+        SceneManager.LoadScene("GCF");
+    }    
+    public void GCF()
+    {
+        PlayerPrefs.SetString("type", "GCF");
+        SceneManager.LoadScene("GCF");
+    }
+    private void Awake()
+    {
+        GCFScript.IsCalledFromOutside = false;
+        AdditionScript.IscalledFromOutSide = false;
+        SubtractionScript.IscalledFromOutSide = false;
+        TwoDigitsMultiplicationScript.IsCalledFromOutSide = false;
+        OneDigitMultiplicationScript.IscalledFromOutSide = false;
+        GCFScript.IsCalledFromOutside = false;
+        AdditionScript.IsBasic = true;
+    }
+
 }

@@ -6,6 +6,7 @@ using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 
@@ -14,6 +15,7 @@ public class TwoDigitsMultiplicationScript : MonoBehaviour
     [SerializeField] private TMP_InputField FrstNum;
     [SerializeField] private TMP_InputField SecNum;
     [SerializeField] private TextMeshProUGUI FirstNumPlace;
+    [SerializeField] private TextMeshProUGUI SecNumPlace;  
     [SerializeField] private TextMeshProUGUI Line;
     [SerializeField] private TextMeshProUGUI Line2;
     [SerializeField] private TextMeshProUGUI sign;
@@ -30,24 +32,38 @@ public class TwoDigitsMultiplicationScript : MonoBehaviour
     public static AudioSource audioSource;
     public static bool IsCalledFromOutSide = false;
 
-    private bool Explain = false;
+    public static bool Explain = false;
     string SpeakerName = "_Sonya_Eng";
     bool IsEng = true;
     private Vector3 ResVector;
 
     private string FirstRes;
     private string SecRes;
+    public static string FirstNumber = "";
+    public static string SecNumber = "";
+
 
     public void Start()
     {
-        ResVector = new Vector3();
-        UnityAction langBtnClickAction = () => AdditionScript.LangBtnClick(ref IsEng, ref SpeakerName, ref loop);
-        LangBtn.onClick.AddListener(langBtnClickAction);
+        try
+        {
+            FrstNum.text = FirstNumber;
+            SecNum.text = SecNumber;
+        }
+        catch (Exception e)
+        {
 
+            Debug.Log(e);
+        }
+
+        ResVector = new Vector3();
+        UnityAction langBtnClickAction = () => LangBtnActions.LangBtnClick(ref IsEng, ref SpeakerName, ref loop);
+        LangBtn.onClick.AddListener(langBtnClickAction);
 
         if (AdditionScript.IsBasic)
         {
-            FrstNum.onValidateInput = AdditionScript.ValidateInput;
+
+            FrstNum.onValidateInput = InputFieldsActions.ValidateBasicObsInput;
             SecNum.onValidateInput = ValidateSecInput;
 
         }
@@ -56,35 +72,75 @@ public class TwoDigitsMultiplicationScript : MonoBehaviour
             SecNum.onValueChanged.AddListener((input) => OnInputChanged(SecNum, input));
             FrstNum.onValueChanged.AddListener((input) => OnInputChanged(FrstNum, input));
 
-            FrstNum.onValidateInput = DecimmalScript.ValidateDecimalInput;
-            SecNum.onValidateInput = DecimmalScript.ValidateSecDecimalInput;
+            FrstNum.onValidateInput = InputFieldsActions.ValidateDecimalObsInput;
+            SecNum.onValidateInput = InputFieldsActions.ValidateDecimalObsInput;
         }
-
-        AdditionScript.InitializePlaceholders(FrstNum);
-        AdditionScript.InitializePlaceholders(SecNum);
+        InputFieldsActions.InitializePlaceholders(FrstNum);
+        InputFieldsActions.InitializePlaceholders(SecNum);
     }
-
+    public void SetComponenets(TMP_InputField FrstNum, TMP_InputField SecNum, TextMeshProUGUI FirstNumPlace, TextMeshProUGUI SecNumPlace, TextMeshProUGUI Line, TextMeshProUGUI sign, UnityEngine.UI.Button LangBtn, TextMeshProUGUI FirstNumPlaceAddition, TextMeshProUGUI SecNumPlaceADdition, TextMeshProUGUI Line2)
+    {
+        this.FrstNum = FrstNum;
+        this.SecNum = SecNum;
+        this.FirstNumPlace = FirstNumPlace;
+        this.Line = Line;
+        this.sign = sign;
+        this.SecNumPlace = SecNumPlace;
+        this.FirstNumPlaceAdditon = FirstNumPlaceAddition;
+        this.SecNumPlaceAdditon = SecNumPlaceADdition;
+        this.Line2 = Line2;
+        FrstNum.text = FirstNumber;
+        SecNum.text = SecNumber;
+    }
     void Update()
     {
 
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
-        AdditionScript.EnableExplain(ref FrstNum, ref SecNum);
+        ExplainEnableMent.EnableExplain(ref FrstNum, ref SecNum);
+        if (FrstNum.text.Length == 0 || SecNum.text.Length == 0 || Explain)
+        {
+            GameObject ExplainBtn = GameObject.Find("Explain");
+            GameObject SolveBtn = GameObject.Find("Solve");
+            UnityEngine.UI.Button button = ExplainBtn.GetComponent<UnityEngine.UI.Button>();
+            button.interactable = false;
 
-        if (IsEng)
-        {
-            SpeakerName = "_Sonya_Eng";
+            UnityEngine.UI.Button Solvebutton = SolveBtn.GetComponent<UnityEngine.UI.Button>();
+            Solvebutton.interactable = false;
+
         }
-        else
+        if (FrstNum.text.Length != 0 && SecNum.text.Length != 0 && !Explain)
         {
-            SpeakerName = "_Heba_Egy";
+            GameObject SolveBtn = GameObject.Find("Solve");
+            UnityEngine.UI.Button Solvebutton = SolveBtn.GetComponent<UnityEngine.UI.Button>();
+            Solvebutton.interactable = true;
         }
+        if (!AdditionVoiceSpeaker.NumPlace.Equals("JennySound/JennyNumbers"))
+        {
+            if (IsEng)
+            {
+                SpeakerName = "_Sonya_Eng";
+
+            }
+            else
+            {
+                SpeakerName = "_Heba_Egy";
+
+            }
+        }
+
         AdditionScript.SpeakerName = SpeakerName;
         AdditionScript.IsEng = IsEng;
         OneDigitMultiplicationScript.SpeakerName = SpeakerName;
         OneDigitMultiplicationScript.IsEng = IsEng;
     }
 
-    public void explain()
+    public void SolveBtnAction()
+    {
+        Explain = false;
+        StartCoroutine(solve());
+
+    }
+    public void ExplainBtnAction()
     {
         Explain = true;
         audioSource = GetComponent<AudioSource>();
@@ -92,6 +148,9 @@ public class TwoDigitsMultiplicationScript : MonoBehaviour
     }
     public IEnumerator solve()
     {
+
+        AdditionVoiceSpeaker.VoiceClipsPlace = "AdditionTerms/AdditionSound";
+
         OneDigitMultiplicationScript.IscalledFromOutSide = true;
         AdditionScript.IscalledFromOutSide = true;
 
@@ -119,52 +178,57 @@ public class TwoDigitsMultiplicationScript : MonoBehaviour
 
         string FirstNumCpy = FrstNum.text;// to save real value of the first input
         string SecNumCpy = SecNum.text; // to save real value of the second input
-        SubtractionScript.ResetAllValues(Line, FirstNumPlace, FirstNumPlace, sign);
-        FirstNumPlaceAdditon.text = "";
-        SecNumPlaceAdditon.text = "";
+        if (!IsCalledFromOutSide)
+        {
+            ResetValues.ResetAllValues(Line, FirstNumPlace, SecNumPlace, sign);
+            FirstNumPlaceAdditon.text = "";
+            SecNumPlaceAdditon.text = "";
+        }
+
         FirstRes = "";
         SecRes = "";
         AdditionSign.gameObject.SetActive(false);
         Line2.gameObject.SetActive(false);
 
 
-
-        yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/first" + SpeakerName)));
+        string FrstNumCpy = "";
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"first" + SpeakerName,Explain)));
         if (IsCalledFromOutSide && FrstNum.text.Contains('.'))
         {
-            yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/write the first number without decimal point" + SpeakerName)));
+            yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"write the first number without decimal point" + SpeakerName, Explain)));
 
         }
         else
         {
-            yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/write the first number" + SpeakerName)));
+            yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"write the first number" + SpeakerName, Explain)));
         }
         try
         {
-            FrstNum.text = FrstNum.text.Remove(FrstNum.text.IndexOf('.'),1);
+            FrstNumCpy = FrstNum.text.Remove(FrstNum.text.IndexOf('.'), 1);
         }
 
         catch (Exception e)
         {
+            FrstNumCpy = FrstNum.text;
             Debug.Log(e);
         }
         string TempFrstNum = "";
-        for (int i = 0; i < FrstNum.text.Length; i++)
+        for (int i = 0; i < FrstNumCpy.Length; i++)
         {
-            TempFrstNum += FrstNum.text[i] + " ";
+            TempFrstNum += FrstNumCpy[i] + " ";
         }
-        FirstNumPlace.text = TempFrstNum;
 
+        FirstNumPlace.text = TempFrstNum;
         FirstNumPlace.gameObject.SetActive(true);
 
         if (FirstNumPlace.text[0].Equals('0'))
         {
-            yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/Remove useless zeros" + SpeakerName)));
+            yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"Remove useless zeros" + SpeakerName, Explain)));
             for (int i = 0; i < FirstNumPlace.text.Length; i += 2)
             {
                 if(FirstNumPlace.text[i].Equals('0')){
                     FirstNumPlace.text = FirstNumPlace.text.Substring(i + 2);
-                    FrstNum.text=FrstNum.text.Substring(1);
+                    FrstNumCpy =FrstNumCpy.Substring(1);
                 }
                 else
                 {
@@ -172,16 +236,18 @@ public class TwoDigitsMultiplicationScript : MonoBehaviour
                 }
             }
         }
-        yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/then" + SpeakerName)));
+
+
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"then" + SpeakerName, Explain)));
 
         if (IsCalledFromOutSide && SecNum.text.Contains('.'))
         {
-            yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/write the second number without decimal point" + SpeakerName)));
+            yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"write the second number without decimal point" + SpeakerName , Explain)));
 
         }
         else
         {
-            yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/write the second number" + SpeakerName)));
+            yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"write the second number" + SpeakerName, Explain)));
 
         }
         try
@@ -193,205 +259,217 @@ public class TwoDigitsMultiplicationScript : MonoBehaviour
         {
             Debug.Log(e);
         }
-        TMP_TextInfo textInfo = FirstNumPlace.GetTextInfo(FirstNumPlace.text);
-
-        TMP_CharacterInfo charInfo = textInfo.characterInfo[FirstNumPlace.text.Length - 2];
-        Vector3 characterPosition = AdditionScript.GetCharPoos(FirstNumPlace, charInfo, FirstNumPlace.text.Length - 2);
 
 
-        GameObject newTextObject = new GameObject("SecNumPlace");
-        TextMeshProUGUI SecNumPlace = newTextObject.AddComponent<TextMeshProUGUI>();
+        Vector3 characterPosition =new Vector3 (0, FirstNumPlace.GetComponent<RectTransform>().anchoredPosition.y - 50,0);
 
-        // Copy text properties
-        SecNumPlace.text = SecNum.text;
-        SecNumPlace.font = FirstNumPlace.font;
-        SecNumPlace.fontSize = 90;
-        SecNumPlace.color = Color.black;
-        SecNumPlace.alignment = FirstNumPlace.alignment;
-        SecNumPlace.fontStyle = FontStyles.Bold;
-        newTextObject.transform.SetParent(FirstNumPlace.transform.parent);
 
-        RectTransform newTextRect = newTextObject.GetComponent<RectTransform>();
-        newTextRect.localScale = Vector3.one;
-        newTextRect.GetComponent<RectTransform>().anchoredPosition = new Vector2(characterPosition.x - 35, characterPosition.y - 150);
-        SecNumPlace.raycastTarget = false;
 
-        sign.gameObject.SetActive(true);
-        Line.gameObject.SetActive(true);
+        SecNumPlace.GetComponent<RectTransform>().anchoredPosition = new Vector3(FirstNumPlace.GetComponent<RectTransform>().anchoredPosition.x+40*(FrstNumCpy.Length-SecNum.text.Length), FirstNumPlace.GetComponent<RectTransform>().anchoredPosition.y - 100, 0);
 
-        if (SecNumPlace.text[0].Equals('0'))
+        SecNumPlace.text = "";
+        for (int i = 0; i < SecNum.text.Length; i++)
         {
-            yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/Remove useless zeros" + SpeakerName)));
-            for (int i = 0; i < SecNumPlace.text.Length; i ++)
+            if (i < SecNum.text.Length - 1)
             {
-                if (SecNumPlace.text[i].Equals('0'))
-                {
-                    SecNumPlace.text = SecNumPlace.text.Substring(i+1);
-                    SecNum.text = SecNum.text.Substring(i + 1);
-                }
-                else
-                {
-                    break;
-                }
+                SecNumPlace.text += SecNum.text[i] + " ";
+            }
+            else
+            {
+                SecNumPlace.text += SecNum.text[i];
             }
         }
+        SecNumPlace.gameObject.SetActive(true);
+        sign.gameObject.SetActive(true);
+
+
+        Line.gameObject.SetActive(true);
+
 
 
 
         if (FirstNumPlace != null)
         {
-
-
-            // Check if textInfo is available
-            if (textInfo != null)
+            TMP_TextInfo textInfo = FirstNumPlace.GetTextInfo(FirstNumPlace.text);
+            TMP_CharacterInfo charInfoSecPlace = textInfo.characterInfo[FirstNumPlace.text.Length-2];
+            Vector3 characterPositionSecPlace = CharacterProbs.GetCharPoos(FirstNumPlace, charInfoSecPlace, FirstNumPlace.text.Length - 2);
+            int index = 1;
+            if (SecNum.text.Length < 2)
+                index = 0;
+            else if (SecNum.text[1] =='0')
             {
-                int index = 1;
-                if (SecNum.text.Length < 2)
-                    index = 0;
+                index = 0;
+                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"put zero in the first digit" + SpeakerName, Explain))); // adding zero in the first digit
+                TextInstantiator.InstantiateText(FirstNumPlace, "0", characterPositionSecPlace.x+20, FirstNumPlace.GetComponent<RectTransform>().anchoredPosition.y, OneDigitMultiplicationScript.ResDistance, true, 99999); // putting zero in first digit
+
+            }
+            else
+            {
                 yield return StartCoroutine(MultiplyByEachDigit(index, SecNumPlace));
 
-                OneDigitMultiplicationScript OneMultiplication = OneDigitMultiplicationObj.GetComponent<OneDigitMultiplicationScript>(); // use the one multplication script in the first number
-                OneMultiplication.SetComponenets(FrstNum, SecNum, FirstNumPlace, Line, sign, LangBtn, index);
-                OneMultiplication.explain();
+            }
 
+            OneDigitMultiplicationScript OneMultiplication = OneDigitMultiplicationObj.GetComponent<OneDigitMultiplicationScript>(); // use the one multplication script in the first number
+
+
+            OneMultiplication.SetComponenets(FrstNum, SecNum, FirstNumPlace, Line, sign, LangBtn, index);
+            OneMultiplication.OutSideSolve(Explain);
+
+
+            button.interactable = false;
+            AdditionSign.GetComponent<RectTransform>().anchoredPosition = new Vector3(sign.GetComponent<RectTransform>().anchoredPosition.x, AdditionSign.GetComponent<RectTransform>().anchoredPosition.y, 0);
+
+            while (!OneDigitMultiplicationScript.IsFinshed)
+            {
+                yield return null;
+            }
+            if (!IsCalledFromOutSide)
+            {
+                OneDigitMultiplicationScript.ResDistance = -500;
+                OneDigitMultiplicationScript.SupDistance = 250;
+            }
+            else{
+                OneDigitMultiplicationScript.ResDistance -=100;
+                OneDigitMultiplicationScript.SupDistance +=50;
+
+            }
+
+            if (SecNum.text.Length >= 2 && !SecNum.text[1].Equals("0"))
+            {
+                charInfoSecPlace = textInfo.characterInfo[FirstNumPlace.text.Length - 2];
+                characterPositionSecPlace = CharacterProbs.GetCharPoos(FirstNumPlace, charInfoSecPlace, FirstNumPlace.text.Length - 2);
 
                 button.interactable = false;
+                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"put zero in the first digit" + SpeakerName, Explain))); // adding zero in the first digit
+
+
+                TextInstantiator.InstantiateText(FirstNumPlace, "0", characterPositionSecPlace.x+10, FirstNumPlace.GetComponent<RectTransform>().anchoredPosition.y+100, OneDigitMultiplicationScript.ResDistance, true, 99999); // putting zero in first digit
+
+                GameObject temp = GameObject.Find("99999");
+                temp.name = "Res0";
+
+                yield return StartCoroutine(MultiplyByEachDigit(0, SecNumPlace));
+
+                MultiplyByEachDigit(0, SecNumPlace);
+                OneMultiplication.SetComponenets(FrstNum, SecNum, FirstNumPlace, Line, sign, LangBtn, 0);
+                OneMultiplication.OutSideSolve(Explain);
+
 
                 while (!OneDigitMultiplicationScript.IsFinshed)
                 {
                     yield return null;
                 }
-                OneDigitMultiplicationScript.ResDistance = -500;
-                OneDigitMultiplicationScript.SupDistance = 250;
 
-                charInfo = textInfo.characterInfo[FirstNumPlace.text.Length - 2];
-                characterPosition = AdditionScript.GetCharPoos(FirstNumPlace, charInfo, FirstNumPlace.text.Length - 2);
+                yield return new WaitForSeconds(1f);
+
+                GetResult();
+                ResVector = new Vector3(characterPosition.x + 15, characterPosition.y, 0);
+
+                DelResult();
+
+                FirstNumPlaceAdditon.text = FirstRes;
+                SecNumPlaceAdditon.text = SecRes;
+
+                FirstNumPlaceAdditon.gameObject.SetActive(true);
+                SecNumPlaceAdditon.gameObject.SetActive(true);
+
+                Line2.gameObject.SetActive(true);
+                AdditionSign.gameObject.SetActive(true);
 
 
-                button.interactable = false;
+                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"put zeros in empty digits" + SpeakerName, Explain)));
 
-                if(SecNum.text.Length >= 2)
+
+                string FrstNumTemp = FrstNum.text;
+                string SecNumTemp = SecNum.text;
+                FrstNum.text = FirstRes;
+                SecNum.text = SecRes;
+                ZerosOps.FillWithZeros(FrstNum, SecNum, FirstNumPlaceAdditon, SecNumPlaceAdditon, "0");
+
+                FrstNum.text = FrstNumTemp;
+                SecNum.text = SecNumTemp;
+
+                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"start adding" + SpeakerName, Explain)));
+                if (!IsCalledFromOutSide)
                 {
-
-                    yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/put zero in the first digit" + SpeakerName))); // adding zero in the first digit
-
-                    AdditionScript.InstantiateText(FirstNumPlace, "0", characterPosition.x + 15, characterPosition.y, OneDigitMultiplicationScript.ResDistance, true, 99999); // putting zero in first digit
-
-                    GameObject temp = GameObject.Find("99999");
-                    temp.name = "Res0";
-
-                    yield return StartCoroutine(MultiplyByEachDigit(0, SecNumPlace));
-
-                    MultiplyByEachDigit(0, SecNumPlace);
-                    OneMultiplication.SetComponenets(FrstNum, SecNum, FirstNumPlace, Line, sign, LangBtn, 0);
-                    OneMultiplication.explain(); // use the one multplication script in the second number
-
-
-                    while (!OneDigitMultiplicationScript.IsFinshed)
-                    {
-                        yield return null;
-                    }
-
-                    yield return new WaitForSeconds(1f);
-
-                    GetResult();
-                    ResVector = new Vector3(characterPosition.x + 15, characterPosition.y, 0);
-
-                    DelResult();
-
-                    FirstNumPlaceAdditon.text = FirstRes;
-                    SecNumPlaceAdditon.text = SecRes;
-
-                    FirstNumPlaceAdditon.gameObject.SetActive(true);
-                    SecNumPlaceAdditon.gameObject.SetActive(true);
-
-                    Line2.gameObject.SetActive(true);
-                    AdditionSign.gameObject.SetActive(true);
-
-
-                    yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/put zeros in empty digits" + SpeakerName)));
-
-
-                    string FrstNumTemp = FrstNum.text;
-                    string SecNumTemp = SecNum.text;
-                    FrstNum.text = FirstRes;
-                    SecNum.text = SecRes;
-                    AdditionScript.FillWithZeros(FrstNum, SecNum, FirstNumPlaceAdditon, SecNumPlaceAdditon, "0");
-
-                    FrstNum.text = FrstNumTemp;
-                    SecNum.text = SecNumTemp;
-
-                    yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/start adding" + SpeakerName)));
                     OneDigitMultiplicationScript.ResDistance = -400;
                     OneDigitMultiplicationScript.SupDistance = 150;
 
-
-                    AdditionScript addition = AdditionObj.GetComponent<AdditionScript>();
-                    addition.SetComponenets(FrstNum, SecNum, FirstNumPlaceAdditon, SecNumPlaceAdditon, Line2, AdditionSign, LangBtn);
-                    addition.explain();
-                    while (AdditionScript.IscalledFromOutSide)
-                    {
-                        yield return null;
-                    }
                 }
 
-
-                if (IsCalledFromOutSide && DecimalDigitsCount !=0)
+                AdditionScript addition = AdditionObj.GetComponent<AdditionScript>();
+                addition.SetComponenets(FrstNum, SecNum, FirstNumPlaceAdditon, SecNumPlaceAdditon, Line2, AdditionSign, LangBtn);
+                addition.OutSideSolve(Explain);
+                while (AdditionScript.IscalledFromOutSide)
                 {
-                    yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/count the decimal digits" + SpeakerName)));
+                    yield return null;
+                }
+            }
+            if (!AdditionScript.IsBasic &&DecimalDigitsCount !=0)
+            {
+                try
+                {
+                    SecNumPlace.text = SecNum.text[0] + " " + SecNum.text[1];
 
-                    yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/its" + SpeakerName)));
+                }
+                catch (Exception e)
+                {
 
-                    yield return (StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait(DecimalDigitsCount.ToString())));
+                    Debug.Log(e);
+                }
 
-                    yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/count" + SpeakerName)));
+                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"count the decimal digits" + SpeakerName, Explain)));
 
-                    yield return (StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait(DecimalDigitsCount.ToString())));
+                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"its" + SpeakerName, Explain)));
 
-                    yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/digits" + SpeakerName)));
+                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this,DecimalDigitsCount.ToString() , Explain)));
 
-                    yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/starting from right" + SpeakerName)));
+                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"count" + SpeakerName, Explain)));
 
-                    TextMeshProUGUI[] textMeshProObjects = FindObjectsOfType<TextMeshProUGUI>().Where(obj => obj.name == "-1").ToArray();
+                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this,DecimalDigitsCount.ToString(), Explain)));
 
-                    bool caughtException = false;
+                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"digits" + SpeakerName, Explain)));
 
-                    for (int i = 1; i <= DecimalDigitsCount; i++)
+                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"starting from right" + SpeakerName, Explain)));
+
+                TextMeshProUGUI[] textMeshProObjects = FindObjectsOfType<TextMeshProUGUI>().Where(obj => obj.name == "-1").ToArray();
+
+                bool caughtException = false;
+                for (int i = 1; i <= DecimalDigitsCount; i++)
+                {
+                    yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this,i.ToString(), Explain)));
+
+                    try
                     {
-                        yield return (StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait(i.ToString())));
-
-                        try
-                        {
-                            textMeshProObjects[textMeshProObjects.Length - i].text = $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.red)}>{textMeshProObjects[textMeshProObjects.Length - i].text}</color>";
-                            characterPosition.x = textMeshProObjects[textMeshProObjects.Length - i].transform.position.x;
-                            characterPosition.y = textMeshProObjects[textMeshProObjects.Length - i].transform.position.y;
-                        }
-                        catch (Exception)
-                        {
-                            caughtException = true;
-                        }
-
-
-                        // Handle the coroutine outside of the catch block
-                        if (caughtException)
-                        {
-                            yield return StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/nothing in the next digit so put zero" + SpeakerName));
-
-                            AdditionScript.InstantiateText(FirstNumPlace, "0", characterPosition.x - 30, characterPosition.y, OneDigitMultiplicationScript.ResDistance, true);
-                            characterPosition = new Vector3(characterPosition.x - 30, characterPosition.y, 0);
-                        }
+                        textMeshProObjects[textMeshProObjects.Length - i].text = $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.red)}>{textMeshProObjects[textMeshProObjects.Length - i].text}</color>";
+                        characterPosition.x = textMeshProObjects[textMeshProObjects.Length - i].GetComponent<RectTransform>().anchoredPosition.x-20;
+                        characterPosition.y = textMeshProObjects[textMeshProObjects.Length - i].GetComponent<RectTransform>().anchoredPosition.y-20;
                     }
-                    yield return StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/and put the decimal point after you finished" + SpeakerName));
-
-                    AdditionScript.InstantiateText(FirstNumPlace, ".", characterPosition.x - 30, characterPosition.y, 0, true);
-                    characterPosition = new Vector3(characterPosition.x - 30, characterPosition.y, 0);
-
-                    if (DecimalDigitsCount >= textMeshProObjects.Length)
+                    catch (Exception)
                     {
-                        yield return StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/you should write a value in the unit digit so put" + SpeakerName));
-                        AdditionScript.InstantiateText(FirstNumPlace, "0", characterPosition.x - 30, characterPosition.y, 0,true);
-
+                        caughtException = true;
                     }
+
+
+                    // Handle the coroutine outside of the catch block
+                    if (caughtException)
+                    {
+                        yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"nothing in the next digit so put zero" + SpeakerName, Explain));
+
+                        TextInstantiator.InstantiateText(FirstNumPlace, "0", characterPosition.x - 30, characterPosition.y, OneDigitMultiplicationScript.ResDistance, true);
+                        characterPosition = new Vector3(characterPosition.x - 30, characterPosition.y, 0);
+                    }
+                }
+                yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"and put the decimal point after you finished" + SpeakerName, Explain));
+
+                TextInstantiator.InstantiateText(FirstNumPlace, ".", characterPosition.x - 30, characterPosition.y, 0, true,999999);
+                characterPosition = new Vector3(characterPosition.x - 30, characterPosition.y, 0);
+
+                if (DecimalDigitsCount >= textMeshProObjects.Length)
+                {
+                    yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"you should write a value in the unit digit so put" + SpeakerName, Explain));
+                    TextInstantiator.InstantiateText(FirstNumPlace, "0", characterPosition.x - 30, characterPosition.y, 0,true);
+
                 }
             }
         }
@@ -400,6 +478,7 @@ public class TwoDigitsMultiplicationScript : MonoBehaviour
         OneDigitMultiplicationScript.SupDistance = 150;
         OneDigitMultiplicationScript.IscalledFromOutSide = false;
         AdditionScript.IscalledFromOutSide = false;
+        Explain = false;
     }
     public char ValidateSecInput(string text, int charIndex, char addedChar)
     {
@@ -457,18 +536,17 @@ public class TwoDigitsMultiplicationScript : MonoBehaviour
 
     public IEnumerator MultiplyByEachDigit(int index , TextMeshProUGUI SecNumPlace)
     {
-        yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/multiply" + SpeakerName)));
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"multiply" + SpeakerName, Explain)));
 
-        yield return (StartCoroutine(AdditionVoiceSpeaker.PlayVoiceNumberAndWait(SecNum.text[index].ToString())));
-        string temp = SecNumPlace.text[index].ToString();
-        string SecNumPlaceCpy = SecNum.text;
+        yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this,SecNum.text[index].ToString(), Explain)));
+        string temp = SecNum.text[index].ToString();
         temp = $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.red)}>{temp}</color>";
         if(index == 1)
-            SecNumPlace.text = SecNumPlace.text[0] + temp;
+            SecNumPlace.text = SecNum.text[0] +" "+ temp;
         else {
             try
             {
-                SecNumPlace.text = temp + SecNumPlace.text[1];
+                SecNumPlace.text = temp +" "+ SecNum.text[1];
 
             }
             catch (Exception)
@@ -478,7 +556,7 @@ public class TwoDigitsMultiplicationScript : MonoBehaviour
 
         }
 
-        yield return (StartCoroutine(AdditionVoiceSpeaker.PlayByAddress("AdditionTerms/AdditionSound/by each digit in the first number" + SpeakerName)));
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"by each digit in the first number" + SpeakerName, Explain)));
 
         string FirstNumPlaceCpy = FirstNumPlace.text;
         for (int i = FirstNumPlace.text.Length - 1; i >= 0; i--)
@@ -494,7 +572,6 @@ public class TwoDigitsMultiplicationScript : MonoBehaviour
             }
             FirstNumPlace.text = FirstNumPlaceCpy;
         }
-        SecNumPlace.text = SecNumPlaceCpy;
     }
 
     public void GetResult() // saving result into varaiable

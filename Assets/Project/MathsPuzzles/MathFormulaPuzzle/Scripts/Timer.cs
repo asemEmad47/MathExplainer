@@ -14,7 +14,7 @@ public class Timer : MonoBehaviour
 
     public int remainingDuration;
 
-    bool isDone = false;
+    public bool isDone = false;
 
     private void Start()
     {
@@ -56,7 +56,6 @@ public class Timer : MonoBehaviour
     private void OnEnd()
     {
         //DisableButtons();
-        //EndGame();
         uiFill.fillAmount = 0;
         isDone = true;
         print("End");

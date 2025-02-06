@@ -42,3 +42,6 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: AlwaysOnTop
+    uniqueID: 1629193949
+    locked: 0
