@@ -9,19 +9,24 @@ public class CameraController : MonoBehaviour
 {
     public RawImage rawImage;
     private WebCamTexture webCamTexture;
+    public Vector2 RawImageSIze;
     public Button captureButton;
+    public Button ApiCaller;
+    public Button CropButton;
     public Canvas canvas;
     public GameObject problemRedirectionObj;
     private string subscriptionKey = "10EjCJg9heuN8o0k4RBXD0Qp9sjfdlmqfAyL6L7aA7q93f49sFJXJQQJ99ALACYeBjFXJ3w3AAAFACOG2ukA"; // Replace with your actual subscription key
     private string endpoint = "https://vmresource2.cognitiveservices.azure.com/"; // Replace with your actual endpoint URL
-
+    private byte[] imageBytes;
     void Start()
     {
-        // Initialize camera (same as your previous code)
+        RawImageSIze = new Vector2(Screen.width, Screen.height);
         webCamTexture = new WebCamTexture();
         rawImage.texture = webCamTexture;
         rawImage.material.mainTexture = webCamTexture;
         webCamTexture.Play();
+        captureButton.onClick.AddListener(CapturePhoto);
+        ApiCaller.onClick.AddListener(SendImage);
     }
 
     public void CapturePhoto()
@@ -32,18 +37,24 @@ public class CameraController : MonoBehaviour
         photo.Apply();
 
         // Convert photo to byte array (PNG format)
-        byte[] imageBytes = photo.EncodeToPNG();
+        imageBytes = photo.EncodeToPNG();
 
         // Start the OCR process
+        rawImage.texture = photo;
         webCamTexture.Stop();
-
-        StartCoroutine(ExtractTextUsingAzure(imageBytes));
-
+        CropButton.gameObject.SetActive(true);
+        ApiCaller.gameObject.SetActive(true);
+        captureButton.gameObject.SetActive(false);
     }
 
-
+    public void SendImage()
+    {
+        StartCoroutine(ExtractTextUsingAzure(imageBytes));
+    }
     private IEnumerator ExtractTextUsingAzure(byte[] imageBytes)
     {
+        CropButton.gameObject.SetActive(false);
+        ApiCaller.gameObject.SetActive(false);
         captureButton.interactable = false;
         string url = endpoint + "/vision/v3.2/ocr"; // OCR endpoint URL
 
@@ -68,6 +79,12 @@ public class CameraController : MonoBehaviour
             ProblemRedirection problemRedirection = problemRedirectionObj.GetComponent<ProblemRedirection>();
             if (!problemRedirection.GetProblemPage())
             {
+                CropButton.gameObject.SetActive(false);
+                ApiCaller.gameObject.SetActive(false);
+                captureButton.gameObject.SetActive(true);
+                rawImage.GetComponent<RectTransform>().sizeDelta = RawImageSIze;
+                webCamTexture = new();
+                rawImage.texture = webCamTexture;
                 webCamTexture.Play();
             }
             else
@@ -114,11 +131,6 @@ public class CameraController : MonoBehaviour
         return extractedText;
     }
 
-
-    void OnDestroy()
-    {
-        webCamTexture.Stop();
-    }
 }
 
 [System.Serializable]

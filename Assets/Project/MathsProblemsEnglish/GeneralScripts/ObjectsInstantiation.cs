@@ -6,6 +6,13 @@ using UnityEngine;
 
 public class ObjectsInstantiation : MonoBehaviour
 {
+    public static GameObject InstantiateOBJ(float Xpos, float Ypos, GameObject OBJ,TextMeshProUGUI FirstNumPlace )
+    {
+        GameObject Obj = GameObject.Instantiate(OBJ);
+        Obj.SetActive(true);
+        CharacterProbs.CenterInPos(Xpos, Ypos, ref Obj, FirstNumPlace);
+        return Obj;
+    }
     public static void InstantiateCircle(float Xpos, float Ypos , GameObject Circle , ref int NumOfCircles , TextMeshProUGUI FirstNumPlace)
     {
         GameObject circle = GameObject.Instantiate(Circle);
@@ -13,7 +20,8 @@ public class ObjectsInstantiation : MonoBehaviour
         CharacterProbs.CenterInPos(Xpos, Ypos, ref circle, FirstNumPlace);
         circle.name = "Circle" + NumOfCircles;
         NumOfCircles++;
-    }
+    }   
+
     public static void InstantiateLine(float Xpos, float Ypos, bool IsLeft , GameObject Line, TextMeshProUGUI FirstNumPlace)
     {
         Ypos -= 30;

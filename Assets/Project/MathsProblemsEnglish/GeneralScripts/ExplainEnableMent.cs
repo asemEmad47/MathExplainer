@@ -7,30 +7,49 @@ using UnityEngine.UI;
 
 public class ExplainEnableMent : MonoBehaviour
 {
-    public static void EnableExplain(ref TMP_InputField FrstNum, ref TMP_InputField SecNum)
+    public static void EnableExplain(ref List<TMP_InputField> AllFields)
     {
         GameObject Explain = GameObject.Find("Explain");
+        GameObject Solve = GameObject.Find("Solve");
         Button ExplainBtn = Explain.GetComponent<Button>();
-
+        Button SolveBtn = Solve.GetComponent<Button>();
+        bool IsFinshed = true;
         try
         {
-            // Attempt to parse the text from input fields to float
-            bool isFirstNumValid = float.TryParse(FrstNum.text, out float Fnum);
-            bool isSecNumValid = float.TryParse(SecNum.text, out float SNum);
-
-            // Check if both input fields contain valid float values and are not empty
-            if (isFirstNumValid && isSecNumValid && !string.IsNullOrEmpty(FrstNum.text) && !string.IsNullOrEmpty(SecNum.text))
-            {
-                ExplainBtn.interactable = true; // Enable the button
+            foreach (TMP_InputField field in AllFields) {
+                bool IsValidNum = float.TryParse(field.text, out float Fnum);
+                if (!IsValidNum) {
+                    IsFinshed = false ;
+                    SolveBtn.interactable = false ;
+                    ExplainBtn.interactable = false;
+                    break;
+                }
             }
-            else
-            {
-                ExplainBtn.interactable = false; // Disable the button
+            if (IsFinshed) {
+                SolveBtn.interactable = true;
+                ExplainBtn.interactable = true;
             }
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            ExplainBtn.interactable = false; // Disable the button on any exception (e.g., parsing error)
+            Debug.Log(e.ToString());
+        }
+    }
+    public static void DisableExplain(bool InExplain)
+    {
+        GameObject Explain = GameObject.Find("Explain");
+        GameObject Solve = GameObject.Find("Solve");
+        Button ExplainBtn = Explain.GetComponent<Button>();
+        Button SolveBtn = Solve.GetComponent<Button>();
+        if (InExplain)
+        {
+            SolveBtn.interactable = false;
+            ExplainBtn.interactable = false;
+        }
+        else
+        {
+            SolveBtn.interactable = true;
+            ExplainBtn.interactable = true;
         }
     }
 }

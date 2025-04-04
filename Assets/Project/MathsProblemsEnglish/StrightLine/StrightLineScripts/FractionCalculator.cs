@@ -39,6 +39,12 @@ public class FractionCalculator
         // Simplify the resulting fraction
         SimplifyFraction(ref numerator, ref denominator);
     }
+    public static void SubtractNumberFromFraction(ref int numerator, ref int denominator, int wholeNumber)
+    {
+        numerator -= wholeNumber * denominator;
+
+        SimplifyFraction(ref numerator, ref denominator);
+    }
     // Function for simplifying a fraction
     public static void SimplifyFraction(ref int numerator, ref int denominator)
     {

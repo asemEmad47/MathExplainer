@@ -22,4 +22,31 @@ public class FindingScript : MonoBehaviour
 
         return objectsWithName;
     }
+    public static GameObject GetLastGameObjectWithName(string Name)
+    {
+        GameObject[] objects = GameObject.FindObjectsOfType<GameObject>();
+
+        GameObject lastFound = null;
+        foreach (GameObject obj in objects)
+        {
+            if (obj.name == Name)
+            {
+                lastFound = obj;
+            }
+        }
+        return lastFound;
+    }   
+    public static GameObject GetFirstGameObjectWithName(string Name)
+    {
+        GameObject[] objects = GameObject.FindObjectsOfType<GameObject>();
+
+        foreach (GameObject obj in objects)
+        {
+            if (obj.name == Name)
+            {
+                return obj;
+            }
+        }
+        return null;
+    }
 }

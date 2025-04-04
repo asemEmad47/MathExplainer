@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using static System.Net.Mime.MediaTypeNames;
 
 
 public class DivideByScript : MonoBehaviour
@@ -27,14 +28,17 @@ public class DivideByScript : MonoBehaviour
     public static string FirstNumber = "";
     public static string SecNumber = "";
 
-
+    private Button PauseBtn;
+    private Button ResumeBtn;
     public void Start()
     {
+        PauseBtn = GameObject.Find("Pause").GetComponent<Button>();
+        ResumeBtn = GameObject.Find("Resume").GetComponent<Button>();
+        PauseBtn.onClick.AddListener(PauseScript.Pause);
+        ResumeBtn.onClick.AddListener(PauseScript.Resume);
         Screen.orientation = ScreenOrientation.LandscapeLeft;
         FrstNum.text = FirstNumber;
         SecNum.text = SecNumber;
-        UnityAction langBtnClickAction = () => LangBtnActions.LangBtnClick(ref IsEng, ref SpeakerName, ref loop);
-        LangBtn.onClick.AddListener(langBtnClickAction);
 
         AdditionScript.IscalledFromOutSide = true;
         FrstNum.onValueChanged.AddListener((input) => OnInputChanged(FrstNum, input));
@@ -45,10 +49,29 @@ public class DivideByScript : MonoBehaviour
 
         InputFieldsActions.InitializePlaceholders(FrstNum);
         InputFieldsActions.InitializePlaceholders(SecNum);
+        AdditionVoiceSpeaker.VoiceClipsPlace = "AdditionTerms/AdditionSound";
+        AdditionVoiceSpeaker.NumPlace = "EngNums";
+
+
+
+        try
+        {
+            UnityAction langBtnClickAction = () => LangBtnActions.LangBtnClick(ref IsEng, ref SpeakerName, ref loop);
+            LangBtn.onClick.AddListener(langBtnClickAction);
+        }
+        catch (Exception e)
+        {
+
+            Debug.Log(e);
+        }
+
+        GameObject.Find("Explain").GetComponent<Button>().onClick.AddListener(ExplainBtnAction);
+        GameObject.Find("Solve").GetComponent<Button>().onClick.AddListener(SolveBtnAction);
     }
 
     void Update()
     {
+        PauseScript.ControlPause();
 
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
         if (FrstNum.text.Length == 0 || SecNum.text.Length == 0 || Explain)
@@ -103,7 +126,7 @@ public class DivideByScript : MonoBehaviour
     {
         FirstNumPlace.gameObject.SetActive(false);
         SecNumPlace.gameObject.SetActive(false);
-        ResetValues.ResetAllValues(ResPlace, FirstNumPlace, SecNumPlace, sign);
+        ResetValues.ResetAllValues();
         GameObject ExplainBtn = GameObject.Find("Explain");
         Button button = ExplainBtn.GetComponent<Button>();
         button.interactable = false;
@@ -302,8 +325,11 @@ public class DivideByScript : MonoBehaviour
         yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"the answer is" + SpeakerName , Explain));
 
         ResPlace.gameObject.SetActive(true);
-        ResPlace.text += FirstNumPlace.text;
+        ResPlace.text = FirstNumPlace.text;
+        FirstNumPlace.text = FrstNum.text;
+
         button.interactable = true;
+        Explain = false;
     }
     public char ValidateSecInput(string text, int charIndex, char addedChar)
     {

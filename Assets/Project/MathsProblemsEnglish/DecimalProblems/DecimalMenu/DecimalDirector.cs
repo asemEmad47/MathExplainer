@@ -22,6 +22,7 @@ public class DecimalDirector : MonoBehaviour
     {
         AdditionScript.IsBasic = false;
         SceneManager.LoadScene("TwoDigitsMultiplicationScene");
+        TwoDigitsMultiplicationScript.IsCalledFromOutSide = true;
     }
 
     public void Devide()

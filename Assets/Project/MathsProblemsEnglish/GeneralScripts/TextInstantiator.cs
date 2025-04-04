@@ -1,18 +1,52 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 
 public class TextInstantiator : MonoBehaviour
 {
-    public static TextMeshProUGUI InstantiateText(TextMeshProUGUI FirstNumPlace, string txt, float XPos, float YPos, float Distance, bool IsResult, int counter = -1, int yPos = 0)
+    public static TextMeshProUGUI InstantiateText(TextMeshProUGUI FirstNumPlace, string txt, float XPos, float YPos, float Distance, bool IsResult, int counter = -1, int yPos = 0 , bool IsArabic = false)
     {
 
         // Create a new GameObject for the text
         GameObject newTextObject = new GameObject(counter.ToString());
         TextMeshProUGUI newTextMesh = newTextObject.AddComponent<TextMeshProUGUI>();
 
-        // Copy text properties
+        if (IsArabic)
+        {
+            if (txt.Equals("="))
+            {
+                YPos -= 25;
+            }
+            else
+            {
+                if(txt.Equals("("))
+                {
+                    txt = ")";
+                    YPos -= 10;
+                }
+                else if(txt.Equals(")"))
+                {
+                    txt = "(";
+                    YPos -= 10;
+                }              
+                
+                if(txt.Equals("{"))
+                {
+                    txt = "}";
+                    YPos -= 10;
+                }
+                else if(txt.Equals("}"))
+                {
+                    txt = "{";
+                    YPos -= 10;
+                }
+
+            }
+            txt = ArabicEngConverter.ConvertToArabicNumbers(txt);
+            txt = new string(txt.Reverse().ToArray());
+        }
         newTextMesh.text = txt;
         newTextMesh.font = FirstNumPlace.font;
         newTextMesh.fontSize = FirstNumPlace.fontSize;

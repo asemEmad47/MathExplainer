@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class AdditionScript : MonoBehaviour
@@ -15,7 +15,7 @@ public class AdditionScript : MonoBehaviour
     [SerializeField] private TextMeshProUGUI Line;
     [SerializeField] private TextMeshProUGUI sign;
 
-    [SerializeField] private Button LangBtn;
+    [SerializeField] private Button? LangBtn;
     private AudioClip[] loop;
     public static AudioSource audioSource;
     private bool Explain = false;
@@ -28,15 +28,31 @@ public class AdditionScript : MonoBehaviour
     public static string FirstNumber = "";
     public static string SecNumber = "";
 
-
+    List<TMP_InputField> FieldsList;
+    private Button PauseBtn;
+    private Button ResumeBtn;
     public void Start()
     {
-        AdditionVoiceSpeaker.VoiceClipsPlace = "AdditionTerms/AdditionSound";
+        PauseBtn = GameObject.Find("Pause").GetComponent<Button>();
+        ResumeBtn = GameObject.Find("Resume").GetComponent<Button>();
+        PauseBtn.onClick.AddListener(PauseScript.Pause);
+        ResumeBtn.onClick.AddListener(PauseScript.Resume);
+
+        FieldsList = new List<TMP_InputField> {FrstNum , SecNum };
         FrstNum.text = FirstNumber;
         SecNum.text = SecNumber;
         LoadAllAudioClips();
-        UnityAction langBtnClickAction = () =>LangBtnActions.LangBtnClick(ref IsEng, ref SpeakerName, ref loop);
-        LangBtn.onClick.AddListener(langBtnClickAction);
+        try
+        {
+            UnityAction langBtnClickAction = () => LangBtnActions.LangBtnClick(ref IsEng, ref SpeakerName, ref loop);
+            LangBtn.onClick.AddListener(langBtnClickAction);
+        }
+        catch (Exception e)
+        {
+
+            Debug.Log(e);
+        }
+
         if (!IscalledFromOutSide && IsBasic)
         {
             FrstNum.onValidateInput = InputFieldsActions.ValidateBasicObsInput;
@@ -45,45 +61,19 @@ public class AdditionScript : MonoBehaviour
 
         InputFieldsActions.InitializePlaceholders(FrstNum);
         InputFieldsActions.InitializePlaceholders(SecNum);
+        if (!IscalledFromOutSide)
+        {
+            GameObject.Find("Explain").GetComponent<Button>().onClick.AddListener(ExplainBtnAction);
+            GameObject.Find("Solve").GetComponent<Button>().onClick.AddListener(SolveBtnAction);
+        }
 
     }
     void Update()
     {
+        PauseScript.ControlPause();
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
-        ExplainEnableMent.EnableExplain(ref FrstNum, ref SecNum);
-
-        if (FrstNum.text.Length == 0 || SecNum.text.Length == 0 || Explain)
-        {
-            GameObject ExplainBtn = GameObject.Find("Explain");
-            GameObject SolveBtn = GameObject.Find("Solve");
-            UnityEngine.UI.Button button = ExplainBtn.GetComponent<UnityEngine.UI.Button>();
-            button.interactable = false;
-
-            UnityEngine.UI.Button Solvebutton = SolveBtn.GetComponent<UnityEngine.UI.Button>();
-            Solvebutton.interactable = false;
-
-        }
-        if (FrstNum.text.Length != 0 && SecNum.text.Length != 0 && !Explain)
-        {
-            GameObject SolveBtn = GameObject.Find("Solve");
-            UnityEngine.UI.Button Solvebutton = SolveBtn.GetComponent<UnityEngine.UI.Button>();
-            Solvebutton.interactable = true;
-        }
-        if (!AdditionVoiceSpeaker.NumPlace.Equals("JennySound/JennyNumbers"))
-        {
-            if (IsEng)
-            {
-                SpeakerName = "_Sonya_Eng";
-                AdditionVoiceSpeaker.NumPlace = "EngNums";
-
-            }
-            else
-            {
-                SpeakerName = "_Heba_Egy";
-                AdditionVoiceSpeaker.NumPlace = "EgyNums";
-
-            }
-        }
+        ExplainEnableMent.EnableExplain(ref FieldsList);
+        ExplainEnableMent.DisableExplain(Explain);
     }
     public void SetComponenets(TMP_InputField FrstNum, TMP_InputField SecNum, TextMeshProUGUI FirstNumPlace, TextMeshProUGUI SecNumPlace, TextMeshProUGUI Line, TextMeshProUGUI sign,  Button LangBtn)
     {
@@ -116,6 +106,21 @@ public class AdditionScript : MonoBehaviour
 
     public IEnumerator solve()
     {
+        AdditionVoiceSpeaker.VoiceClipsPlace = "AdditionTerms/AdditionSound";
+
+        if (AdditionVoiceSpeaker.IsEng)
+        {
+            SpeakerName = "_Sonya_Eng";
+            AdditionVoiceSpeaker.NumPlace = "EngNums";
+
+        }
+        else
+        {
+            SpeakerName = "_Heba_Egy";
+            AdditionVoiceSpeaker.NumPlace = "EgyNums";
+
+        }
+
         audioSource = GetComponent<AudioSource>();
         GameObject ExplainBtn = GameObject.Find("Explain");
         Button button = ExplainBtn.GetComponent<Button>();
@@ -129,7 +134,7 @@ public class AdditionScript : MonoBehaviour
             SecNumPlace.text = "";
             FirstNumPlace.gameObject.SetActive(false);
             SecNumPlace.gameObject.SetActive(false);
-            ResetValues.ResetAllValues(Line, FirstNumPlace, SecNumPlace, sign);
+            ResetValues.ResetAllValues();
 
             ZerosOps.FillWithZeros(FrstNum, SecNum, FirstNumPlace, SecNumPlace, " ");
             yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"first" + SpeakerName, Explain)));

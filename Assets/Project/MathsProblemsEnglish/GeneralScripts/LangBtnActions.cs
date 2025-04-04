@@ -1,28 +1,35 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
 public class LangBtnActions : MonoBehaviour
 {
-    public static void LangBtnClick(ref bool IsEng, ref string SpeakerName, ref AudioClip[] loop)
+    public static void LangBtnClick(ref bool IsEng, ref string SpeakerName, ref AudioClip[] loop , string ArabSpekerName = "_Heba_Egy", string ArabNumPlace = "EgyNums" , string EngSpekerName = "_Sonya_Eng", string EngNumPlace = "EngNums" , string ArabVoicePlaces = "AdditionTerms/AdditionSound", string EngVoicePlaces = "AdditionTerms/AdditionSound")
     {
         if (IsEng)
         {
-            SpeakerName = "_Heba_Egy";
+            SpeakerName = ArabSpekerName;
             loop = Resources.LoadAll<AudioClip>("ArabLoop");
             ChangeLang(false);
             IsEng = false;
-            AdditionVoiceSpeaker.NumPlace = "EgyNums";
+            AdditionVoiceSpeaker.IsEng = false;
+            AdditionVoiceSpeaker.NumPlace = ArabNumPlace;
+            AdditionVoiceSpeaker.VoiceClipsPlace = ArabVoicePlaces;
+            AdditionVoiceSpeaker.SpeakerName = ArabSpekerName;
+            SLStaicFunctions.SpeakerName = SpeakerName;
         }
         else
         {
 
-            SpeakerName = "_Sonya_Eng";
+            SpeakerName = EngSpekerName;
             loop = Resources.LoadAll<AudioClip>("EngLoop");
             ChangeLang(true);
-            AdditionVoiceSpeaker.NumPlace = "EngNums";
+            AdditionVoiceSpeaker.NumPlace = EngNumPlace;
             IsEng = true;
+            AdditionVoiceSpeaker.IsEng = true;
+            AdditionVoiceSpeaker.VoiceClipsPlace = EngVoicePlaces;
+            AdditionVoiceSpeaker.SpeakerName = EngSpekerName;
+            SLStaicFunctions.SpeakerName = SpeakerName;
+
         }
     }
     public static void ChangeLang(bool IsEng)

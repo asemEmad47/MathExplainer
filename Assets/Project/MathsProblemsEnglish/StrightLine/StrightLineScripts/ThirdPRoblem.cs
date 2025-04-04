@@ -34,6 +34,9 @@ public class ThirdProblem : MonoBehaviour
     public static string X = "";
     public static string Y = "";
 
+
+    private Button PauseBtn;
+    private Button ResumeBtn;
     private void OnDisable()
     {
         XTemp = XPos;
@@ -45,6 +48,10 @@ public class ThirdProblem : MonoBehaviour
     }
     private void Start()
     {
+        PauseBtn = GameObject.Find("Pause").GetComponent<Button>();
+        ResumeBtn = GameObject.Find("Resume").GetComponent<Button>();
+        PauseBtn.onClick.AddListener(PauseScript.Pause);
+        ResumeBtn.onClick.AddListener(PauseScript.Resume);
         if (!X.Equals(""))
         {
             X1.text = X;
@@ -53,7 +60,7 @@ public class ThirdProblem : MonoBehaviour
         {
             Y1.text = Y;
         }
-        AdditionVoiceSpeaker.NumPlace = "JennySound/JennyNumbers";
+        AdditionVoiceSpeaker.NumPlace = "JennySound/Numbers";
         AdditionVoiceSpeaker.VoiceClipsPlace = "JennySound";
         AdditionVoiceSpeaker.SpeakerName = SpeakerName;
         SLStaicFunctions.SpeakerName = SpeakerName;
@@ -71,6 +78,8 @@ public class ThirdProblem : MonoBehaviour
     }
     private void Update()
     {
+        PauseScript.ControlPause();
+
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
         Button SolveBtn = GameObject.Find("Solve").GetComponent<Button>();
         Button ExplainBtn = GameObject.Find("Explain").GetComponent<Button>();

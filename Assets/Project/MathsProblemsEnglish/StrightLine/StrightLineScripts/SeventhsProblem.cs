@@ -37,6 +37,8 @@ public class SeventhsProblem : MonoBehaviour
     public static string C = "";
     public static string D = "";
 
+    private Button PauseBtn;
+    private Button ResumeBtn;
     private void OnDisable()
     {
         XTemp = XPos;
@@ -48,7 +50,10 @@ public class SeventhsProblem : MonoBehaviour
     }
     private void Start()
     {
-
+        PauseBtn = GameObject.Find("Pause").GetComponent<Button>();
+        ResumeBtn = GameObject.Find("Resume").GetComponent<Button>();
+        PauseBtn.onClick.AddListener(PauseScript.Pause);
+        ResumeBtn.onClick.AddListener(PauseScript.Resume);
         SLStaicFunctions.RemoveTexts();
         if (!Xval.Equals(""))
         {
@@ -74,7 +79,7 @@ public class SeventhsProblem : MonoBehaviour
         {
             Y3.text = D;
         }
-        AdditionVoiceSpeaker.NumPlace = "JennySound/JennyNumbers";
+        AdditionVoiceSpeaker.NumPlace = "JennySound/Numbers";
         AdditionVoiceSpeaker.VoiceClipsPlace = "JennySound";
         AdditionVoiceSpeaker.SpeakerName = SpeakerName;
         SLStaicFunctions.SpeakerName = SpeakerName;
@@ -99,6 +104,8 @@ public class SeventhsProblem : MonoBehaviour
     }
     private void Update()
     {
+        PauseScript.ControlPause();
+
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
         Button SolveBtn = GameObject.Find("Solve").GetComponent<Button>();
         Button ExplainBtn = GameObject.Find("Explain").GetComponent<Button>();

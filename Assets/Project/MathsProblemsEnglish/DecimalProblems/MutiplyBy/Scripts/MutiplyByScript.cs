@@ -27,15 +27,20 @@ public class MutiplyByScript : MonoBehaviour
     public static string FirstNumber = "";
     public static string SecNumber = "";
 
+    private Button PauseBtn;
+    private Button ResumeBtn;
 
     public void Start()
     {
+        PauseBtn = GameObject.Find("Pause").GetComponent<Button>();
+        ResumeBtn = GameObject.Find("Resume").GetComponent<Button>();
+        PauseBtn.onClick.AddListener(PauseScript.Pause);
+        ResumeBtn.onClick.AddListener(PauseScript.Resume);
+
         Screen.orientation = ScreenOrientation.LandscapeLeft;
 
         FrstNum.text = FirstNumber;
         SecNum.text = SecNumber;
-        UnityAction langBtnClickAction = () => LangBtnActions.LangBtnClick(ref IsEng, ref SpeakerName, ref loop);
-        LangBtn.onClick.AddListener(langBtnClickAction);
 
         AdditionScript.IscalledFromOutSide = true;
         FrstNum.onValueChanged.AddListener((input) => OnInputChanged(FrstNum, input));
@@ -43,12 +48,30 @@ public class MutiplyByScript : MonoBehaviour
         FrstNum.onValidateInput = InputFieldsActions.ValidateDecimalObsInput;
         SecNum.onValidateInput = ValidateSecInput;
 
+        AdditionVoiceSpeaker.VoiceClipsPlace = "AdditionTerms/AdditionSound";
+        AdditionVoiceSpeaker.NumPlace = "EngNums";
 
         InputFieldsActions.InitializePlaceholders(FrstNum);
         InputFieldsActions.InitializePlaceholders(SecNum);
+
+        GameObject.Find("Explain").GetComponent<Button>().onClick.AddListener(ExplainBtnAction);
+        GameObject.Find("Solve").GetComponent<Button>().onClick.AddListener(SolveBtnAction);
+
+
+        try
+        {
+            UnityAction langBtnClickAction = () => LangBtnActions.LangBtnClick(ref IsEng, ref SpeakerName, ref loop);
+            LangBtn.onClick.AddListener(langBtnClickAction);
+        }
+        catch (Exception e)
+        {
+
+            Debug.Log(e);
+        }
     }
     void Update()
     {
+        PauseScript.ControlPause();
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
 
         if (FrstNum.text.Length == 0 || SecNum.text.Length == 0 || Explain)
@@ -103,7 +126,7 @@ public class MutiplyByScript : MonoBehaviour
     {
         FirstNumPlace.gameObject.SetActive(false);
         SecNumPlace.gameObject.SetActive(false);
-        ResetValues.ResetAllValues(ResPlace, FirstNumPlace, SecNumPlace, sign);
+        ResetValues.ResetAllValues();
         GameObject ExplainBtn = GameObject.Find("Explain");
         Button button = ExplainBtn.GetComponent<Button>();
         button.interactable = false;
@@ -231,7 +254,7 @@ public class MutiplyByScript : MonoBehaviour
                     {
                         yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"nothing in the next digit so put zero" + SpeakerName , Explain));
 
-                        FirstNumPlace.text += $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.red)}>{"0 "}</color>";
+                        FirstNumPlace.text += "0 ";
                     }
 
                     i += 2;
@@ -239,14 +262,13 @@ public class MutiplyByScript : MonoBehaviour
                 }
                     yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"and put the decimal point after you finished" + SpeakerName , Explain));
 
-                i = FirstNumPlace.text.LastIndexOf("</color>") +8;
+                FirstNumPlace.text += ". ";
 
-                FirstNumPlace.text = FirstNumPlace.text.Insert(i, " .");
                 if (caughtException  || FirstNumPlace.text.Substring(i + 1).Equals(". "))
                 {
                     yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"you should put a value" + SpeakerName , Explain));
 
-                    FirstNumPlace.text += $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(Color.red)}>{"0 "}</color>";
+                    FirstNumPlace.text += "0 ";
                 }
                 yield return new WaitForSeconds(1);
                 int FirstDecimal = FirstNumPlace.text.IndexOf(".");
@@ -283,10 +305,26 @@ public class MutiplyByScript : MonoBehaviour
                 }
             }
         }
+        if (FirstNumPlace.text[FirstNumPlace.text.Length - 2] == '0')
+        {
+            yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "Remove useless zeros" + SpeakerName, Explain));
+            int i = FirstNumPlace.text.Length - 2;
+            while(i >= FirstNumPlace.text.IndexOf('.') && (FirstNumPlace.text[i] == '0' || FirstNumPlace.text[i] == '.'))
+            {
+
+                FirstNumPlace.text = FirstNumPlace.text.Remove(i);
+
+                i = FirstNumPlace.text.Length - 2;
+
+
+            }
+        }
         yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"so" + SpeakerName , Explain));
         yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"the answer is" + SpeakerName , Explain));
         ResPlace.gameObject.SetActive(true);
-        ResPlace.text += FirstNumPlace.text;
+        ResPlace.text = FirstNumPlace.text;
+        FirstNumPlace.text = FrstNum.text;
+
         button.interactable = true;
     }
     public char ValidateSecInput(string text, int charIndex, char addedChar)

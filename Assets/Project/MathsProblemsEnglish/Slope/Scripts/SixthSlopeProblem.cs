@@ -37,6 +37,9 @@ public class SixthSlopeProblem : MonoBehaviour
     public static string B2 = "";
     public static string C2 = "";
 
+
+    private Button PauseBtn;
+    private Button ResumeBtn;
     private void OnDisable()
     {
         XPosTemp = XPos;
@@ -44,6 +47,10 @@ public class SixthSlopeProblem : MonoBehaviour
     }
     private void Start()
     {
+        PauseBtn = GameObject.Find("Pause").GetComponent<Button>();
+        ResumeBtn = GameObject.Find("Resume").GetComponent<Button>();
+        PauseBtn.onClick.AddListener(PauseScript.Pause);
+        ResumeBtn.onClick.AddListener(PauseScript.Resume);
         if (!A1.Equals(""))
         {
             a1.text = A1;
@@ -77,7 +84,7 @@ public class SixthSlopeProblem : MonoBehaviour
 
 
         XPosTemp = XPos;
-        AdditionVoiceSpeaker.NumPlace = "JennySound/JennyNumbers";
+        AdditionVoiceSpeaker.NumPlace = "JennySound/Numbers";
         AdditionVoiceSpeaker.VoiceClipsPlace = "JennySound";
         AdditionVoiceSpeaker.SpeakerName = SpeakerName;
         SLStaicFunctions.SpeakerName = SpeakerName;
@@ -93,6 +100,8 @@ public class SixthSlopeProblem : MonoBehaviour
     }
     private void Update()
     {
+        PauseScript.ControlPause();
+
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
         Button SolveBtn = GameObject.Find("Solve").GetComponent<Button>();
         Button ExplainBtn = GameObject.Find("Explain").GetComponent<Button>();
@@ -115,7 +124,6 @@ public class SixthSlopeProblem : MonoBehaviour
     }
     public void explain()
     {
-        Ypos = 340;
         Explain = true;
         StartCoroutine(SolveStepByStep());
     }
@@ -126,7 +134,8 @@ public class SixthSlopeProblem : MonoBehaviour
     }
     public IEnumerator SolveStepByStep()
     {
-
+        Ypos = 340;
+        XPos = -470;
         SLStaicFunctions.RemoveTexts();
         AdditionVoiceSpeaker.IsEng = true;
         yield return StartCoroutine(GetLineOneSol());
@@ -298,7 +307,7 @@ public class SixthSlopeProblem : MonoBehaviour
         TextInstantiator.InstantiateText(FirstNumPlace, BNue.text, XPos+75, Ypos + 50, 0, false);
 
         yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "time" + SpeakerName, Explain)));
-        TextInstantiator.InstantiateText(FirstNumPlace, "�", XPos + 150, Ypos + 50, 0, false);
+        TextInstantiator.InstantiateText(FirstNumPlace, "×", XPos + 150, Ypos + 50, 0, false);
 
         ADeno.color = Color.red;
         yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, ADeno.text, Explain)));

@@ -11,7 +11,6 @@ public class DivisionScript : MonoBehaviour
     [SerializeField] private TMP_InputField FrstNum;
     [SerializeField] private TMP_InputField SecNum;
     [SerializeField] private TextMeshProUGUI FirstNumPlace;
-    [SerializeField] private TextMeshProUGUI Line;
     [SerializeField] private TextMeshProUGUI sign;
     [SerializeField] private Button LangBtn;
     private AudioClip[] loop;
@@ -26,8 +25,18 @@ public class DivisionScript : MonoBehaviour
     public static string FirstNumber = "";
     public static string SecNumber = "";
 
+    private Button PauseBtn;
+    private Button ResumeBtn;
+
     public void Start()
     {
+        Screen.orientation = ScreenOrientation.LandscapeLeft;
+
+        PauseBtn = GameObject.Find("Pause").GetComponent<Button>();
+        ResumeBtn = GameObject.Find("Resume").GetComponent<Button>();
+        PauseBtn.onClick.AddListener(PauseScript.Pause);
+        ResumeBtn.onClick.AddListener(PauseScript.Resume);
+
         AdditionVoiceSpeaker.VoiceClipsPlace = "AdditionTerms/AdditionSound";
         AdditionVoiceSpeaker.NumPlace = "AdditionTerms/AdditionSound/EngLoop";
         FrstNum.text = FirstNumber;
@@ -45,6 +54,7 @@ public class DivisionScript : MonoBehaviour
     }
     void Update()
     {
+        PauseScript.ControlPause();
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
         AdditionScript.IsEng = IsEng;
 
@@ -108,7 +118,7 @@ public class DivisionScript : MonoBehaviour
         GameObject ExplainBtn = GameObject.Find("Explain");
         Button button = ExplainBtn.GetComponent<Button>();
         button.interactable = false;
-        ResetValues.ResetAllValues( Line, FirstNumPlace, FirstNumPlace, sign);
+        ResetValues.ResetAllValues();
 
         FirstNumPlace.text = "";
         foreach (char latter in FrstNum.text)
@@ -152,10 +162,10 @@ public class DivisionScript : MonoBehaviour
 
             RectTransform newTextRect = newTextObject.GetComponent<RectTransform>();
             newTextRect.localScale = Vector3.one;
-            newTextRect.GetComponent<RectTransform>().anchoredPosition = new Vector2(characterPosition.x+25 , characterPosition.y - 70);
+            newTextRect.GetComponent<RectTransform>().anchoredPosition = new Vector2(FirstNumPlace.GetComponent<RectTransform>().anchoredPosition.x +400, FirstNumPlace.GetComponent<RectTransform>().anchoredPosition.y);
+            CharacterProbs.CenterInPos(FirstNumPlace.GetComponent<RectTransform>().anchoredPosition.x + 250, FirstNumPlace.GetComponent<RectTransform>().anchoredPosition.y, ref sign, FirstNumPlace);
             SecNumPlace.raycastTarget = false;
 
-            Line.gameObject.SetActive(true);
             sign.gameObject.SetActive(true);
             yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"in division operation" + SpeakerName, Explain)));
 
@@ -177,6 +187,7 @@ public class DivisionScript : MonoBehaviour
                     {
                         charInfo = textInfo.characterInfo[i];
                         characterPosition = CharacterProbs.GetCharPoos(FirstNumPlace, charInfo, i);
+                        characterPosition = new Vector3(characterPosition.x, characterPosition.y + 300, characterPosition.z);
                         if (textInfo.characterInfo != null && i < textInfo.characterInfo.Length)
                         {
                             TextMeshProUGUI myText = new TextMeshProUGUI();
@@ -234,9 +245,10 @@ public class DivisionScript : MonoBehaviour
 
                                 FinalResult += "0";
 
+                                /*
                                 charInfo = textInfo.characterInfo[i];
                                 characterPosition = CharacterProbs.GetCharPoos(FirstNumPlace, charInfo, i);
-
+                                */
                                 yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"and" + SpeakerName, Explain)));
 
                                 yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,FNum, Explain)));
@@ -373,7 +385,7 @@ public class DivisionScript : MonoBehaviour
                                 {
                                     yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"put it beside the next digit" + SpeakerName, Explain)));
 
-                                    TextInstantiator.InstantiateText(FirstNumPlace, reminder.ToString(), characterPosition.x + 112, characterPosition.y, 55, true , i);
+                                    TextInstantiator.InstantiateText(FirstNumPlace, reminder.ToString(), characterPosition.x + 112, characterPosition.y, -235, true , i);
                                     GameObject textGameObject = GameObject.Find((i).ToString());
                                     myText = textGameObject.GetComponent<TextMeshProUGUI>();
                                     Color color = myText.color;
@@ -387,7 +399,7 @@ public class DivisionScript : MonoBehaviour
                             {
                                 if (reminder != 0)
                                 {
-
+                                    characterPosition = new Vector3(characterPosition.x+350 , characterPosition.y+150, characterPosition.z);
                                     FinalResult = int.Parse(FinalResult).ToString();
 
                                     TextInstantiator.InstantiateText(FirstNumPlace, "R ", characterPosition.x + 150, characterPosition.y, -400, true);

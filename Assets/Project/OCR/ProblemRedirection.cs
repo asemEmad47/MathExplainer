@@ -153,7 +153,7 @@ public class ProblemRedirection : MonoBehaviour
 
             try
             {
-                SolvingTwoEqs.ForthNum= ((int)Numbers[3]).ToString();
+                SolvingTwoEqs.FourthNum= ((int)Numbers[3]).ToString();
             }
             catch (System.Exception e)
             {
@@ -171,7 +171,7 @@ public class ProblemRedirection : MonoBehaviour
 
             try
             {
-                SolvingTwoEqs.SicthNum = ((int)Numbers[5]).ToString();
+                SolvingTwoEqs.SixthNum = ((int)Numbers[5]).ToString();
             }
             catch (System.Exception e)
             {

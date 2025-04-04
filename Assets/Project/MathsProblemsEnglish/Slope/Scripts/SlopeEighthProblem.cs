@@ -44,6 +44,8 @@ public class SlopeEighthProblem : MonoBehaviour
     public static string B2 = "";
     public static string C2 = "";
 
+    private Button PauseBtn;
+    private Button ResumeBtn;
     private void OnDisable()
     {
         XPosTemp = XPos;
@@ -51,6 +53,11 @@ public class SlopeEighthProblem : MonoBehaviour
     }
     private void Start()
     {
+        PauseBtn = GameObject.Find("Pause").GetComponent<Button>();
+        ResumeBtn = GameObject.Find("Resume").GetComponent<Button>();
+        PauseBtn.onClick.AddListener(PauseScript.Pause);
+        ResumeBtn.onClick.AddListener(PauseScript.Resume);
+
         if (!A1.Equals(""))
         {
             X1.text = A1;
@@ -81,7 +88,7 @@ public class SlopeEighthProblem : MonoBehaviour
 
         }
         XPosTemp = XPos;
-        AdditionVoiceSpeaker.NumPlace = "JennySound/JennyNumbers";
+        AdditionVoiceSpeaker.NumPlace = "JennySound/Numbers";
         AdditionVoiceSpeaker.VoiceClipsPlace = "JennySound";
         AdditionVoiceSpeaker.SpeakerName = SpeakerName;
         SLStaicFunctions.SpeakerName = SpeakerName;
@@ -92,6 +99,7 @@ public class SlopeEighthProblem : MonoBehaviour
     }
     private void Update()
     {
+        PauseScript.ControlPause();
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
         Button SolveBtn = GameObject.Find("Solve").GetComponent<Button>();
         Button ExplainBtn = GameObject.Find("Explain").GetComponent<Button>();
@@ -114,7 +122,6 @@ public class SlopeEighthProblem : MonoBehaviour
     }
     public void explain()
     {
-        Ypos = 340;
         Explain = true;
         StartCoroutine(SolveStepByStep());
     }
@@ -125,7 +132,8 @@ public class SlopeEighthProblem : MonoBehaviour
     }
     public IEnumerator SolveStepByStep()
     {
-
+        Ypos = 340;
+        XPos = -470;
         SLStaicFunctions.RemoveTexts();
         AdditionVoiceSpeaker.IsEng = true;
         yield return StartCoroutine(GetLineOneSol());

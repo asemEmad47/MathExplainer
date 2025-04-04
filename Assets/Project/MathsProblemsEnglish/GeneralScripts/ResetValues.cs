@@ -5,51 +5,28 @@ using UnityEngine;
 
 public class ResetValues : MonoBehaviour
 {
-    public static void ResetAllValues(TextMeshProUGUI Line, TextMeshProUGUI FirstNumPlace, TextMeshProUGUI SecNumPlace, TextMeshProUGUI sign)
+    public static void ResetAllValues()
     {
-        string[] allowedNames ={
-                FirstNumPlace.name,
-                SecNumPlace.name,
-                Line.name,
-                sign.name,
+        DelGameObjsWithName(new List<string> { "Clone" });
 
-                "Placeholder",
-                "EnPlaceholder",
-                "ArPlaceholder",
-                "Text",
-                "Sign2",
-                "Line3",
-                "Line2",
-                "EffectText",
-                "AnswerPlace",
-                "Explain",
-                "Reminder",
-                "Sign",
-                "sign",
-                "AdditionSign"
-                ,"SecNumPlaceAddition"
-                ,"FirstNumPlaceAdditon",
-                "DivideSign",
-                "TimeSign" ,
-                "Line2"
-            };
+
         TextMeshProUGUI[] textMeshPros = FindObjectsOfType<TextMeshProUGUI>();
-
         foreach (TextMeshProUGUI textMeshPro in textMeshPros)
         {
-            // Check if the current textMeshPro's name is not in the allowedNames array
-            if (!System.Array.Exists(allowedNames, name => name.Equals(textMeshPro.name)))
+            if (int.TryParse(textMeshPro.name , out _))
             {
-                // Destroy the entire GameObject that the TextMeshProUGUI component is part of
+                Destroy(textMeshPro.gameObject);
+            }
+            else if(textMeshPro.name.Contains("Clone"))
+            {
                 Destroy(textMeshPro.gameObject);
             }
         }
-        Line.gameObject.SetActive(false);
-        FirstNumPlace.text = "";
-        SecNumPlace.text = "";
-        LongDivisionScript.InLongDev = false;
-        FirstNumPlace.gameObject.SetActive(false);
-        sign.gameObject.SetActive(false);
+    }   
+    public static void ResetAllValuesLongDiv()
+    {
+        ResetAllValues();
+        DelGameObjsWithName(new List<string> { "HandeldZero", "LINEI" , "FrstNumPlaceCpy" });
     }
     public static void GCFDelElements()
     {
@@ -74,7 +51,21 @@ public class ResetValues : MonoBehaviour
                 Destroy(obj);
             }
         }
-
-
     }
+    public static void DelGameObjsWithName(List<string> ObjsList)
+    {
+        GameObject[] CirclesAndLines = FindObjectsOfType<GameObject>();
+        foreach (GameObject obj in CirclesAndLines)
+        {
+            foreach (string name in ObjsList)
+            {
+                if (obj.name.Contains(name))
+                {
+                    Destroy(obj);
+                }
+            }
+
+        }
+    }
+
 }

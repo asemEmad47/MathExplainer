@@ -6,7 +6,6 @@ public class DynamicBack : MonoBehaviour
     [SerializeField] private string SceneName;
     public void Back()
     {
-        Debug.Log(SceneName);
         SceneManager.LoadScene(SceneName);
     }
     public void LoadTwoDigits()

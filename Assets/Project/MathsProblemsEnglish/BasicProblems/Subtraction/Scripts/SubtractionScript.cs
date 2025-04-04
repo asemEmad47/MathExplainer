@@ -1,11 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 
 public class SubtractionScript : MonoBehaviour
@@ -16,7 +15,7 @@ public class SubtractionScript : MonoBehaviour
     [SerializeField] private TextMeshProUGUI SecNumPlace;
     [SerializeField] private TextMeshProUGUI Line;
     [SerializeField] private TextMeshProUGUI sign;
-    [SerializeField] private UnityEngine.UI.Button LangBtn;
+    [SerializeField] private Button LangBtn;
     private AudioClip[] loop;
     public static AudioSource audioSource;
     public static bool Explain = false;
@@ -30,11 +29,21 @@ public class SubtractionScript : MonoBehaviour
 
     public static string FirstNumber = "";
     public static string SecNumber = "";
+    List<TMP_InputField> FieldsList;
+    private Button PauseBtn;
+    private Button ResumeBtn;
     public void Start()
     {
+        PauseBtn = GameObject.Find("Pause").GetComponent<Button>();
+        ResumeBtn = GameObject.Find("Resume").GetComponent<Button>();
+        PauseBtn.onClick.AddListener(PauseScript.Pause);
+        ResumeBtn.onClick.AddListener(PauseScript.Resume);
+
+        FieldsList = new List<TMP_InputField> { FrstNum, SecNum };
         AdditionVoiceSpeaker.VoiceClipsPlace = "AdditionTerms/AdditionSound";
         FrstNum.text = FirstNumber;
         SecNum.text = SecNumber;
+
 
         UnityAction langBtnClickAction = () => LangBtnActions.LangBtnClick(ref IsEng, ref SpeakerName, ref loop);
         LangBtn.onClick.AddListener(langBtnClickAction);
@@ -46,10 +55,14 @@ public class SubtractionScript : MonoBehaviour
         }
         InputFieldsActions.InitializePlaceholders(FrstNum);
         InputFieldsActions.InitializePlaceholders(SecNum);
+
+        GameObject.Find("Explain").GetComponent<Button>().onClick.AddListener(ExplainBtnAction);
+        GameObject.Find("Solve").GetComponent<Button>().onClick.AddListener(SolveBtnAction);
     }
     void Update()
     {
-        ExplainEnableMent.EnableExplain(ref FrstNum, ref SecNum);
+        PauseScript.ControlPause();
+        ExplainEnableMent.EnableExplain(ref FieldsList);
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
 
         if (FrstNum.text.Length == 0 || SecNum.text.Length == 0 || Explain)
@@ -69,9 +82,15 @@ public class SubtractionScript : MonoBehaviour
             UnityEngine.UI.Button Solvebutton = SolveBtn.GetComponent<UnityEngine.UI.Button>();
             Solvebutton.interactable = true;
         }
-        if (!AdditionVoiceSpeaker.NumPlace.Equals("JennySound/JennyNumbers"))
+
+        if (Input.GetKeyDown(KeyCode.Escape) && !IscalledFromOutSide)
         {
-            if (IsEng)
+            SceneManager.LoadScene("BasicOpScene");
+        }
+
+        if (!AdditionVoiceSpeaker.VoiceClipsPlace.Equals("JennySound"))
+        {
+            if (AdditionVoiceSpeaker.IsEng)
             {
                 SpeakerName = "_Sonya_Eng";
                 AdditionVoiceSpeaker.NumPlace = "EngNums";
@@ -83,10 +102,6 @@ public class SubtractionScript : MonoBehaviour
                 AdditionVoiceSpeaker.NumPlace = "EgyNums";
 
             }
-        }
-        if (Input.GetKeyDown(KeyCode.Escape) && !IscalledFromOutSide)
-        {
-            SceneManager.LoadScene("BasicOpScene");
         }
     }
 
@@ -130,7 +145,7 @@ public class SubtractionScript : MonoBehaviour
         {
 
             SecNumPlace.gameObject.SetActive(false);
-            ResetValues.ResetAllValues(Line, FirstNumPlace, SecNumPlace, sign);
+            ResetValues.ResetAllValues();
             if (float.Parse(SecNum.text) > float.Parse(FrstNum.text))
             {
                 (SecNum.text, FrstNum.text) = (FrstNum.text, SecNum.text);

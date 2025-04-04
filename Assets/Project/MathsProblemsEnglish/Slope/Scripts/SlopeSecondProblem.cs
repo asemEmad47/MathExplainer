@@ -38,6 +38,8 @@ public class SlopeSecondProblem : MonoBehaviour
 
     public static string AngleVal = "";
 
+    private Button PauseBtn;
+    private Button ResumeBtn;
     private void OnDisable()
     {
         XPosTemp = XPos;
@@ -45,6 +47,10 @@ public class SlopeSecondProblem : MonoBehaviour
     }
     private void Start()
     {
+        PauseBtn = GameObject.Find("Pause").GetComponent<Button>();
+        ResumeBtn = GameObject.Find("Resume").GetComponent<Button>();
+        PauseBtn.onClick.AddListener(PauseScript.Pause);
+        ResumeBtn.onClick.AddListener(PauseScript.Resume);
         if (!X1Val.Equals(""))
         {
             X1.text = X1Val;
@@ -66,7 +72,7 @@ public class SlopeSecondProblem : MonoBehaviour
             angel.text = AngleVal;
         }
         XPosTemp = XPos;
-        AdditionVoiceSpeaker.NumPlace = "JennySound/JennyNumbers";
+        AdditionVoiceSpeaker.NumPlace = "JennySound/Numbers";
         AdditionVoiceSpeaker.VoiceClipsPlace = "JennySound";
         AdditionVoiceSpeaker.SpeakerName = SpeakerName;
         SLStaicFunctions.SpeakerName = SpeakerName;
@@ -77,6 +83,8 @@ public class SlopeSecondProblem : MonoBehaviour
     }
     private void Update()
     {
+        PauseScript.ControlPause();
+
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
         Button SolveBtn = GameObject.Find("Solve").GetComponent<Button>();
         Button ExplainBtn = GameObject.Find("Explain").GetComponent<Button>();
@@ -251,42 +259,12 @@ public class SlopeSecondProblem : MonoBehaviour
         TextInstantiator.InstantiateText(FirstNumPlace, (int.Parse(X2.text) - int.Parse(X1.text)).ToString(), XPos + 100, Ypos, 0, false);
         SlopeDeno = (int.Parse(X2.text) - int.Parse(X1.text));
 
-        int OldNue = SlopeNue;
+        yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "equal" + SpeakerName, Explain)));
+        TextInstantiator.InstantiateText(FirstNumPlace, "=", XPos + 200, Ypos+50, 0, false);
+
+        yield return StartCoroutine(SLStaicFunctions.WriteFraction(this, FirstNumPlace, Line, Explain, SlopeNue, SlopeDeno, XPos + 300, Ypos+50, -1, Explain, true));
 
         FractionCalculator.SimplifyFraction(ref SlopeNue, ref SlopeDeno);
-        if (SlopeNue > 0 && SlopeDeno < 0)
-        {
-            SlopeNue = -SlopeNue;
-            SlopeDeno = -SlopeDeno;
-        }
-        if (OldNue != SlopeNue)
-        {
-            yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "equal" + SpeakerName, Explain)));
-
-            TextInstantiator.InstantiateText(FirstNumPlace, " = ", XPos + 180, Ypos + 50, 0, false);
-
-            if (SlopeNue != SlopeDeno)
-            {
-
-                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, SlopeNue.ToString(), Explain)));
-
-                TextInstantiator.InstantiateText(FirstNumPlace, SlopeNue.ToString(), XPos + 280, Ypos + 100, 0, false);
-                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "over" + SpeakerName, Explain)));
-
-                yield return (StartCoroutine(SLStaicFunctions.SpawnAndAnimate(Line, new Vector3(XPos + 280, Ypos + 30, 0), "SmallLine", FirstNumPlace, Explain)));
-                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, SlopeDeno.ToString(), Explain)));
-                TextInstantiator.InstantiateText(FirstNumPlace, SlopeDeno.ToString(), XPos + 280, Ypos, 0, false);
-
-
-            }
-            else
-            {
-                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, SlopeNue.ToString(), Explain)));
-
-                TextInstantiator.InstantiateText(FirstNumPlace, SlopeNue.ToString(), XPos + 280, Ypos + 50, 0, false);
-            }
-
-        }
         Ypos -= 100;
 
     }
@@ -299,7 +277,7 @@ public class SlopeSecondProblem : MonoBehaviour
         yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "tan" + SpeakerName, Explain)));
         angel.GetComponent<Image>().color = Color.red;
         yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, angel.text, Explain)));
-        TextInstantiator.InstantiateText(FirstNumPlace, $"m<sub>2</sub> = Tan " + angel.text + "�", XPos + 150, Ypos, 0, false);
+        TextInstantiator.InstantiateText(FirstNumPlace, $"m<sub>2</sub> = Tan " + angel.text + "˚", XPos + 140, Ypos, 0, false);
 
         angel.GetComponent<Image>().color =BackGroundColor;
 
@@ -310,9 +288,13 @@ public class SlopeSecondProblem : MonoBehaviour
         yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "equal" + SpeakerName, Explain)));
 
         float TanAngel = Mathf.Tan(int.Parse(angel.text) * Mathf.Deg2Rad);
+        if (TanAngel.ToString().Length >= 5)
+        {
+            TanAngel = float.Parse(TanAngel.ToString().Substring(0, 5));
+        }
         yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, TanAngel.ToString(), Explain)));
 
-        TextInstantiator.InstantiateText(FirstNumPlace, " = " + TanAngel.ToString(), XPos + 400, Ypos, 0, false);
+        TextInstantiator.InstantiateText(FirstNumPlace, " = " + TanAngel.ToString(), XPos + 470, Ypos, 0, false);
         Ypos -= 100;
 
 
@@ -321,20 +303,20 @@ public class SlopeSecondProblem : MonoBehaviour
         {
             yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "since m1 time m2 equals minus 1" + SpeakerName, Explain)));
             yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "then" + SpeakerName, Explain)));
-            TextInstantiator.InstantiateText(FirstNumPlace, $"m<sub>2</sub> � m<sub>1</sub> = -1", XPos + 60, Ypos, 0, false);
+            TextInstantiator.InstantiateText(FirstNumPlace, $"m<sub>2</sub> × m<sub>1</sub> = -1", XPos + 130, Ypos, 0, false);
             yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "so the two straight lines are perpendicular" + SpeakerName, Explain)));
             Ypos -= 100;
-            TextInstantiator.InstantiateText(FirstNumPlace, $"L<sub>2</sub> and L<sub>1</sub> are perpendicular", XPos + 60, Ypos, 0, false);
+            TextInstantiator.InstantiateText(FirstNumPlace, $"L<sub>2</sub> and L<sub>1</sub> are perpendicular", XPos + 450, Ypos, 0, false);
 
         }
         else
         {
             yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "since m1 time m2 not equals minus 1" + SpeakerName, Explain)));
             yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "then" + SpeakerName, Explain)));
-            TextInstantiator.InstantiateText(FirstNumPlace, $"m<sub>2</sub> � m<sub>1</sub> != -1", XPos + 60, Ypos, 0, false);
+            TextInstantiator.InstantiateText(FirstNumPlace, $"m<sub>2</sub>× m<sub>1</sub> ≠ -1", XPos + 130, Ypos, 0, false);
             yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "so the two straight lines are not perpendicular" + SpeakerName, Explain)));
             Ypos -= 100;
-            TextInstantiator.InstantiateText(FirstNumPlace, $"L<sub>2</sub> and L<sub>1</sub> are not perpendicular", XPos + 60, Ypos, 0, false);
+            TextInstantiator.InstantiateText(FirstNumPlace, $"L<sub>2</sub> and L<sub>1</sub> are not perpendicular", XPos + 450, Ypos, 0, false);
         }
     }
 

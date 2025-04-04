@@ -39,17 +39,16 @@ public class DecimmalScript : MonoBehaviour
     public static string SecNumber = "";
 
 
+    List<TMP_InputField> FieldsList;
     public void Start()
     {
+        FieldsList = new List<TMP_InputField> { FrstNum, SecNum };
         FirstNumPlace.gameObject.SetActive(false);
         SecNumPlace.gameObject.SetActive(false);
-        ResetValues.ResetAllValues(Line, FirstNumPlace, SecNumPlace, sign);
+        ResetValues.ResetAllValues();
 
         FrstNum.text = FirstNumber;
         SecNum.text = SecNumber;
-
-        UnityAction langBtnClickAction = () => LangBtnActions.LangBtnClick(ref IsEng, ref SpeakerName, ref loop);
-        LangBtn.onClick.AddListener(langBtnClickAction);
 
         GameObject sign2 = GameObject.Find("Sign2");
 
@@ -73,10 +72,26 @@ public class DecimmalScript : MonoBehaviour
         InputFieldsActions.InitializePlaceholders(FrstNum);
         InputFieldsActions.InitializePlaceholders(SecNum);
 
+
+        GameObject.Find("Explain").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(ExplainBtnAction);
+        GameObject.Find("Solve").GetComponent<UnityEngine.UI.Button>().onClick.AddListener(SolveBtnAction);
+
+
+        try
+        {
+            UnityAction langBtnClickAction = () => LangBtnActions.LangBtnClick(ref IsEng, ref SpeakerName, ref loop);
+            LangBtn.onClick.AddListener(langBtnClickAction);
+        }
+        catch (Exception e)
+        {
+
+            Debug.Log(e);
+        }
+
     }
     void Update()
     {
-        ExplainEnableMent.EnableExplain(ref FrstNum, ref SecNum);
+        ExplainEnableMent.EnableExplain(ref FieldsList);
 
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
 
@@ -131,11 +146,10 @@ public class DecimmalScript : MonoBehaviour
         AdditionScript.IscalledFromOutSide = true;
         SubtractionScript.IscalledFromOutSide = true;
         GameObject ExplainBtn = GameObject.Find("Explain");
-        ResetValues.ResetAllValues(Line, FirstNumPlace, SecNumPlace, sign);
         UnityEngine.UI.Button button = ExplainBtn.GetComponent<UnityEngine.UI.Button>();
         button.interactable = false;
 
-        ResetValues.ResetAllValues(Line, FirstNumPlace, SecNumPlace, sign);
+        ResetValues.ResetAllValues();
         if (float.Parse(SecNum.text) > float.Parse(FrstNum.text))
         {
             (SecNum.text, FrstNum.text) = (FrstNum.text, SecNum.text);

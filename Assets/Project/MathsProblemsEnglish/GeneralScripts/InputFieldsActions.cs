@@ -32,15 +32,14 @@ public class InputFieldsActions : MonoBehaviour
     }    
     public static char ValidateDecimalObsInput(string text, int charIndex, char addedChar)
     {
-        if (char.IsDigit(addedChar) && !(text.Length == 0 && addedChar == '0'))
+        if (char.IsDigit(addedChar))
         {
             return addedChar;
         }
         else
         {
-            if (text.Length == 0 && addedChar == '.')
+            if (text.Length != 0 && addedChar == '.')
             {
-                text+= "0";
                 return addedChar;
             }
             else if(addedChar == '.' && !text.Contains('.'))
@@ -60,12 +59,22 @@ public class InputFieldsActions : MonoBehaviour
         if (textArea != null)
         {
             // Find the "EnPlaceholder" and "ArPlaceholder" under the "Text Area"
-            enPlaceholder = textArea.Find("EnPlaceholder").GetComponent<TextMeshProUGUI>();
-            arPlaceholder = textArea.Find("ArPlaceholder").GetComponent<TextMeshProUGUI>();
+            try
+            {
+                enPlaceholder = textArea.Find("EnPlaceholder").GetComponent<TextMeshProUGUI>();
+                arPlaceholder = textArea.Find("ArPlaceholder").GetComponent<TextMeshProUGUI>();
+                // Add listener to the onSelect event of the input field
+                inputField.onSelect.AddListener((string input) => OnInputFieldSelected(enPlaceholder, arPlaceholder));
 
-            // Add listener to the onSelect event of the input field
-            inputField.onSelect.AddListener((string input) => OnInputFieldSelected(enPlaceholder, arPlaceholder));
-            inputField.onDeselect.AddListener((string input) => OnInputFieldDeselected(inputField, enPlaceholder, arPlaceholder, AdditionScript.IsEng));
+
+                inputField.onDeselect.AddListener((string input) => OnInputFieldDeselected(inputField, enPlaceholder, arPlaceholder, AdditionVoiceSpeaker.IsEng));
+            }
+            catch (System.Exception )
+            {
+
+            }
+
+;
 
             // Set input type to numeric to display numeric keyboard on Android
             inputField.keyboardType = TouchScreenKeyboardType.PhonePad;

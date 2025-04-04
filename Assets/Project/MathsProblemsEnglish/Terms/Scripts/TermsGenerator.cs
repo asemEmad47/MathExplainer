@@ -6,7 +6,6 @@ public class TermsGenerator : MonoBehaviour
 {
     [SerializeField] private TMP_InputField inputField;
     [SerializeField] private GameObject Keyboard;
-    [SerializeField] private Button EmptyButton;
     private TouchScreenKeyboard m_keyboard;
     void Start()
     {
@@ -16,7 +15,6 @@ public class TermsGenerator : MonoBehaviour
         // Set up event listeners for when the input field is selected and deselected
         inputField.onSelect.AddListener(OnSelect);
         inputField.onDeselect.AddListener(OnDeselect);
-        EmptyButton.onClick.AddListener(Hidekeyboard);
     }
     void LateUpdate()
     {
@@ -26,7 +24,6 @@ public class TermsGenerator : MonoBehaviour
     {
         // Disable default Unity keyboard when input field is selected
         TouchScreenKeyboard.hideInput = true;
-        ButtonAction.IsPower = false;
         inputField.GetComponent<TMP_InputField>().ActivateInputField();
         Keyboard.SetActive(true);
     }
@@ -35,6 +32,7 @@ public class TermsGenerator : MonoBehaviour
     {
         // Re-enable default Unity keyboard when input field is deselected
         TouchScreenKeyboard.hideInput = false;
+
     }
     public void Hidekeyboard()
     {

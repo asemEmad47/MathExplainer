@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -37,6 +36,9 @@ public class FirstProblem : MonoBehaviour
     public static string FNue = "";
     public static string FDeno = "";
 
+
+    private Button PauseBtn;
+    private Button ResumeBtn;
     private void OnDisable()
     {
         SlopeNue = int.Parse(SlopeNuemerator.text);
@@ -59,6 +61,10 @@ public class FirstProblem : MonoBehaviour
     }
     public void Start()
     {
+        PauseBtn = GameObject.Find("Pause").GetComponent<Button>();
+        ResumeBtn = GameObject.Find("Resume").GetComponent<Button>();
+        PauseBtn.onClick.AddListener(PauseScript.Pause);
+        ResumeBtn.onClick.AddListener(PauseScript.Resume);
         AdditionScript.IscalledFromOutSide = true;
         if (!Xval.Equals(""))
         {
@@ -78,7 +84,7 @@ public class FirstProblem : MonoBehaviour
         }
         SlopeNue = int.Parse(SlopeNuemerator.text);
         SlopeDeno = int.Parse(SlopeDenominator.text);
-        AdditionVoiceSpeaker.NumPlace = "JennySound/JennyNumbers";
+        AdditionVoiceSpeaker.NumPlace = "JennySound/Numbers";
         AdditionVoiceSpeaker.VoiceClipsPlace = "JennySound";
         AdditionVoiceSpeaker.SpeakerName = SpeakerName;
         SLStaicFunctions.SpeakerName = SpeakerName;
@@ -88,6 +94,8 @@ public class FirstProblem : MonoBehaviour
     }
     private void Update()
     {
+        PauseScript.ControlPause();
+
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
         Button SolveBtn = GameObject.Find("Solve").GetComponent<Button>();
         Button ExplainBtn = GameObject.Find("Explain").GetComponent<Button>();

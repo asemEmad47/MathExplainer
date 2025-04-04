@@ -38,6 +38,8 @@ public class EightsProblem : MonoBehaviour
     public static string FNue = "";
     public static string FDeno = "";
 
+    private Button PauseBtn;
+    private Button ResumeBtn;
     private void OnDisable()
     {
         XTemp = XPos;
@@ -49,6 +51,10 @@ public class EightsProblem : MonoBehaviour
     }
     public void Start()
     {
+        PauseBtn = GameObject.Find("Pause").GetComponent<Button>();
+        ResumeBtn = GameObject.Find("Resume").GetComponent<Button>();
+        PauseBtn.onClick.AddListener(PauseScript.Pause);
+        ResumeBtn.onClick.AddListener(PauseScript.Resume);
 
         SLStaicFunctions.RemoveTexts();
         if (!Xval.Equals(""))
@@ -67,7 +73,7 @@ public class EightsProblem : MonoBehaviour
         {
             SlopeDenominator.text = FDeno;
         }
-        AdditionVoiceSpeaker.NumPlace = "JennySound/JennyNumbers";
+        AdditionVoiceSpeaker.NumPlace = "JennySound/Numbers";
         AdditionVoiceSpeaker.VoiceClipsPlace = "JennySound";
         AdditionVoiceSpeaker.SpeakerName = SpeakerName;
         SLStaicFunctions.SpeakerName = SpeakerName;
@@ -90,6 +96,8 @@ public class EightsProblem : MonoBehaviour
     }
     private void Update()
     {
+        PauseScript.ControlPause();
+
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
         Button SolveBtn = GameObject.Find("Solve").GetComponent<Button>();
         Button ExplainBtn = GameObject.Find("Explain").GetComponent<Button>();

@@ -29,6 +29,7 @@ public class LongDivisionScript : MonoBehaviour
     [SerializeField] private GameObject Line;
     [SerializeField] private GameObject SecMethodLine;
     [SerializeField] private GameObject SubtractionnObj;
+    [SerializeField] private GameObject StaticArrow;
     [SerializeField] private UnityEngine.UI.Button LangBtn;
 
     public static AudioSource audioSource;
@@ -46,17 +47,34 @@ public class LongDivisionScript : MonoBehaviour
     public static string SecNumber = "";
     public Vector3 ArrowPos ;
 
-
+    private Button PauseBtn;
+    private Button ResumeBtn;
     public void Start()
     {
+        PauseBtn = GameObject.Find("Pause").GetComponent<Button>();
+        ResumeBtn = GameObject.Find("Resume").GetComponent<Button>();
+        PauseBtn.onClick.AddListener(PauseScript.Pause);
+        ResumeBtn.onClick.AddListener(PauseScript.Resume);
+
         ArrowPos = Arrow.GetComponent<RectTransform>().anchoredPosition;
         FrstNum.text = FirstNumber;
         SecNum.text = SecNumber;
+
         DivideSign.gameObject.SetActive(false);
         MinusSign.gameObject.SetActive(false);
         TimeSign.gameObject.SetActive(false);
+
+        SpeakerName = "_Sonya_Eng";
+        SLStaicFunctions.SpeakerName = SpeakerName;
+        AdditionVoiceSpeaker.SpeakerName = SpeakerName;
+        AdditionVoiceSpeaker.NumPlace = "EngNums";
+        AdditionVoiceSpeaker.VoiceClipsPlace = "AdditionTerms/AdditionSound";
+        AdditionVoiceSpeaker.IsEng = true;
+        AdditionVoiceSpeaker.LoadAllAudioClips();
+
         UnityAction langBtnClickAction = () => LangBtnActions.LangBtnClick(ref IsEng, ref SpeakerName, ref loop);
         LangBtn.onClick.AddListener(langBtnClickAction);
+
         LastInsatitedNumber = 1;
         SecProblemY = FirstNumPlace.GetComponent<RectTransform>().anchoredPosition.y - 100;
         FrstNum.onValidateInput = InputFieldsActions.ValidateBasicObsInput;
@@ -65,14 +83,16 @@ public class LongDivisionScript : MonoBehaviour
         InputFieldsActions.InitializePlaceholders(SecNum);
         BlueColor = DivideSign.GetComponent<TextMeshProUGUI>().color;
 
+        GameObject.Find("Explain").GetComponent<Button>().onClick.AddListener(ExplainBtnAction);
+        GameObject.Find("Solve").GetComponent<Button>().onClick.AddListener(SolveBtnAction);
     }
     void Update()
     {
-
+        PauseScript.ControlPause();
         FrstNum.onValidateInput = InputFieldsActions.ValidateBasicObsInput;
         SecNum.onValidateInput = DivisionScript.ValidateSecInput;
+
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
-        AdditionScript.IsEng = IsEng;
 
         if (FrstNum.text.Length == 0 || SecNum.text.Length == 0 || Explain)
         {
@@ -95,20 +115,16 @@ public class LongDivisionScript : MonoBehaviour
             UnityEngine.UI.Button button = ExplainBtn.GetComponent<UnityEngine.UI.Button>();
             button.interactable = true;
         }
-        if (!AdditionVoiceSpeaker.NumPlace.Equals("JennySound/JennyNumbers"))
+        if (AdditionVoiceSpeaker.IsEng)
         {
-            if (IsEng)
-            {
-                SpeakerName = "_Sonya_Eng";
-                AdditionVoiceSpeaker.NumPlace = "EngNums";
+            ArtoggleGroup.gameObject.SetActive(false);
+            EngtoggleGroup.gameObject.SetActive(true);
+        }
+        else
+        {
 
-            }
-            else
-            {
-                SpeakerName = "_Heba_Egy";
-                AdditionVoiceSpeaker.NumPlace = "EgyNums";
-
-            }
+            ArtoggleGroup.gameObject.SetActive(true);
+            EngtoggleGroup.gameObject.SetActive(false);
         }
     }
     public void ExplainBtnAction()
@@ -131,13 +147,14 @@ public class LongDivisionScript : MonoBehaviour
 
     public IEnumerator Solve()
     {
+        ResetValues.ResetAllValuesLongDiv();
         Arrow.GetComponent<RectTransform>().anchoredPosition = ArrowPos;
         DivideSign.SetActive(false);
         TimeSign.SetActive(false);
         MinusSign.SetActive(false);
         MinusSign.GetComponent<TextMeshProUGUI>().color = BlueColor;
 
-        ResetValues.ResetAllValues(Line.GetComponent<TextMeshProUGUI>(), FirstNumPlace, SecNumPlace, Line.GetComponent<TextMeshProUGUI>());
+        ResetValues.ResetAllValues();
         InLongDev = true;
         TextMeshProUGUI Reminder2 = GameObject.Find("Reminder").GetComponent<TextMeshProUGUI>();
         Reminder2.text = "R ";
@@ -174,8 +191,8 @@ public class LongDivisionScript : MonoBehaviour
 
 
         Animator animator = Arrow.GetComponent<Animator>();
-        Arrow.SetActive(true);
         animator.SetTrigger("Start");
+        StaticArrow.SetActive(true);
         yield return new WaitForSeconds(1);
 
         Arrow.SetActive(false);
@@ -225,333 +242,356 @@ public class LongDivisionScript : MonoBehaviour
             {
                 for (int i = 0; i < FrstNumCpy.Length; i++)
                 {
-
                     string SNum = SecNum.text;
-
                     if (!FrstNumCpy[i].Equals(' '))
                     {
                         charInfo = textInfo.characterInfo[i];
                         characterPosition = CharacterProbs.GetCharPoos(FirstNumPlace, charInfo, i);
+
+                        GameObject.Find("StaticArrow").transform.Find("StaticBody").GetComponent<SpriteRenderer>().color = new Color(0, 0, 0, 0.5f);
+                        GameObject.Find("StaticArrow").transform.Find("StaticTriangle").GetComponent<SpriteRenderer>().color = new Color(0, 0, 0, 0.5f);
                         //division part
                         if (textInfo.characterInfo != null && i < textInfo.characterInfo.Length)
                         {
-                            TextMeshProUGUI myText = new TextMeshProUGUI();
-
-                            yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,FNum, Explain)));
-                            string temp2 = "", temp = "";
-
-                            MakeRed(i, FrstNumCpy);
+                            TextMeshProUGUI SecNumPlaceCpy = new();
 
 
-                            myText.text = $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(UnityEngine.Color.red)}>{myText.text}</color>";
-
-                            DivideSign.GetComponent<TextMeshProUGUI>().color = Color.red;
-                            TimeSign.GetComponent<TextMeshProUGUI>().color = BlueColor;
-                            MinusSign.GetComponent<TextMeshProUGUI>().color = BlueColor;
-                            yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"divide" + SpeakerName, Explain)));
-
-                            yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,SNum, Explain)));
-
-
-                            temp2 = $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(UnityEngine.Color.red)}>{SNum}</color>";
-
-                            SecNumPlace.text = temp2;
-                            if (int.Parse(FNum) < int.Parse(SNum) && i + 3 < FrstNumCpy.Length)
+                            if (!(i >= FrstNumCpy.Length - 2 && FNum.Equals("0")))
                             {
-                                i += 2;
-                                IsIIncreased = true;
+                                TextMeshProUGUI myText = new TextMeshProUGUI();
+
+                                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, FNum, Explain)));
+                                string temp2 = "", temp = "";
+
+                                MakeRed(i, FrstNumCpy);
 
 
-                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"doesnotgo" + SpeakerName, Explain)));
+                                myText.text = $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(UnityEngine.Color.red)}>{myText.text}</color>";
 
-                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"and" + SpeakerName, Explain)));
+                                DivideSign.GetComponent<TextMeshProUGUI>().color = Color.red;
+                                TimeSign.GetComponent<TextMeshProUGUI>().color = BlueColor;
+                                MinusSign.GetComponent<TextMeshProUGUI>().color = BlueColor;
+                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "divide" + SpeakerName, Explain)));
 
-                                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,FNum, Explain)));
-
-                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"is smaller than" + SpeakerName, Explain)));
-
-                                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,SNum, Explain)));
-
-                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"so" + SpeakerName, Explain)));
-
-                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"put" + SpeakerName, Explain)));
-
-                                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,"0", Explain)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, SNum, Explain)));
 
 
-                                TextInstantiator.InstantiateText(FirstNumPlace, "0", characterPosition.x + 15, characterPosition.y, 240, true, 200);
+                                temp2 = $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(UnityEngine.Color.red)}>{SNum}</color>";
 
-                                FinalResult += "0";
-
-                                charInfo = textInfo.characterInfo[i];
-                                characterPosition = CharacterProbs.GetCharPoos(FirstNumPlace, charInfo, i);
-
-
-                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"and" + SpeakerName, Explain)));
-
-
-                                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,FNum, Explain)));
-
-                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"becomes" + SpeakerName, Explain)));
-
-                                FNum = FNum[FNum.Length - 1].ToString();
-                                FNum += FrstNumCpy[i];
-
-                                TextMeshProUGUI TempBackup = null;
-                                try
+                                SecNumPlace.text = temp2;
+                                if (int.Parse(FNum) < int.Parse(SNum) && i + 3 < FrstNumCpy.Length)
                                 {
-                                    // Take the next digit
-                                    TempBackup = GameObject.Find("Temp" + (i - 4).ToString()).GetComponent<TextMeshProUGUI>();
-
-                                }
-                                catch (Exception e)
-                                {
-                                    Debug.Log(e);
-                                }
-
-                                if (TempBackup != null)
-                                {
-                                    Vector3 startPosition = new Vector3(characterPosition.x + 230, characterPosition.y + 100, 0);
-                                    Vector3 targetPosition = new Vector3(characterPosition.x + 230, TempBackup.GetComponent<RectTransform>().anchoredPosition.y + 200, TempBackup.transform.position.z);
-                                    yield return StartCoroutine(MoveArrow(startPosition, targetPosition, 1f));
-
-                                   CharacterProbs.CenterInPos(TempBackup.GetComponent<RectTransform>().anchoredPosition.x + 45, TempBackup.GetComponent<RectTransform>().anchoredPosition.y, ref TempBackup , FirstNumPlace);
-                                    TempBackup.text += " " + FrstNumCpy[i];
-                                    Fnum2 += FrstNumCpy[i];
-                                    yield return new WaitForSeconds(1f);
-                                    Arrow.SetActive(false);
-                                }
-
-                                temp = FirstNumPlace.text.Substring(0, FirstNumPlace.text.LastIndexOf("</color>") + 9);
-                                temp2 = FirstNumPlace.text.Substring(FirstNumPlace.text.LastIndexOf("</color>") + 10);
-
-                                temp += $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(UnityEngine.Color.red)}>{FNum[1]}</color>";
-
-                                FirstNumPlace.text = temp + temp2;
-
-                                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,FNum, Explain)));
-
-                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"so" + SpeakerName, Explain)));
+                                    i += 2;
+                                    IsIIncreased = true;
 
 
-                                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,FNum, Explain)));
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "doesnotgo" + SpeakerName, Explain)));
+
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "and" + SpeakerName, Explain)));
+
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, FNum, Explain)));
+
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "is smaller than" + SpeakerName, Explain)));
+
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, SNum, Explain)));
+
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "so" + SpeakerName, Explain)));
+
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "put" + SpeakerName, Explain)));
+
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, "0", Explain)));
 
 
-                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"divide" + SpeakerName, Explain)));
+                                    TextInstantiator.InstantiateText(FirstNumPlace, "0", characterPosition.x + 15, characterPosition.y, 240, true, 200);
+                                    FinalResult += "0";
 
-                                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,SNum, Explain)));
-
-
-                            }
-                            else if (int.Parse(FNum) < int.Parse(SNum) && i + 2 >= FrstNumCpy.Length)
-                            {
-                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"doesnotgo" + SpeakerName, Explain)));
-
-                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"and" + SpeakerName, Explain)));
-
-                                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,FNum, Explain)));
-
-                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"is smaller than" + SpeakerName, Explain)));
-
-                                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,SNum, Explain)));
-
-                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"so" + SpeakerName, Explain)));
-
-                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"put" + SpeakerName, Explain)));
-
-                                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,"0", Explain)));
-
-
-
-                                TextInstantiator.InstantiateText(FirstNumPlace, "0", characterPosition.x + 15, characterPosition.y, 240, true);
-                                FinalResult += '0';
-
-                            }
-
-
-
-                            Toggle toggle;
-                            if (IsEng)
-                            {
-                                toggle = EngtoggleGroup.ActiveToggles().FirstOrDefault();
-                            }
-                            else
-                            {
-                                toggle = ArtoggleGroup.ActiveToggles().FirstOrDefault();
-                            }
-                            if (toggle.name.Equals("MethodOne"))
-                            {
-                                yield return StartCoroutine(SolveByMehtodOne(SNum, textInfo, charInfo, characterPosition, YDdistance, IsIIncreased, i));
-                            }
-                            else
-                            {
-                                yield return StartCoroutine(SolveByMehtodTwo(textInfo, charInfo, characterPosition, YDdistance, IsIIncreased, i));
-
-                            }
-
-
-                            //-------------------------------------
-                            //minus part
-                            DivideSign.GetComponent<TextMeshProUGUI>().color = BlueColor;
-                            TimeSign.GetComponent<TextMeshProUGUI>().color = BlueColor;
-                            MinusSign.GetComponent<TextMeshProUGUI>().color = Color.red;
-
-                            Line.gameObject.SetActive(true);
-
-                            int index = i;
-                            if (TimeRes.ToString().Length > 1)
-                                index = i - 2;
-
-                            TMP_TextInfo textInfo2 = FirstNumPlace.GetTextInfo(FirstNumPlace.text);
-                            TMP_CharacterInfo charInfoSecPlace = textInfo2.characterInfo[index];
-                            Vector3 characterPositionSecPlace = CharacterProbs.GetCharPoos(FirstNumPlace, charInfoSecPlace, index);
-
-                            SubtractionScript.IsEng = IsEng;
-                            SubtractionScript.IscalledFromOutSide = true;
-                            SubtractionScript.Explain = true;
-                            SubtractionScript subtraction = SubtractionnObj.GetComponent<SubtractionScript>();
-
-
-                            TextMeshProUGUI FrstNumPlaceCpy;
-
-                            if (i == 0 || (i == 2 && IsIIncreased))
-                            {
-                                FrstNumPlaceCpy = Instantiate(FirstNumPlace, FirstNumPlace.transform.position, FirstNumPlace.transform.rotation);
-                                FrstNumPlaceCpy.text = FrstNumCpy.Substring(0, TimeRes.ToString().Length * 2 - 1);
-                            }
-                            else
-                            {
-                                TextMeshProUGUI TempBackup;
-                                try
-                                {
-                                    TempBackup = GameObject.Find("Temp" + (i - 2).ToString()).GetComponent<TextMeshProUGUI>();
-                                }
-                                catch (Exception)
-                                {
-                                    TempBackup = GameObject.Find("Temp" + (i - 4).ToString()).GetComponent<TextMeshProUGUI>();
-                                }
-
-
-                                FrstNumPlaceCpy = TempBackup;
-
-                                FrstNumPlaceCpy.text = Fnum2;
-                            }
-
-                            FrstNumPlaceCpy.name = "FrstNumPlaceCpy" + i.ToString();
-
-                            FrstNumPlaceCpy.ForceMeshUpdate();
-                            yield return null;
-                            TextMeshProUGUI SecNumPlaceCpy;
-                            SpaceNumbers(ref FNum);
-                            try
-                            {
-                                SecNumPlaceCpy = GameObject.Find((i + 200).ToString()).GetComponent<TextMeshProUGUI>();
-
-                            }
-                            catch (Exception)
-                            {
-
-                                SecNumPlaceCpy = GameObject.Find((i - 2 + 200).ToString()).GetComponent<TextMeshProUGUI>();
-
-                            }
-                            SecNumPlaceCpy.text = FNum;
-                            if (i != 0 && !(i == 2 && IsIIncreased))
-                            {
-                                CharacterProbs.CenterInPos(GameObject.Find("FrstNumPlaceCpy" + (i).ToString()).GetComponent<RectTransform>().anchoredPosition.x, GameObject.Find("FrstNumPlaceCpy" + (i).ToString()).GetComponent<RectTransform>().anchoredPosition.y - 70, ref SecNumPlaceCpy, FirstNumPlace);
-                            }
-                            else
-                            {
-                                if ((i == 2 && IsIIncreased))
-                                {
-                                    CharacterProbs.CenterInPos(SecNumPlaceCpy.GetComponent<RectTransform>().anchoredPosition.x + 33, SecNumPlaceCpy.GetComponent<RectTransform>().anchoredPosition.y, ref SecNumPlaceCpy, FirstNumPlace);
-                                }
-                            }
-
-                            GameObject LineI = Instantiate(Line, Line.transform.position, Line.transform.rotation);
-                            Line.gameObject.SetActive(false);
-                            LineI.name = "LINEI " + i;
-                            TextMeshProUGUI LineItxt = LineI.GetComponent<TextMeshProUGUI>();
-
-                            CharacterProbs.CenterInPos(SecNumPlaceCpy.GetComponent<RectTransform>().anchoredPosition.x - 10, SecNumPlaceCpy.GetComponent<RectTransform>().anchoredPosition.y - 30, ref LineItxt, FirstNumPlace);
-
-
-                            SubtractionScript.ResSpace = -250;
-                            SecNumPlaceCpy.enableWordWrapping = false;
-                            SecNumPlaceCpy.overflowMode = TextOverflowModes.Overflow;
-
-                            FrstNumPlaceCpy.enableWordWrapping = false;
-                            FrstNumPlaceCpy.overflowMode = TextOverflowModes.Overflow;
-
-                            if (i == 0 || (i == 2 && IsIIncreased))
-                            {
-                                CharacterProbs.CenterInPos(SecNumPlaceCpy.GetComponent<RectTransform>().anchoredPosition.x - 10, FirstNumPlace.GetComponent<RectTransform>().anchoredPosition.y, ref FrstNumPlaceCpy, FirstNumPlace);
-                            }
-                            SubtractionScript.IscalledFromOutSide = true;
-                            subtraction.SetComponenets(FrstNum, SecNum, FrstNumPlaceCpy, SecNumPlaceCpy, LineItxt, null, null);
-
-                            subtraction.OutSideSolve(Explain);
-                            while (SubtractionScript.IscalledFromOutSide)
-                            {
-                                yield return null;
-                            }
-
-                            if (i + 2 < FrstNumCpy.Length)
-                            {
-                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"and" + SpeakerName, Explain)));
-
-                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"bring the next down" + SpeakerName, Explain)));
-                                charInfo = textInfo.characterInfo[i];
-                                characterPosition = CharacterProbs.GetCharPoos(FirstNumPlace, charInfo, i);
-
-                                Vector3 startPosition = new Vector3(characterPosition.x + 305, characterPosition.y + 100, 0);
-
-                                Vector3 targetPosition = new Vector3(characterPosition.x + 305, SecNumPlaceCpy.GetComponent<RectTransform>().anchoredPosition.y + 100, LineItxt.transform.position.z);
-
-                                characterPosition = new Vector3(characterPosition.x, characterPosition.y + 200, 0);
-                                if (IsIIncreased)
-                                {
                                     charInfo = textInfo.characterInfo[i];
                                     characterPosition = CharacterProbs.GetCharPoos(FirstNumPlace, charInfo, i);
+
+
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "and" + SpeakerName, Explain)));
+
+
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, FNum, Explain)));
+
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "becomes" + SpeakerName, Explain)));
+
+                                    FNum = FNum[FNum.Length - 1].ToString();
+                                    FNum += FrstNumCpy[i];
+
+                                    TextMeshProUGUI TempBackup = null;
+                                    try
+                                    {
+                                        // Take the next digit
+                                        TempBackup = GameObject.Find("Temp" + (i - 4).ToString()).GetComponent<TextMeshProUGUI>();
+
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        Debug.Log(e);
+                                    }
+
+                                    if (TempBackup != null)
+                                    {
+                                        Vector3 startPosition = new Vector3(characterPosition.x + 230, characterPosition.y + 100, 0);
+                                        Vector3 targetPosition = new Vector3(characterPosition.x + 230, TempBackup.GetComponent<RectTransform>().anchoredPosition.y + 200, TempBackup.transform.position.z);
+                                        yield return StartCoroutine(MoveArrow(startPosition, targetPosition, 1f));
+
+                                        CharacterProbs.CenterInPos(TempBackup.GetComponent<RectTransform>().anchoredPosition.x + 45, TempBackup.GetComponent<RectTransform>().anchoredPosition.y, ref TempBackup, FirstNumPlace);
+                                        TempBackup.text += " " + FrstNumCpy[i];
+                                        Fnum2 += FrstNumCpy[i];
+                                        yield return new WaitForSeconds(1f);
+                                        Arrow.SetActive(false);
+                                    }
+
+                                    temp = FirstNumPlace.text.Substring(0, FirstNumPlace.text.LastIndexOf("</color>") + 9);
+                                    temp2 = FirstNumPlace.text.Substring(FirstNumPlace.text.LastIndexOf("</color>") + 10);
+
+                                    temp += $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(UnityEngine.Color.red)}>{FNum[1]}</color>";
+
+                                    FirstNumPlace.text = temp + temp2;
+
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, FNum, Explain)));
+
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "so" + SpeakerName, Explain)));
+
+
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, FNum, Explain)));
+
+
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "divide" + SpeakerName, Explain)));
+
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, SNum, Explain)));
+
+
                                 }
-                                // Move the arrow smoothly over 1 second (you can change this duration)
-                                yield return StartCoroutine(MoveArrow(startPosition, targetPosition, 1f));
-
-                                TextMeshProUGUI Temp = Instantiate(SecNumPlaceCpy, characterPosition, LineItxt.transform.rotation);
-                                Temp.text = "";
-                                Temp.name = "Temp" + i;
-                                FNum = "";
-                                GetMinusResult(i + 100, ref Temp, ref FNum);
-                                Temp.text += FrstNumCpy[i + 2];
-                                Temp.color = UnityEngine.Color.red;
-                                if (FNum.Equals("0"))
+                                else if (int.Parse(FNum) < int.Parse(SNum) && i + 2 >= FrstNumCpy.Length)
                                 {
-                                    FNum = "  ";
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "doesnotgo" + SpeakerName, Explain)));
+
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "and" + SpeakerName, Explain)));
+
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, FNum, Explain)));
+
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "is smaller than" + SpeakerName, Explain)));
+
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, SNum, Explain)));
+
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "so" + SpeakerName, Explain)));
+
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "put" + SpeakerName, Explain)));
+
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, "0", Explain)));
+
+
+
+                                    TextInstantiator.InstantiateText(FirstNumPlace, "0", characterPosition.x + 15, characterPosition.y, 240, true);
+
+
                                 }
-                                FNum += FrstNumCpy[i + 2];
-                                Fnum2 = FNum;
-
-                                SpaceNumbers(ref Fnum2);
-
-                                GameObject HandelZeroPos = FindGameObjectWithLargestXPosition("HandeldZero"+(100+i).ToString());
-                                if(HandelZeroPos!=null)
+                                Toggle toggle;
+                                if (IsEng)
                                 {
-                                    CharacterProbs.CenterInPos(HandelZeroPos.GetComponent<RectTransform>().anchoredPosition.x +60+ +25 * (Temp.text.Length / 2 + 1), HandelZeroPos.GetComponent<RectTransform>().anchoredPosition.y, ref Temp, FirstNumPlace);
+                                    toggle = EngtoggleGroup.ActiveToggles().FirstOrDefault();
                                 }
                                 else
                                 {
-                                    CharacterProbs.CenterInPos(Temp.GetComponent<RectTransform>().anchoredPosition.x +25*(Temp.text.Length/2+1), SecNumPlaceCpy.GetComponent<RectTransform>().anchoredPosition.y - 80, ref Temp, FirstNumPlace);
+                                    toggle = ArtoggleGroup.ActiveToggles().FirstOrDefault();
+                                }
+                                if (toggle.name.Equals("MethodOne"))
+                                {
+                                    yield return StartCoroutine(SolveByMehtodOne(SNum, textInfo, charInfo, characterPosition, YDdistance, IsIIncreased, i));
+                                }
+                                else
+                                {
+                                    yield return StartCoroutine(SolveByMehtodTwo(textInfo, charInfo, characterPosition, YDdistance, IsIIncreased, i));
+
                                 }
 
-                                YDdistance = Temp.GetComponent<RectTransform>().anchoredPosition.y - 50;
-                                SecNumPlace.text = SecNum.text;
-                                yield return new WaitForSeconds(1f);
-                                Arrow.SetActive(false);
-                            }
+                                //-------------------------------------
+                                //minus part
+                                DivideSign.GetComponent<TextMeshProUGUI>().color = BlueColor;
+                                TimeSign.GetComponent<TextMeshProUGUI>().color = BlueColor;
+                                MinusSign.GetComponent<TextMeshProUGUI>().color = Color.red;
 
+                                Line.gameObject.SetActive(true);
+
+                                int index = i;
+                                if (TimeRes.ToString().Length > 1)
+                                    index = i - 2;
+
+                                TMP_TextInfo textInfo2 = FirstNumPlace.GetTextInfo(FirstNumPlace.text);
+                                TMP_CharacterInfo charInfoSecPlace = textInfo2.characterInfo[index];
+                                Vector3 characterPositionSecPlace = CharacterProbs.GetCharPoos(FirstNumPlace, charInfoSecPlace, index);
+
+                                SubtractionScript.IsEng = IsEng;
+                                SubtractionScript.IscalledFromOutSide = true;
+                                SubtractionScript.Explain = true;
+                                SubtractionScript subtraction = SubtractionnObj.GetComponent<SubtractionScript>();
+
+
+                                TextMeshProUGUI FrstNumPlaceCpy;
+
+                                if (i == 0 || (i == 2 && IsIIncreased))
+                                {
+                                    FrstNumPlaceCpy = Instantiate(FirstNumPlace, FirstNumPlace.transform.position, FirstNumPlace.transform.rotation);
+                                    FrstNumPlaceCpy.text = FrstNumCpy.Substring(0, TimeRes.ToString().Length * 2 - 1);
+                                }
+                                else
+                                {
+                                    TextMeshProUGUI TempBackup;
+                                    try
+                                    {
+                                        TempBackup = GameObject.Find("Temp" + (i - 2).ToString()).GetComponent<TextMeshProUGUI>();
+                                    }
+                                    catch (Exception)
+                                    {
+                                        TempBackup = GameObject.Find("Temp" + (i - 4).ToString()).GetComponent<TextMeshProUGUI>();
+                                    }
+
+
+                                    FrstNumPlaceCpy = TempBackup;
+
+                                    FrstNumPlaceCpy.text = Fnum2;
+                                }
+
+                                FrstNumPlaceCpy.name = "FrstNumPlaceCpy" + i.ToString();
+
+                                FrstNumPlaceCpy.ForceMeshUpdate();
+                                yield return null;
+                                SpaceNumbers(ref FNum);
+                                try
+                                {
+                                    SecNumPlaceCpy = GameObject.Find((i + 200).ToString()).GetComponent<TextMeshProUGUI>();
+
+                                }
+                                catch (Exception)
+                                {
+
+                                    SecNumPlaceCpy = GameObject.Find((i - 2 + 200).ToString()).GetComponent<TextMeshProUGUI>();
+
+                                }
+                                SecNumPlaceCpy.text = FNum;
+                                if (i != 0 && !(i == 2 && IsIIncreased))
+                                {
+                                    CharacterProbs.CenterInPos(GameObject.Find("FrstNumPlaceCpy" + (i).ToString()).GetComponent<RectTransform>().anchoredPosition.x, GameObject.Find("FrstNumPlaceCpy" + (i).ToString()).GetComponent<RectTransform>().anchoredPosition.y - 70, ref SecNumPlaceCpy, FirstNumPlace);
+                                }
+                                else
+                                {
+                                    if ((i == 2 && IsIIncreased))
+                                    {
+                                        CharacterProbs.CenterInPos(SecNumPlaceCpy.GetComponent<RectTransform>().anchoredPosition.x + 33, SecNumPlaceCpy.GetComponent<RectTransform>().anchoredPosition.y, ref SecNumPlaceCpy, FirstNumPlace);
+                                    }
+                                }
+
+                                GameObject LineI = Instantiate(Line, Line.transform.position, Line.transform.rotation);
+                                Line.gameObject.SetActive(false);
+                                LineI.name = "LINEI " + i;
+                                TextMeshProUGUI LineItxt = LineI.GetComponent<TextMeshProUGUI>();
+
+                                CharacterProbs.CenterInPos(SecNumPlaceCpy.GetComponent<RectTransform>().anchoredPosition.x - 10, SecNumPlaceCpy.GetComponent<RectTransform>().anchoredPosition.y - 30, ref LineItxt, FirstNumPlace);
+
+
+                                SubtractionScript.ResSpace = -250;
+                                SecNumPlaceCpy.enableWordWrapping = false;
+                                SecNumPlaceCpy.overflowMode = TextOverflowModes.Overflow;
+
+                                FrstNumPlaceCpy.enableWordWrapping = false;
+                                FrstNumPlaceCpy.overflowMode = TextOverflowModes.Overflow;
+
+                                if (i == 0 || (i == 2 && IsIIncreased))
+                                {
+                                    CharacterProbs.CenterInPos(SecNumPlaceCpy.GetComponent<RectTransform>().anchoredPosition.x - 10, FirstNumPlace.GetComponent<RectTransform>().anchoredPosition.y, ref FrstNumPlaceCpy, FirstNumPlace);
+                                }
+                                SubtractionScript.IscalledFromOutSide = true;
+                                subtraction.SetComponenets(FrstNum, SecNum, FrstNumPlaceCpy, SecNumPlaceCpy, LineItxt, null, null);
+
+                                subtraction.OutSideSolve(Explain);
+                                while (SubtractionScript.IscalledFromOutSide)
+                                {
+                                    yield return null;
+                                }
+                                if (i + 2 < FrstNumCpy.Length)
+                                {
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "and" + SpeakerName, Explain)));
+
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "bring the next down" + SpeakerName, Explain)));
+                                    GameObject.Find("StaticArrow").transform.Find("StaticBody").GetComponent<SpriteRenderer>().color = new Color(0, 0, 0,1f);
+                                    GameObject.Find("StaticArrow").transform.Find("StaticTriangle").GetComponent<SpriteRenderer>().color = new Color(0, 0, 0, 1f);
+
+                                    charInfo = textInfo.characterInfo[i];
+                                    characterPosition = CharacterProbs.GetCharPoos(FirstNumPlace, charInfo, i);
+
+                                    Vector3 startPosition = new Vector3(characterPosition.x + 305, characterPosition.y + 100, 0);
+
+                                    Vector3 targetPosition = new Vector3(characterPosition.x + 305, SecNumPlaceCpy.GetComponent<RectTransform>().anchoredPosition.y + 100, LineItxt.transform.position.z);
+
+                                    characterPosition = new Vector3(characterPosition.x, characterPosition.y + 200, 0);
+                                    if (IsIIncreased)
+                                    {
+                                        charInfo = textInfo.characterInfo[i];
+                                        characterPosition = CharacterProbs.GetCharPoos(FirstNumPlace, charInfo, i);
+                                    }
+                                    // Move the arrow smoothly over 1 second (you can change this duration)
+                                    yield return StartCoroutine(MoveArrow(startPosition, targetPosition, 1f));
+
+                                    TextMeshProUGUI Temp = Instantiate(SecNumPlaceCpy, characterPosition, LineItxt.transform.rotation);
+                                    Temp.text = "";
+                                    Temp.name = "Temp" + i;
+                                    FNum = "";
+                                    GetMinusResult(i + 100, ref Temp, ref FNum);
+                                    Temp.text += FrstNumCpy[i + 2];
+                                    Temp.color = UnityEngine.Color.red;
+                                    if (FNum.Equals("0"))
+                                    {
+                                        FNum = "  ";
+                                    }
+                                    FNum += FrstNumCpy[i + 2];
+                                    Fnum2 = FNum;
+
+                                    SpaceNumbers(ref Fnum2);
+
+                                    GameObject HandelZeroPos = FindGameObjectWithLargestXPosition("HandeldZero" + (100 + i).ToString());
+                                    if (HandelZeroPos != null)
+                                    {
+                                        CharacterProbs.CenterInPos(HandelZeroPos.GetComponent<RectTransform>().anchoredPosition.x + 60 + +25 * (Temp.text.Length / 2 + 1), HandelZeroPos.GetComponent<RectTransform>().anchoredPosition.y, ref Temp, FirstNumPlace);
+                                    }
+                                    else
+                                    {
+                                        CharacterProbs.CenterInPos(Temp.GetComponent<RectTransform>().anchoredPosition.x + 25 * (Temp.text.Length / 2 + 1), SecNumPlaceCpy.GetComponent<RectTransform>().anchoredPosition.y - 80, ref Temp, FirstNumPlace);
+                                    }
+
+                                    YDdistance = Temp.GetComponent<RectTransform>().anchoredPosition.y - 50;
+                                    SecNumPlace.text = SecNum.text;
+                                    yield return new WaitForSeconds(1f);
+                                    Arrow.SetActive(false);
+                                }
+                            }
                             else
                             {
+                                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, "0" , Explain)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "time" + SpeakerName, Explain)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, SNum , Explain)));
+                                SecNumPlace.text =  $"<color=#{UnityEngine.ColorUtility.ToHtmlStringRGB(UnityEngine.Color.red)}>{SecNumPlace.text}</color>";
+                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "equal" + SpeakerName, Explain)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, "0", Explain)));
+                                TextInstantiator.InstantiateText(FirstNumPlace, ("0").ToString(), characterPosition.x + 15, characterPosition.y, 240, true, i);
+                                FinalResult += "0";
+                            }
 
-                                TextMeshProUGUI Temp = Instantiate(SecNumPlaceCpy, SecNumPlaceCpy.transform.position, SecNumPlaceCpy.transform.rotation);
+                            if (i >= FrstNumCpy.Length - 2)
+                            {
+                                TextMeshProUGUI Temp;
+                                try
+                                {
+                                    Temp = Instantiate(SecNumPlaceCpy, SecNumPlaceCpy.transform.position, SecNumPlaceCpy.transform.rotation);
+                                }
+                                catch (Exception e)
+                                {
+                                    Temp = Instantiate(FirstNumPlace, FirstNumPlace.transform.position, FirstNumPlace.transform.rotation);
+                                    Debug.Log(e);
+                                }
+
                                 Temp.text = "";
                                 Temp.name = "Temp" + i;
                                 FNum = "";
@@ -572,28 +612,28 @@ public class LongDivisionScript : MonoBehaviour
                                 float XPos = SecNumPlace.GetComponent<RectTransform>().anchoredPosition.x;
                                 float YPos = Temp.GetComponent<RectTransform>().anchoredPosition.y;
 
-                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"so" + SpeakerName, Explain)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "so" + SpeakerName, Explain)));
 
-                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"the final answer is" + SpeakerName, Explain)));
+                                yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "the final answer is" + SpeakerName, Explain)));
 
 
                                 FinalResult = int.Parse(FinalResult).ToString();
                                 TextMeshProUGUI FinalAnswer = GameObject.Find("AnswerPlace").GetComponent<TextMeshProUGUI>();
                                 FinalAnswer.text = FrstNum.text + " ÷ " + SecNum.text + " = " + FinalResult;
 
-                                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,FinalResult, Explain)));
-                                CharacterProbs.CenterInPos(FinalAnswer.GetComponent<RectTransform>().anchoredPosition.x, GameObject.Find("Explain").GetComponent<RectTransform>().anchoredPosition.y-100, ref FinalAnswer, FirstNumPlace);
+                                yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, FinalResult, Explain)));
+                                CharacterProbs.CenterInPos(FinalAnswer.GetComponent<RectTransform>().anchoredPosition.x, PauseBtn.GetComponent<RectTransform>().anchoredPosition.y+50, ref FinalAnswer, FirstNumPlace);
                                 FinalAnswer.enabled = true;
 
 
                                 if (!reminder[0].Equals('0'))
                                 {
-                                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"and" + SpeakerName, Explain)));
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "and" + SpeakerName, Explain)));
 
 
-                                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"the remainder is" + SpeakerName, Explain)));
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this, "the remainder is" + SpeakerName, Explain)));
 
-                                    yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,reminder, Explain)));
+                                    yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, reminder, Explain)));
 
                                     TextMeshProUGUI Reminder = GameObject.Find("Reminder").GetComponent<TextMeshProUGUI>();
                                     Reminder.text += reminder;
@@ -851,7 +891,7 @@ public class LongDivisionScript : MonoBehaviour
             TextMeshProUGUI textMeshProUGUI = GameObject.Find((500 + LastInsatitedNumber).ToString()).GetComponent<TextMeshProUGUI>();
             textMeshProUGUI.color = UnityEngine.Color.red;
 
-            ColorThemAll((500 + LastInsatitedNumber).ToString(), UnityEngine.Color.red);
+            ColoringScript.ColorThemAll((500 + LastInsatitedNumber).ToString(), UnityEngine.Color.red);
 
             yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"time" + SpeakerName, Explain)));
 
@@ -878,7 +918,7 @@ public class LongDivisionScript : MonoBehaviour
                 yield return new WaitForSeconds(0.5f);
 
                 yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,TimeRes.ToString(), Explain)));
-                ColorThemAll((500 + LastInsatitedNumber).ToString(), UnityEngine.Color.red);
+                ColoringScript.ColorThemAll((500 + LastInsatitedNumber).ToString(), UnityEngine.Color.red);
 
 
 
@@ -894,7 +934,7 @@ public class LongDivisionScript : MonoBehaviour
             else
             {
                 yield return (StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this ,TimeRes.ToString(), Explain)));
-                ColorThemAll((500 + LastInsatitedNumber).ToString(), UnityEngine.Color.red);
+                ColoringScript.ColorThemAll((500 + LastInsatitedNumber).ToString(), UnityEngine.Color.red);
 
                 int CurrentNum = 0;
                 if (TimeRes > int.Parse(FNum))
@@ -938,7 +978,7 @@ public class LongDivisionScript : MonoBehaviour
             }
             SecProblemY -= 75;
             SecNumPlace.text = SecNum.text;
-            ColorThemAll((500 + LastInsatitedNumber).ToString(), UnityEngine.Color.black);
+            ColoringScript.ColorThemAll((500 + LastInsatitedNumber).ToString(), UnityEngine.Color.black);
 
             LastInsatitedNumber++;
         }
@@ -947,7 +987,7 @@ public class LongDivisionScript : MonoBehaviour
         {
             DivResult = MathF.Floor((float)int.Parse(FNum) / int.Parse(SecNum.text));
 
-            ColorThemAll((500 + DivResult).ToString(), UnityEngine.Color.red);
+            ColoringScript.ColorThemAll((500 + DivResult).ToString(), UnityEngine.Color.red);
 
             yield return new WaitForSeconds(0.5f);
 
@@ -978,25 +1018,12 @@ public class LongDivisionScript : MonoBehaviour
             FNum = ((DivResult) * int.Parse(SecNum.text)).ToString();
             TimeRes = int.Parse(FNum);
             FinalResult += (DivResult).ToString();
-            ColorThemAll((500 + DivResult).ToString(), UnityEngine.Color.black);
+            ColoringScript.ColorThemAll((500 + DivResult).ToString(), UnityEngine.Color.black);
 
         }
 
     }
-    public void ColorThemAll(string name, UnityEngine.Color color)
-    {
-        TextMeshProUGUI[] allTextMeshes = GameObject.FindObjectsOfType<TextMeshProUGUI>();
 
-        // Loop through each TextMeshProUGUI and check if its name matches the target name
-        foreach (TextMeshProUGUI textMesh in allTextMeshes)
-        {
-            if (textMesh.name.Equals(name)) // Check for exact name match
-            {
-                textMesh.color = color; // Set the color to red
-            }
-        }
-  
-    }
     GameObject FindGameObjectWithLargestXPosition(string baseName)
     {
         GameObject largestXObject = null;

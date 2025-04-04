@@ -10,9 +10,9 @@ public class AdditionVoiceSpeaker : MonoBehaviour
     public static AudioClip[] voiceClips;
     public static AudioClip[] Numbers;
     public static AudioSource audioSource;
-    public static string VoiceClipsPlace = "AdditionTerms/AdditionSound";
-    public static string NumPlace = "EngNumsSonya";
-    public static string SpeakerName = "EngNumsSonya";
+    public static string VoiceClipsPlace = "";
+    public static string NumPlace = "";
+    public static string SpeakerName = "";
     public static bool IsEng = false;
     public static IEnumerator PlayByAddress(string address)
     {
@@ -20,7 +20,7 @@ public class AdditionVoiceSpeaker : MonoBehaviour
         GameObject audioObject = new GameObject("VoiceAudioSource");
         audioSource = audioObject.AddComponent<AudioSource>();
 
-        AudioClip AnyClip = Resources.Load<AudioClip>(address);
+        AudioClip AnyClip = Resources.Load<AudioClip>(address.ToLower());
         audioSource.clip = AnyClip;
         audioSource.Play();
 
@@ -34,8 +34,6 @@ public class AdditionVoiceSpeaker : MonoBehaviour
     }
     public static IEnumerator PlayVoiceNumberAndWait(String text)
     {
-        int number = int.Parse(text);
-        text = number.ToString();
         if (text.Length >= 1)
         {
             LoadAllAudioClips();
@@ -43,9 +41,12 @@ public class AdditionVoiceSpeaker : MonoBehaviour
             audioSource = audioObject.AddComponent<AudioSource>();
             if (text[0].Equals('-'))
             {
-                AudioClip MinusAudioClip = Resources.Load<AudioClip>(VoiceClipsPlace+"/minus"+SpeakerName);
+                AudioClip MinusAudioClip;
+                MinusAudioClip = Resources.Load<AudioClip>(VoiceClipsPlace + "/negative" + SpeakerName);
+
                 audioSource.clip = MinusAudioClip;
                 audioSource.Play();
+                Debug.Log(text+" from number");
                 yield return new WaitForSeconds(GetSoundDurationWithoutSilence(audioSource.clip) + 1f);
                 StringBuilder MinusRemoval = new StringBuilder(text);
                 MinusRemoval.Remove(0, 1);
@@ -64,7 +65,7 @@ public class AdditionVoiceSpeaker : MonoBehaviour
                     string temp = "";
                     temp += text[0];
                     temp += "0";
-                    if (NumPlace.Equals("EngNums") || IsEng)
+                    if (NumPlace.Equals("EngNums") || IsEng || VoiceClipsPlace.Equals("JennySound"))
                     {
                         audioSource.clip = GetUnder20Numbers(temp);
                         audioSource.Play();
@@ -79,7 +80,7 @@ public class AdditionVoiceSpeaker : MonoBehaviour
                         audioSource.Play();
                         yield return new WaitForSeconds(GetSoundDurationWithoutSilence(audioSource.clip));
 
-                        AudioClip AnyClip = Resources.Load<AudioClip>("AdditionTerms/AdditionSound/and_Heba_Egy");
+                        AudioClip AnyClip = Resources.Load<AudioClip>($"{VoiceClipsPlace}/and{SpeakerName}");
                         audioSource.clip = AnyClip;
                         audioSource.Play();
                         yield return new WaitForSeconds(GetSoundDurationWithoutSilence(audioSource.clip));
@@ -136,7 +137,7 @@ public class AdditionVoiceSpeaker : MonoBehaviour
                         audioSource.Play();
                         yield return new WaitForSeconds(GetSoundDurationWithoutSilence(audioSource.clip));
 
-                        AudioClip PointClip = Resources.Load<AudioClip>("AdditionTerms/AdditionSound/POINT_Sonya_Eng");
+                        AudioClip PointClip = Resources.Load<AudioClip>(VoiceClipsPlace+"/point"+SpeakerName);
                         audioSource.clip = PointClip;
                         audioSource.Play();
                     }
@@ -259,4 +260,5 @@ public class AdditionVoiceSpeaker : MonoBehaviour
         float lastSoundTime = (float)lastSoundSample / clip.frequency;
         return lastSoundTime;
     }
+
 }

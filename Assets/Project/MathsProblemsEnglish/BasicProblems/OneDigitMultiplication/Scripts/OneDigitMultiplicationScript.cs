@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -16,7 +17,7 @@ public class OneDigitMultiplicationScript : MonoBehaviour
     [SerializeField] private TextMeshProUGUI Line;
     [SerializeField] private TextMeshProUGUI sign;
 
-    [SerializeField] private Button LangBtn;
+    [SerializeField] private Button? LangBtn;
     private AudioClip[] loop;
     public static AudioSource audioSource;
     private bool Explain = false;
@@ -28,13 +29,31 @@ public class OneDigitMultiplicationScript : MonoBehaviour
     public static int SupDistance = 70;   
     
     public static bool IsFinshed = false;
+    List<TMP_InputField> FieldsList;
+    private Button PauseBtn;
+    private Button ResumeBtn;
     public void Start()
     {
+        PauseBtn = GameObject.Find("Pause").GetComponent<Button>();
+        ResumeBtn = GameObject.Find("Resume").GetComponent<Button>();
+        PauseBtn.onClick.AddListener(PauseScript.Pause);
+        ResumeBtn.onClick.AddListener(PauseScript.Resume);
+
+        FieldsList = new List<TMP_InputField> { FrstNum, SecNum };
         IsFinshed = false;
         ResDistance = -400;
         SupDistance = 150;
-        UnityAction langBtnClickAction = () => LangBtnActions.LangBtnClick(ref IsEng, ref SpeakerName, ref loop);
-        LangBtn.onClick.AddListener(langBtnClickAction);
+
+        try
+        {
+            UnityAction langBtnClickAction = () => LangBtnActions.LangBtnClick(ref IsEng, ref SpeakerName, ref loop);
+            LangBtn.onClick.AddListener(langBtnClickAction);
+        }
+        catch (Exception e)
+        {
+
+            Debug.Log(e);
+        }
 
         if (AdditionScript.IsBasic)
         {
@@ -46,12 +65,20 @@ public class OneDigitMultiplicationScript : MonoBehaviour
 
         InputFieldsActions.InitializePlaceholders(FrstNum);
         InputFieldsActions.InitializePlaceholders(SecNum);
+
+        if (!IscalledFromOutSide)
+        {
+            GameObject.Find("Explain").GetComponent<Button>().onClick.AddListener(ExplainBtnAction);
+            GameObject.Find("Solve").GetComponent<Button>().onClick.AddListener(SolveBtnAction);
+        }
+
     }
     void Update()
     {
+        PauseScript.ControlPause();
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
         AdditionScript.IsEng = IsEng;
-        ExplainEnableMent.EnableExplain(ref FrstNum, ref SecNum);
+        ExplainEnableMent.EnableExplain(ref FieldsList);
         if (FrstNum.text.Length == 0 || SecNum.text.Length == 0 || Explain)
         {
             GameObject ExplainBtn = GameObject.Find("Explain");
@@ -69,22 +96,6 @@ public class OneDigitMultiplicationScript : MonoBehaviour
             UnityEngine.UI.Button Solvebutton = SolveBtn.GetComponent<UnityEngine.UI.Button>();
             Solvebutton.interactable = true;
         }
-        if (!AdditionVoiceSpeaker.NumPlace.Equals("JennySound/JennyNumbers"))
-        {
-            if (IsEng)
-            {
-                SpeakerName = "_Sonya_Eng";
-                AdditionVoiceSpeaker.NumPlace = "EngNums";
-
-            }
-            else
-            {
-                SpeakerName = "_Heba_Egy";
-                AdditionVoiceSpeaker.NumPlace = "EgyNums";
-
-            }
-        }
-
     }
 
 
@@ -118,6 +129,20 @@ public class OneDigitMultiplicationScript : MonoBehaviour
     }
     public IEnumerator solve()
     {
+
+        if (AdditionVoiceSpeaker.IsEng)
+        {
+            AdditionVoiceSpeaker.NumPlace = "EngNums";
+            AdditionVoiceSpeaker.SpeakerName = "_Sonya_Eng";
+        }
+        else
+        {
+            AdditionVoiceSpeaker.NumPlace = "EgyNums";
+            AdditionVoiceSpeaker.SpeakerName = "_Heba_Egy";
+
+
+        }
+        SpeakerName = AdditionVoiceSpeaker.SpeakerName;
         IsFinshed = false;
         GameObject ExplainBtn = GameObject.Find("Explain");
         Button button = ExplainBtn.GetComponent<Button>();
@@ -158,7 +183,17 @@ public class OneDigitMultiplicationScript : MonoBehaviour
             if (newTextObject == null) {
                 Debug.Log("null");
             }
-            TextMeshProUGUI SecNumPlace = newTextObject.GetComponent<TextMeshProUGUI>();
+            TextMeshProUGUI SecNumPlace = new();
+            try
+            {
+                SecNumPlace = newTextObject.GetComponent<TextMeshProUGUI>();
+
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
+
             if (textInfo != null)
             {
                 int carriedNumber = 0;
@@ -337,7 +372,7 @@ public class OneDigitMultiplicationScript : MonoBehaviour
 
     public IEnumerator WriteTwoNumbers()
     {
-        ResetValues.ResetAllValues(Line, FirstNumPlace, FirstNumPlace, sign);
+        ResetValues.ResetAllValues();
 
         yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"first" + SpeakerName, Explain)));
 

@@ -1,12 +1,11 @@
 using System;
 using System.Collections;
-using System.Globalization;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 
@@ -24,7 +23,7 @@ public class TwoDigitsMultiplicationScript : MonoBehaviour
 
     [SerializeField] private TextMeshProUGUI FirstNumPlaceAdditon;
     [SerializeField] private TextMeshProUGUI SecNumPlaceAdditon;
-    [SerializeField] private Button LangBtn;
+    [SerializeField] private Button? LangBtn;
 
     public GameObject OneDigitMultiplicationObj;
     public GameObject AdditionObj;
@@ -43,8 +42,11 @@ public class TwoDigitsMultiplicationScript : MonoBehaviour
     public static string SecNumber = "";
 
 
+    List<TMP_InputField> FieldsList;
     public void Start()
     {
+        FieldsList = new List<TMP_InputField> { FrstNum, SecNum };
+
         try
         {
             FrstNum.text = FirstNumber;
@@ -57,26 +59,40 @@ public class TwoDigitsMultiplicationScript : MonoBehaviour
         }
 
         ResVector = new Vector3();
-        UnityAction langBtnClickAction = () => LangBtnActions.LangBtnClick(ref IsEng, ref SpeakerName, ref loop);
-        LangBtn.onClick.AddListener(langBtnClickAction);
+
+        try
+        {
+            UnityAction langBtnClickAction = () => LangBtnActions.LangBtnClick(ref IsEng, ref SpeakerName, ref loop);
+            LangBtn.onClick.AddListener(langBtnClickAction);
+        }
+        catch (Exception e)
+        {
+
+            Debug.Log(e);
+        }
 
         if (AdditionScript.IsBasic)
         {
 
             FrstNum.onValidateInput = InputFieldsActions.ValidateBasicObsInput;
-            SecNum.onValidateInput = ValidateSecInput;
+            SecNum.onValidateInput = InputFieldsActions.ValidateBasicObsInput;
 
         }
         else
         {
-            SecNum.onValueChanged.AddListener((input) => OnInputChanged(SecNum, input));
-            FrstNum.onValueChanged.AddListener((input) => OnInputChanged(FrstNum, input));
 
             FrstNum.onValidateInput = InputFieldsActions.ValidateDecimalObsInput;
             SecNum.onValidateInput = InputFieldsActions.ValidateDecimalObsInput;
         }
         InputFieldsActions.InitializePlaceholders(FrstNum);
         InputFieldsActions.InitializePlaceholders(SecNum);
+
+        if (!IsCalledFromOutSide)
+        {
+            GameObject.Find("Explain").GetComponent<Button>().onClick.AddListener(ExplainBtnAction);
+            GameObject.Find("Solve").GetComponent<Button>().onClick.AddListener(SolveBtnAction);
+        }
+
     }
     public void SetComponenets(TMP_InputField FrstNum, TMP_InputField SecNum, TextMeshProUGUI FirstNumPlace, TextMeshProUGUI SecNumPlace, TextMeshProUGUI Line, TextMeshProUGUI sign, UnityEngine.UI.Button LangBtn, TextMeshProUGUI FirstNumPlaceAddition, TextMeshProUGUI SecNumPlaceADdition, TextMeshProUGUI Line2)
     {
@@ -94,44 +110,9 @@ public class TwoDigitsMultiplicationScript : MonoBehaviour
     }
     void Update()
     {
-
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
-        ExplainEnableMent.EnableExplain(ref FrstNum, ref SecNum);
-        if (FrstNum.text.Length == 0 || SecNum.text.Length == 0 || Explain)
-        {
-            GameObject ExplainBtn = GameObject.Find("Explain");
-            GameObject SolveBtn = GameObject.Find("Solve");
-            UnityEngine.UI.Button button = ExplainBtn.GetComponent<UnityEngine.UI.Button>();
-            button.interactable = false;
-
-            UnityEngine.UI.Button Solvebutton = SolveBtn.GetComponent<UnityEngine.UI.Button>();
-            Solvebutton.interactable = false;
-
-        }
-        if (FrstNum.text.Length != 0 && SecNum.text.Length != 0 && !Explain)
-        {
-            GameObject SolveBtn = GameObject.Find("Solve");
-            UnityEngine.UI.Button Solvebutton = SolveBtn.GetComponent<UnityEngine.UI.Button>();
-            Solvebutton.interactable = true;
-        }
-        if (!AdditionVoiceSpeaker.NumPlace.Equals("JennySound/JennyNumbers"))
-        {
-            if (IsEng)
-            {
-                SpeakerName = "_Sonya_Eng";
-
-            }
-            else
-            {
-                SpeakerName = "_Heba_Egy";
-
-            }
-        }
-
-        AdditionScript.SpeakerName = SpeakerName;
-        AdditionScript.IsEng = IsEng;
-        OneDigitMultiplicationScript.SpeakerName = SpeakerName;
-        OneDigitMultiplicationScript.IsEng = IsEng;
+        ExplainEnableMent.EnableExplain(ref FieldsList);
+        ExplainEnableMent.DisableExplain(Explain);
     }
 
     public void SolveBtnAction()
@@ -148,8 +129,22 @@ public class TwoDigitsMultiplicationScript : MonoBehaviour
     }
     public IEnumerator solve()
     {
-
         AdditionVoiceSpeaker.VoiceClipsPlace = "AdditionTerms/AdditionSound";
+
+        if (AdditionVoiceSpeaker.IsEng)
+        {
+            AdditionVoiceSpeaker.NumPlace = "EngNums";
+            AdditionVoiceSpeaker.SpeakerName = "_Sonya_Eng";
+        }
+        else
+        {
+            AdditionVoiceSpeaker.NumPlace = "EgyNums";
+            AdditionVoiceSpeaker.SpeakerName = "_Heba_Egy";
+
+
+        }
+        AdditionVoiceSpeaker.LoadAllAudioClips();
+        SpeakerName = AdditionVoiceSpeaker.SpeakerName;
 
         OneDigitMultiplicationScript.IscalledFromOutSide = true;
         AdditionScript.IscalledFromOutSide = true;
@@ -180,7 +175,7 @@ public class TwoDigitsMultiplicationScript : MonoBehaviour
         string SecNumCpy = SecNum.text; // to save real value of the second input
         if (!IsCalledFromOutSide)
         {
-            ResetValues.ResetAllValues(Line, FirstNumPlace, SecNumPlace, sign);
+            ResetValues.ResetAllValues();
             FirstNumPlaceAdditon.text = "";
             SecNumPlaceAdditon.text = "";
         }
@@ -312,7 +307,7 @@ public class TwoDigitsMultiplicationScript : MonoBehaviour
             OneDigitMultiplicationScript OneMultiplication = OneDigitMultiplicationObj.GetComponent<OneDigitMultiplicationScript>(); // use the one multplication script in the first number
 
 
-            OneMultiplication.SetComponenets(FrstNum, SecNum, FirstNumPlace, Line, sign, LangBtn, index);
+            OneMultiplication.SetComponenets(FrstNum, SecNum, FirstNumPlace, Line, sign, null, index);
             OneMultiplication.OutSideSolve(Explain);
 
 
@@ -392,13 +387,13 @@ public class TwoDigitsMultiplicationScript : MonoBehaviour
                 yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"start adding" + SpeakerName, Explain)));
                 if (!IsCalledFromOutSide)
                 {
-                    OneDigitMultiplicationScript.ResDistance = -400;
+                    OneDigitMultiplicationScript.ResDistance = -300;
                     OneDigitMultiplicationScript.SupDistance = 150;
 
                 }
 
                 AdditionScript addition = AdditionObj.GetComponent<AdditionScript>();
-                addition.SetComponenets(FrstNum, SecNum, FirstNumPlaceAdditon, SecNumPlaceAdditon, Line2, AdditionSign, LangBtn);
+                addition.SetComponenets(FrstNum, SecNum, FirstNumPlaceAdditon, SecNumPlaceAdditon, Line2, AdditionSign, null);
                 addition.OutSideSolve(Explain);
                 while (AdditionScript.IscalledFromOutSide)
                 {
@@ -615,32 +610,5 @@ public class TwoDigitsMultiplicationScript : MonoBehaviour
                 }
             }
         }
-    }
-    private void OnInputChanged(TMP_InputField inputField, string input)
-    {
-        if (input == "0" && DecimmalScript.IsWrited)
-        {
-            if (!inputField.text.Contains("."))
-            {
-                inputField.text = "0.";
-                StartCoroutine(SetCaretPositionAfterFrame(inputField));
-            }
-        }
-        else if (input == "0." && !DecimmalScript.IsWrited)
-        {
-            inputField.text = "";
-            StartCoroutine(SetCaretPositionAfterFrame(inputField));
-        }
-        DecimmalScript.IsWrited = false;
-    }
-
-    // Coroutine to set the caret position after a frame delay
-    private IEnumerator SetCaretPositionAfterFrame(TMP_InputField inputField)
-    {
-        // Wait for end of the frame to ensure Unity has updated the input field
-        yield return new WaitForEndOfFrame();
-
-        // Set caret to the end of the input (after the '.')
-        inputField.caretPosition = inputField.text.Length;
     }
 }

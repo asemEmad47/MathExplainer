@@ -1,22 +1,32 @@
 ﻿using System.Collections.Generic;
-using Unity.VisualScripting;
+using TMPro;
 using UnityEngine;
 
 public class Parser : MonoBehaviour
 {
     [SerializeField] private TMPro.TMP_InputField inputField;
+
+    [SerializeField] private TextMeshProUGUI FirstNumPlace;
+    [SerializeField] private GameObject Line;
+    [SerializeField] private float Xpos;
+    [SerializeField] private float Ypos;
+    [SerializeField] private bool Explain;
+
     List<Term> terms = new List<Term>();
-    List<BracketTerms> bracketTerms = new List<BracketTerms>();
-    Stack<char> stack = new Stack<char>();
     private string InputFieldCpy;
+
     public void ParseInputField()
     {
+        GameObject.Find("KeyBoard").SetActive(false);
         InputFieldCpy = inputField.text;
         int i = 0;
         string number = "", nue = "", Deno = "",Symbol = "" , NumPow="",SymbPow="";
-        int NumOfElementsInBracket = 0, BracketMultipliedNum = 0;
-        bool BracketEnd = false;
-        Debug.Log(inputField.text);
+        bool IsAbs = false;
+        bool FirstSymb = true;
+        List<Term> MultiplyedTerms = new();
+        List<Term> DividedTerms = new();
+        bool IsBracketTerm = false;
+        BracketTerms BracketTerm =  new();
         if (inputField.text.IndexOf('\n') != -1)
         {
             i = inputField.text.IndexOf('\n');
@@ -25,120 +35,128 @@ public class Parser : MonoBehaviour
         if (inputField.text[i].Equals('\n')) {
             i++;
         }
-        while (i<inputField.text.Length && !inputField.text[i].Equals('\n')&& (!inputField.text[i].Equals('<') || inputField.text[i+2].Equals('u')))
+        while (i<inputField.text.Length )
         {
-            if (inputField.text[i].Equals('<'))
+            if (inputField.text[i].Equals('+') || inputField.text[i].Equals('-'))
             {
-                i = inputField.text.IndexOf('>');
-                i++;
-                if (int.TryParse((inputField.text[i - 6]).ToString(), out _))
+                if(!string.IsNullOrEmpty(number) || !string.IsNullOrEmpty(nue)|| !string.IsNullOrEmpty(Deno) || !string.IsNullOrEmpty(Symbol))
                 {
-                    while (!inputField.text[i].Equals('<'))
+                    
+                    Term CurrentTerm = CreateTerm(number, nue, Deno, Symbol, SymbPow, NumPow, MultiplyedTerms, DividedTerms);
+                    if (!IsBracketTerm)
                     {
-                        NumPow += inputField.text[i];
-                        i++;
+                        terms.Add(CurrentTerm);
                     }
+                    else
+                    {
+                        BracketTerm.AddNewTerm(CurrentTerm);
+                    }
+                    ResetValues(ref number, ref nue, ref Deno, ref Symbol, ref SymbPow, ref NumPow);
+                }
+                if (inputField.text[i].Equals('-'))
+                    number += '-';
+
+                if (!FirstSymb) {
+                    terms[terms.Count - 1].AddMutlipliedTerm(MultiplyedTerms);
+                }
+                FirstSymb = true;
+                MultiplyedTerms = new();
+                DividedTerms = new();
+            }
+            else if (inputField.text[i].Equals('×') || inputField.text[i].Equals('÷'))
+            {
+                if (inputField.text[i].Equals('÷'))
+                {
+                    if (number.Equals("-"))
+                        number = "-1";
+                    Debug.Log("here adding divided");
+                    Term CurrentTerm = CreateTerm(number, nue, Deno, Symbol, SymbPow, NumPow, MultiplyedTerms, DividedTerms);
+                    ResetValues(ref number, ref nue, ref Deno, ref Symbol, ref SymbPow, ref NumPow);
+                    DividedTerms.Add(CurrentTerm);
                 }
                 else
                 {
-                    while (!inputField.text[i].Equals('<'))
-                    {
-                        SymbPow += inputField.text[i];
-                        i++;
-                    }
+                    if (number.Equals("-"))
+                        number = "-1";
+                    Term CurrentTerm = CreateTerm(number, nue, Deno, Symbol, SymbPow, NumPow, MultiplyedTerms, DividedTerms);
+                    ResetValues(ref number, ref nue, ref Deno, ref Symbol, ref SymbPow, ref NumPow);
+                    MultiplyedTerms.Add(CurrentTerm);
                 }
-                i = inputField.text.IndexOf('>',i)+2;
-                Debug.Log(inputField.text[i - 1]);
-                Debug.Log(inputField.text.Substring(i-1));
-
-                i-=2;
             }
             else if (isSymbol(inputField.text[i]))
             {
+                if (i +1 < inputField.text.Length  && inputField.text[i + 1] == ' ')
+                {
+                    ExtractFractions(i+1, ref nue, ref Deno, ref SymbPow, ref NumPow);
+                }
                 Symbol += inputField.text[i];
-
-            }
-            else if (inputField.text[i].Equals('―'))
-            {
-                int NueIndex = inputField.text.IndexOf("%>")+2;
-                while (!inputField.text[NueIndex].Equals(' ') && !inputField.text[NueIndex].Equals('<') && !isSymbol(inputField.text[NueIndex]))
+                if (i + 1 < inputField.text.Length && inputField.text[i + 1] != '(' && inputField.text[i + 1] != ')' )
                 {
-                    nue += inputField.text[NueIndex];
-                    inputField.text = inputField.text.Remove(NueIndex, 1);
-                    i--;
-                }
+                    Term CurrentTerm = CreateTerm(number, nue, Deno, Symbol, SymbPow, NumPow, null);
 
-                while (inputField.text[NueIndex].Equals(' ') && !inputField.text[NueIndex].Equals('<')&& !isSymbol(inputField.text[NueIndex]))
-                {
-                    inputField.text = inputField.text.Remove(NueIndex, 1);
-                    i--;
-                }
-
-                int DenoIndex = inputField.text.IndexOf("</line-height>")+24;
-
-                while (!inputField.text[DenoIndex].Equals(' ') && !inputField.text[DenoIndex].Equals('<')&&!isSymbol(inputField.text[NueIndex]))
-                {
-                    Deno += inputField.text[DenoIndex];
-                    inputField.text = inputField.text.Remove(DenoIndex, 1);
-                }
-
-                while (inputField.text[DenoIndex].Equals(' ') && !inputField.text[DenoIndex].Equals('<')&&!isSymbol(inputField.text[NueIndex]))
-                {
-                    inputField.text = inputField.text.Remove(DenoIndex, 1);
+                    if (FirstSymb)
+                    {
+                        FirstSymb = false;
+                        if(!IsBracketTerm)
+                            terms.Add(CurrentTerm);
+                        else
+                            BracketTerm.AddNewTerm(CurrentTerm);
+                    }
+                    else
+                    {
+                        MultiplyedTerms.Add(CurrentTerm);
+                    }
+                    ResetValues(ref number, ref nue, ref Deno, ref Symbol, ref SymbPow, ref NumPow);
                 }
 
             }
             else if (inputField.text[i].Equals('('))
             {
+                BracketTerm = new();
                 if (number.Equals("-"))
                     number = "-1";
-                Debug.Log(number);
-                BracketMultipliedNum =int.Parse(number);
-                number = "";
-                stack.Push(inputField.text[i]);
+
+                Term CurrentTerm = CreateTerm(number, nue, Deno, Symbol, SymbPow, NumPow, MultiplyedTerms);
+                terms.Add(CurrentTerm);
+                ResetValues(ref number, ref nue, ref Deno, ref Symbol, ref SymbPow, ref NumPow);
+                IsBracketTerm = true;
             }
             else if (inputField.text[i].Equals(')'))
             {
-                BracketEnd = true;
-                AddNewTerm(number,nue,Deno,Symbol, SymbPow, NumPow);
-                ResetValues(ref number, ref nue, ref Deno, ref Symbol, ref NumPow, ref SymbPow);
-                List<Term> Bracketterms = new List<Term>();
-                int counter = terms.Count - 1;
-                BracketTerms bracket;
+                Term CurrentTerm = CreateTerm(number, nue, Deno, Symbol, SymbPow, NumPow, MultiplyedTerms);
+                BracketTerm.AddNewTerm(CurrentTerm);
 
-                while (NumOfElementsInBracket >= 0)
-                {
-                    Bracketterms.Add(terms[counter]);
-                    terms.RemoveAt(counter);
-                    NumOfElementsInBracket--;
-                    counter--;
-                }
-                bracket = new BracketTerms(Bracketterms, counter,BracketMultipliedNum);
-                BracketMultipliedNum = 0;
-                bracketTerms.Add(bracket);
-                stack.Clear();
+                terms[terms.Count-1].AddBracket(BracketTerm);
+                BracketTerm = new();
                 ResetValues(ref number, ref nue, ref Deno, ref Symbol, ref NumPow, ref SymbPow);
+                IsBracketTerm = false;
 
 
             }
-            else if(inputField.text[i].Equals('+')|| inputField.text[i].Equals('-'))
+            else if (!inputField.text[i].Equals('(') && !inputField.text[i].Equals('―') && !inputField.text[i].Equals(' '))
             {
-                if (i != 0 && !inputField.text[i+1].Equals('(')&& !inputField.text[i - 1].Equals('('))
+                if (i + 1 < inputField.text.Length && inputField.text[i + 1] == ' ')
                 {
-                    if (stack.Count != 0)
-                    {
-                        NumOfElementsInBracket++;
-                    }
-                    AddNewTerm(number,nue,Deno,Symbol,SymbPow,NumPow);
-                    ResetValues(ref number, ref nue, ref Deno, ref Symbol, ref SymbPow, ref NumPow);
+                    ExtractFractions(i+1, ref nue, ref Deno, ref SymbPow, ref NumPow);
                 }
-
-                if (inputField.text[i].Equals('-'))
-                    number += '-';
-            }
-            else if (!inputField.text[i].Equals('(') && !inputField.text[i].Equals('―'))
-            {
                 number += inputField.text[i];
+            }
+            else if (inputField.text[i].Equals('|') && !IsAbs)
+            {
+                IsAbs = true;
+            }
+            else if (inputField.text[i].Equals('|') && IsAbs)
+            {
+                if (IsAbs && number[0] == '-')
+                {
+                    number = number.Substring(1);
+                }
+            }
+            else if(
+                (i ==0 || (i > 0 && inputField.text[i-1]!=' ')
+                ) && inputField.text[i]==' ' )
+            {
+                ExtractFractions(i , ref nue, ref Deno, ref SymbPow, ref NumPow);
             }
             i++;
         }
@@ -158,23 +176,36 @@ public class Parser : MonoBehaviour
             NumPow = "0";
 
 
-        if (number.Equals(""))
-            term1 = new Term(Symbol, '+', NeuTemp1, DenoTemp1, int.Parse(SymbPow), int.Parse(NumPow));
+        if (string.IsNullOrEmpty(number.ToString().Trim().TrimEnd()))
+            term1 = new Term(Symbol, '+', NeuTemp1, DenoTemp1, int.Parse(SymbPow), (NumPow));
 
         else if(number.Equals("-"))
-            term1 = new Term(Symbol, '-', NeuTemp1, DenoTemp1, int.Parse(SymbPow), int.Parse(NumPow));
+            term1 = new Term(Symbol, '-', NeuTemp1, DenoTemp1, int.Parse(SymbPow), (NumPow));
 
         else
-            term1 = new Term(Symbol, number[0], NeuTemp1, DenoTemp1, int.Parse(number),int.Parse(SymbPow),int.Parse(NumPow));
-        if (!BracketEnd)
         {
-            terms.Add(term1);
+            if (number[0].Equals("-"))
+            {
+                term1 = new Term(Symbol, '-', NeuTemp1, DenoTemp1, int.Parse(number), (SymbPow), (NumPow));
+            }
+            else
+            {
+                term1 = new Term(Symbol, '+', NeuTemp1, DenoTemp1, int.Parse(number), (SymbPow), (NumPow));
+
+            }
         }
-        else
-            BracketEnd = false;
+
+        if (MultiplyedTerms != null)
+        {
+            term1.AddMutlipliedTerm(MultiplyedTerms);
+        }
         ResetValues(ref number, ref nue, ref Deno, ref Symbol,ref NumPow,ref SymbPow);
         inputField.text = InputFieldCpy;
-        PrintAllValues();
+
+        EditorProblemDirection.Problem = "simplify";
+        ProblemSolver solver = EditorProblemDirection.ChooseProblem();
+        solver.SetComponents(FirstNumPlace, Line, Xpos, Ypos, Explain ,this);
+        StartCoroutine(solver.Solve(terms));
     }
     public void ResetValues(ref string number , ref string nue, ref string deno,ref string symbol, ref string NumPow, ref string SymbPow)
     {
@@ -185,22 +216,7 @@ public class Parser : MonoBehaviour
         NumPow = "";
         SymbPow = "";
     }
-    public void PrintAllValues()
-    {
-        foreach (Term term in terms)
-        {
-            Debug.Log(" nue " + term.GetNue() + " deno " + term.GetDeno() + " number " + term.GetNumber() + " SYMBOL " + term.GetSymbol() + "sympPow "  + term.GetSymbPow() + " numpow " + term.GetNumPow());
-        }
-        foreach (BracketTerms bracketTerm in bracketTerms)
-        {
-            bracketTerm.GetTerms().Reverse();
-            foreach (Term term2 in bracketTerm.GetTerms())
-            {
-                Debug.Log(" nue from inside" + term2.GetNue() + " deno " + term2.GetDeno() + " number " + bracketTerm.GetNumber() + " SYMBOL " + term2.GetSymbol());
 
-            }
-        }
-    }
     public bool isSymbol(char latter)
     {
         if(latter.Equals('a') || latter.Equals('b') || latter.Equals('c') || latter.Equals('x') || latter.Equals('y') || latter.Equals('z'))
@@ -208,26 +224,91 @@ public class Parser : MonoBehaviour
         else
             return false;
     }
-    public void AddNewTerm(string number = "",string nue = "",string Deno = "",string Symbol = "", string SymbPow = "", string NumPow = "")
+    public Term CreateTerm(string number = "", string nue = "", string Deno = "", string Symbol = "", string SymbPow = "", string NumPow = "", List<Term> MultiplyedTerms = null,List<Term> DividedTerms = null)
     {
         Term term;
         int DenoTemp = 0;
         int NeuTemp = 0;
+
         if (!nue.Equals(""))
         {
             NeuTemp = int.Parse(nue);
             DenoTemp = int.Parse(Deno);
         }
         if (SymbPow.Equals(""))
-            SymbPow = "0";    
+            SymbPow = "0";
         if (NumPow.Equals(""))
             NumPow = "0";
         if (number.Equals("-"))
             number = "-1";
-        if (number.Equals(""))
-            term = new Term(Symbol, '+', NeuTemp, DenoTemp,int.Parse(NumPow),int.Parse(SymbPow));
+
+
+
+        if (!string.IsNullOrEmpty(nue) && !int.TryParse(nue, out NeuTemp))
+        {
+            Debug.LogError($"Invalid integer format for nue: {nue}");
+        }
+
+        if (!string.IsNullOrEmpty(Deno) && !int.TryParse(Deno, out DenoTemp))
+        {
+            Debug.LogError($"Invalid integer format for Deno: {Deno}");
+        }
+
+        if (!string.IsNullOrEmpty(number) && !int.TryParse(number, out int parsedNumber))
+        {
+            number = "1";
+        }
+
+        if (string.IsNullOrEmpty(number.TrimEnd().Trim()))
+            term = new Term(Symbol, '+', NeuTemp, DenoTemp,0, NumPow, (SymbPow), MultiplyedTerms, DividedTerms);
         else
-            term = new Term(Symbol, number[0], NeuTemp, DenoTemp, int.Parse(number), int.Parse(NumPow), int.Parse(SymbPow));
-        terms.Add(term);
+        {
+            term = new Term(Symbol, number[0], NeuTemp, DenoTemp, int.Parse(number), (NumPow), (SymbPow), MultiplyedTerms, DividedTerms);
+
+        }
+
+
+        return term;
+    }
+    public void ExtractFractions(int i , ref string nue , ref string deno , ref string SymbPow , ref string NumPow)
+    {
+        foreach (var item in ButtonAction.TmpRefrerenceChar)
+        {
+            string FieldName;
+            int FNum, SNum;
+            string[] parts = item.Key.ToString().Split(' '); // Split by spaces
+            if (parts.Length >= 3) // Ensure there are at least 4 parts ("Pow X Y Z")
+            {
+                FieldName = parts[0];
+                int.TryParse(parts[1], out FNum);
+                int.TryParse(parts[2], out SNum);
+                if (SNum == i)
+                {
+                    if (FieldName.Equals("Pow"))
+                    {
+                        if (isSymbol(inputField.text[i - 1]))
+                        {
+                            SymbPow = item.Key.text;
+                        }
+                        else
+                        {
+                            NumPow = item.Key.text;
+                        }
+                    }
+
+                }
+                if(SNum == i + 1)
+                {
+                    if (FieldName.Equals("Nue"))
+                    {
+                        nue = item.Key.text;
+                    }
+                    else if (FieldName.Equals("Deno"))
+                    {
+                        deno = item.Key.text;
+                    }
+                }
+            }
+        }
     }
 }
