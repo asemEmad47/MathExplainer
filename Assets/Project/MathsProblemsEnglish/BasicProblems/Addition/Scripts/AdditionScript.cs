@@ -31,12 +31,21 @@ public class AdditionScript : MonoBehaviour
     List<TMP_InputField> FieldsList;
     private Button PauseBtn;
     private Button ResumeBtn;
+
+
     public void Start()
     {
+        if (!IscalledFromOutSide)
+        {
+            ResetValues.ResetAllValues();
+            AdditionVoiceSpeaker.IsEng = true;
+        }
+
         PauseBtn = GameObject.Find("Pause").GetComponent<Button>();
         ResumeBtn = GameObject.Find("Resume").GetComponent<Button>();
         PauseBtn.onClick.AddListener(PauseScript.Pause);
         ResumeBtn.onClick.AddListener(PauseScript.Resume);
+
 
         FieldsList = new List<TMP_InputField> {FrstNum , SecNum };
         FrstNum.text = FirstNumber;
@@ -63,6 +72,7 @@ public class AdditionScript : MonoBehaviour
         InputFieldsActions.InitializePlaceholders(SecNum);
         if (!IscalledFromOutSide)
         {
+            Debug.Log("Adding listeners to buttons");
             GameObject.Find("Explain").GetComponent<Button>().onClick.AddListener(ExplainBtnAction);
             GameObject.Find("Solve").GetComponent<Button>().onClick.AddListener(SolveBtnAction);
         }
@@ -174,7 +184,6 @@ public class AdditionScript : MonoBehaviour
                     {
                         string FNum = FirstNumPlace.text[i].ToString();
                         string SNum = SecNumPlace.text[i].ToString();
-
                         int SmallestNum = Math.Min(int.Parse(FNum.ToString()), int.Parse(SNum.ToString()));
 
                         for (int j = 0; j < loop.Length - 1; j++)
@@ -318,7 +327,7 @@ public class AdditionScript : MonoBehaviour
 
 
                                 yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"and carry up one" + SpeakerName, Explain)));
-
+                                IsCarried = true;
 
                                 if (i - 2 >= 0 && !FirstNumPlace.text[i-2].Equals('.'))
                                 {

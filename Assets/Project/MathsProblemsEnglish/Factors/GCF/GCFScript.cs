@@ -63,16 +63,28 @@ public class GCFScript : MonoBehaviour, IScrollHandler
 
 
     List<TMP_InputField> FieldsList;
+    private void Awake()
+    {
+        TwoDigitsMultiplicationScript.IsCalledFromOutSide = true;
+        AdditionScript.IscalledFromOutSide = true;
+        OneDigitMultiplicationScript.IscalledFromOutSide = true;
+        PrimeFactors.IsCalledFromOutside = true;
+
+        SpeakerName = "_Jenny_Eng";
+        SLStaicFunctions.SpeakerName = SpeakerName;
+        AdditionVoiceSpeaker.SpeakerName = SpeakerName;
+        AdditionVoiceSpeaker.NumPlace = "JennySound/Numbers";
+        AdditionVoiceSpeaker.VoiceClipsPlace = "JennySound";
+        AdditionVoiceSpeaker.IsEng = true;
+        AdditionVoiceSpeaker.LoadAllAudioClips();
+    }
     public void Start()
     {
 
         PrimeFactors.CurrentY = GameObject.Find("Explain").GetComponent<RectTransform>().anchoredPosition.y + 3400;
         scrollRect.enabled = false;
         ResetValues.ResetAllValues();
-        TwoDigitsMultiplicationScript.IsCalledFromOutSide = true;
-        AdditionScript.IscalledFromOutSide = true;
-        OneDigitMultiplicationScript.IscalledFromOutSide = true;
-        PrimeFactors.IsCalledFromOutside = true;
+
         FieldsList = new List<TMP_InputField> { Fnum, Snum }; 
         if (!IsCalledFromOutside)
         {
@@ -84,14 +96,6 @@ public class GCFScript : MonoBehaviour, IScrollHandler
 
         InputFieldsActions.InitializePlaceholders(Fnum);
         InputFieldsActions.InitializePlaceholders(Snum);
-
-        SpeakerName = "_Jenny_Eng";
-        SLStaicFunctions.SpeakerName = SpeakerName;
-        AdditionVoiceSpeaker.SpeakerName = SpeakerName;
-        AdditionVoiceSpeaker.NumPlace = "JennySound/Numbers";
-        AdditionVoiceSpeaker.VoiceClipsPlace = "JennySound";
-        AdditionVoiceSpeaker.IsEng = true;
-        AdditionVoiceSpeaker.LoadAllAudioClips();
 
 
         UnityAction langBtnClickAction = () => LangBtnActions.LangBtnClick(ref IsEng, ref SpeakerName, ref loop, "_Shakir_arab", "ShakirSound/Numbers", "_Jenny_Eng", "JennySound/Numbers", "ShakirSound", "JennySound");

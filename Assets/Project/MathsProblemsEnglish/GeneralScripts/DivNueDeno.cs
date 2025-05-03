@@ -10,7 +10,7 @@ public class DivNueDeno : MonoBehaviour
         string EditedDeno = PrepareDeno(Deno.text);
         yield return (monoBehaviour.StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(monoBehaviour, Nue.text.ToString(), Explain)));
         Nue.color = Color.red;
-        yield return (monoBehaviour.StartCoroutine(SLStaicFunctions.PlayByAddress(monoBehaviour, "over" + SLStaicFunctions.SpeakerName, Explain)));
+        yield return (monoBehaviour.StartCoroutine(SLStaicFunctions.PlayByAddress(monoBehaviour, "divide" + SLStaicFunctions.SpeakerName, Explain)));
 
         yield return (monoBehaviour.StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(monoBehaviour, EditedDeno, Explain)));
         Deno.color = Color.red;

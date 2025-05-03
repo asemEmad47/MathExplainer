@@ -24,24 +24,31 @@ public class TextInstantiator : MonoBehaviour
                 if(txt.Equals("("))
                 {
                     txt = ")";
-                    YPos -= 10;
                 }
                 else if(txt.Equals(")"))
                 {
                     txt = "(";
-                    YPos -= 10;
                 }              
                 
                 if(txt.Equals("{"))
                 {
                     txt = "}";
-                    YPos -= 10;
                 }
                 else if(txt.Equals("}"))
                 {
                     txt = "{";
-                    YPos -= 10;
                 }
+
+                if(txt.Equals("{("))
+                {
+                    txt = ")}";
+                }
+                else if (txt.Equals(")}"))
+                {
+                    txt = "{(";
+                }
+                YPos -= 10;
+
 
             }
             txt = ArabicEngConverter.ConvertToArabicNumbers(txt);

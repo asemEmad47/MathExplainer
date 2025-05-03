@@ -22,7 +22,6 @@ public class SubtractionScript : MonoBehaviour
     private List<int> borrowingList;
     string SpeakerName = "_Sonya_Eng";
     private string firstNumcpy = "";
-    private string Language = "Eng";
     public static bool IsEng = true;
     public static bool IscalledFromOutSide = false;
     public static int ResSpace = -400;
@@ -40,6 +39,13 @@ public class SubtractionScript : MonoBehaviour
         ResumeBtn.onClick.AddListener(PauseScript.Resume);
 
         FieldsList = new List<TMP_InputField> { FrstNum, SecNum };
+
+        if (!IscalledFromOutSide)
+        {
+            AdditionVoiceSpeaker.IsEng = true;
+            ResSpace = -510;
+        }
+
         AdditionVoiceSpeaker.VoiceClipsPlace = "AdditionTerms/AdditionSound";
         FrstNum.text = FirstNumber;
         SecNum.text = SecNumber;
@@ -213,6 +219,7 @@ public class SubtractionScript : MonoBehaviour
                         string SNum = (SecNumPlace.text[i]).ToString();
                         if (LongDivisionScript.InLongDev)
                         {
+                            Debug.Log(LongDivisionScript.InLongDev);
                             if (int.Parse(ZerosOps.GetNumberWithoutZeros(FirstNumPlace.text, i)) != 0 )
                             {
                                 yield return (StartCoroutine(Sub(i, FNum, SNum)));

@@ -43,6 +43,12 @@ public class TwoDigitsMultiplicationScript : MonoBehaviour
 
 
     List<TMP_InputField> FieldsList;
+
+    private void Awake()
+    {
+        OneDigitMultiplicationScript.IscalledFromOutSide = true;
+        AdditionScript.IscalledFromOutSide = true;
+    }
     public void Start()
     {
         FieldsList = new List<TMP_InputField> { FrstNum, SecNum };
@@ -91,6 +97,7 @@ public class TwoDigitsMultiplicationScript : MonoBehaviour
         {
             GameObject.Find("Explain").GetComponent<Button>().onClick.AddListener(ExplainBtnAction);
             GameObject.Find("Solve").GetComponent<Button>().onClick.AddListener(SolveBtnAction);
+            AdditionVoiceSpeaker.IsEng = true;
         }
 
     }
@@ -129,6 +136,12 @@ public class TwoDigitsMultiplicationScript : MonoBehaviour
     }
     public IEnumerator solve()
     {
+        if (!IsCalledFromOutSide)
+        {
+            ResetValues.ResetAllValues();
+        }
+        FirstNumPlace.gameObject.SetActive(false);
+        SecNumPlace.gameObject.SetActive(false);
         AdditionVoiceSpeaker.VoiceClipsPlace = "AdditionTerms/AdditionSound";
 
         if (AdditionVoiceSpeaker.IsEng)
@@ -145,9 +158,6 @@ public class TwoDigitsMultiplicationScript : MonoBehaviour
         }
         AdditionVoiceSpeaker.LoadAllAudioClips();
         SpeakerName = AdditionVoiceSpeaker.SpeakerName;
-
-        OneDigitMultiplicationScript.IscalledFromOutSide = true;
-        AdditionScript.IscalledFromOutSide = true;
 
         GameObject ExplainBtn = GameObject.Find("Explain");
 

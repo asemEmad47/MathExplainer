@@ -60,7 +60,6 @@ public class GCFListOperaions : MonoBehaviour
     {
         for (int i = 0; i < FinalAnswer.Count; i++)
         {
-            Debug.Log("in gcf " + AdditionVoiceSpeaker.IsEng);
             yield return StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, FinalAnswer[i].ToString(), Explain));
 
             TextMeshProUGUI CurrentNUmber = GameObject.Find(i.ToString()).GetComponent<TextMeshProUGUI>();
@@ -98,7 +97,7 @@ public class GCFListOperaions : MonoBehaviour
                 GameObject.Find("SecNumPlaceAddition" + i).SetActive(false);
                 GameObject.Find("AdditionLine" + i).SetActive(false);
                 GameObject.Find("FirstNumPlace" + i).SetActive(false);
-                PrimeFactors.CurrentY -= 700;
+                PrimeFactors.CurrentY -= 450;
 
                 FirstNumPlaceCpy.text = finalAnswer.ToString();
                 SecNumPlaceCpy.text = FinalAnswer[i].ToString();

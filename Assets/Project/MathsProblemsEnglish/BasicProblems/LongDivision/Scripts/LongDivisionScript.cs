@@ -41,7 +41,7 @@ public class LongDivisionScript : MonoBehaviour
     public int LastInsatitedNumber = 0;
     bool IsEng = true;
     private AudioClip[] loop;
-    public static bool InLongDev = true;
+    public static bool InLongDev = false;
     Color BlueColor;
     public static string FirstNumber = "";
     public static string SecNumber = "";

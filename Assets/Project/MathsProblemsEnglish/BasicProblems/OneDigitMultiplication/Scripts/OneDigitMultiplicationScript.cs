@@ -2,10 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 
@@ -129,6 +127,8 @@ public class OneDigitMultiplicationScript : MonoBehaviour
     }
     public IEnumerator solve()
     {
+        if(!IscalledFromOutSide)
+            ResetValues.ResetAllValues();
 
         if (AdditionVoiceSpeaker.IsEng)
         {
@@ -165,7 +165,7 @@ public class OneDigitMultiplicationScript : MonoBehaviour
             GameObject newTextObject;
             newTextObject = GameObject.Find("SecNumPlace");
             if (newTextObject == null) {
-                GameObject[] allObjects = GameObject.FindObjectsOfType<GameObject>(); // Get all GameObjects
+                GameObject[] allObjects = GameObject.FindObjectsByType<GameObject>(FindObjectsSortMode.None);
                 int maxNumber = -1;
                 GameObject result = null;
 
@@ -317,14 +317,21 @@ public class OneDigitMultiplicationScript : MonoBehaviour
 
                                 if(SecNumIndex == 1)
                                 {
-                                    TextInstantiator.InstantiateText(FirstNumPlace, carriedNumber.ToString(), characterPosition.x - 62, FirstNumPlace.GetComponent<RectTransform>().anchoredPosition.y, SupDistance - 80, false, i - 2);
+                                    if(!IscalledFromOutSide)
+                                        TextInstantiator.InstantiateText(FirstNumPlace, carriedNumber.ToString(), characterPosition.x - 62, FirstNumPlace.GetComponent<RectTransform>().anchoredPosition.y, SupDistance - 80, false, i - 2);
+                                    else
+                                        TextInstantiator.InstantiateText(FirstNumPlace, carriedNumber.ToString(), characterPosition.x - 124, FirstNumPlace.GetComponent<RectTransform>().anchoredPosition.y, SupDistance - 80, false, i - 2);
+
+
                                 }
                                 else
                                 {
-                                    TextInstantiator.InstantiateText(FirstNumPlace, carriedNumber.ToString(), characterPosition.x , FirstNumPlace.GetComponent<RectTransform>().anchoredPosition.y, SupDistance - 80, false, i - 2);
+                                    if (!IscalledFromOutSide)
+                                        TextInstantiator.InstantiateText(FirstNumPlace, carriedNumber.ToString(), characterPosition.x , FirstNumPlace.GetComponent<RectTransform>().anchoredPosition.y, SupDistance - 80, false, i - 2);
+                                    else
+                                        TextInstantiator.InstantiateText(FirstNumPlace, carriedNumber.ToString(), characterPosition.x-62, FirstNumPlace.GetComponent<RectTransform>().anchoredPosition.y, SupDistance - 80, false, i - 2);
                                 }
                                 TextMeshProUGUI num = GameObject.Find((i-2).ToString()).GetComponent<TextMeshProUGUI>();
-                                num.fontSize = num.fontSize / 1.3f;
      
                             }
                             else
@@ -372,7 +379,8 @@ public class OneDigitMultiplicationScript : MonoBehaviour
 
     public IEnumerator WriteTwoNumbers()
     {
-        ResetValues.ResetAllValues();
+        if(!IscalledFromOutSide)
+            ResetValues.ResetAllValues();
 
         yield return (StartCoroutine(SLStaicFunctions.PlayByAddress(this ,"first" + SpeakerName, Explain)));
 

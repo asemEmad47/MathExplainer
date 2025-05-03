@@ -873,7 +873,7 @@ public class SolvingTwoEqs : MonoBehaviour
             TextInstantiator.InstantiateText(FirstNumPlace, "S.S", XPos , YPos, 0, false, -1, 0, Arab);
 
         }
-        TextInstantiator.InstantiateText(FirstNumPlace, "{", XPos + 100 * XPosSpacing, YPos, 0, false, -1, 0, Arab);
+        TextInstantiator.InstantiateText(FirstNumPlace, "{(", XPos + 100 * XPosSpacing, YPos, 0, false, -1, 0, Arab);
 
         yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, FinalXValNue, FinalXValDeno, XPos + 200 * XPosSpacing, YPos, -1 , Explain, true, Arab);
 
@@ -883,7 +883,7 @@ public class SolvingTwoEqs : MonoBehaviour
 
         yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, FinalYValNue, FinalYValDeno, XPos + 400 * XPosSpacing, YPos, -1, Explain, true, Arab);
 
-        TextInstantiator.InstantiateText(FirstNumPlace, "}", XPos + 500 * XPosSpacing, YPos, 0, false, -1, 0, Arab);
+        TextInstantiator.InstantiateText(FirstNumPlace, ")}", XPos + 500 * XPosSpacing, YPos, 0, false, -1, 0, Arab);
 
 
     }

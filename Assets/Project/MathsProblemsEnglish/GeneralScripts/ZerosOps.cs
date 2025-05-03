@@ -59,7 +59,7 @@ public class ZerosOps : MonoBehaviour
                 if (firstTimeInLoop)
                 {
                     firstTimeInLoop = false;
-                    yield return monoBehaviour.StartCoroutine(SLStaicFunctions.PlayByAddress(monoBehaviour, "Remove useless zeros " + SpeakerName, Explain));
+                    yield return monoBehaviour.StartCoroutine(SLStaicFunctions.PlayByAddress(monoBehaviour, "Remove useless zeros" + SpeakerName, Explain));
                 }
 
                 textMeshPro.color = Color.grey;

@@ -7,18 +7,17 @@ public class TermsGenerator : MonoBehaviour
     [SerializeField] private TMP_InputField inputField;
     [SerializeField] private GameObject Keyboard;
     private TouchScreenKeyboard m_keyboard;
-    void Start()
+    private void Awake()
     {
         m_keyboard = TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Default, false, false, false);
         inputField = GetComponent<TMP_InputField>();
+    }
+    void Start()
+    {
 
         // Set up event listeners for when the input field is selected and deselected
         inputField.onSelect.AddListener(OnSelect);
         inputField.onDeselect.AddListener(OnDeselect);
-    }
-    void LateUpdate()
-    {
-        m_keyboard.active = false;
     }
     public void OnSelect(string value)
     {

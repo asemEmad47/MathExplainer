@@ -217,7 +217,10 @@ public class FinalAnswerScript : MonoBehaviour
         int finalAnswer = 0;
         if (FinalAnswer.Count > 1)
         {
-
+            if (!GCFScript.IsEng)
+            {
+                PrimeFactors.CurrentY -= 200;
+            }
             for (int i = 0; i < FinalAnswer.Count; i++)
             {
                 yield return StartCoroutine(SLStaicFunctions.PlayVoiceNumberAndWait(this, FinalAnswer[i].ToString(), Explain));
