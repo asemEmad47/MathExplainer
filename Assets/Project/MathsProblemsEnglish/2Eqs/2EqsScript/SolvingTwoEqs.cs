@@ -23,31 +23,31 @@ public class SolvingTwoEqs : MonoBehaviour
 
     private TMP_InputField X2;
     private TMP_InputField Y2;
-    private TMP_InputField Res2;   
-    
+    private TMP_InputField Res2;
+
     private TextMeshProUGUI X1Txt;
     private TextMeshProUGUI Y1Txt;
     private TextMeshProUGUI Res1Txt;
 
     private TextMeshProUGUI X2Txt;
     private TextMeshProUGUI Y2Txt;
-    private TextMeshProUGUI Res2Txt; 
-    
+    private TextMeshProUGUI Res2Txt;
+
     private TextMeshProUGUI FirstMultiplier;
     private TextMeshProUGUI SecondMultiplier;
 
-    [SerializeField] private Button LangButton;    
-    
+    [SerializeField] private Button LangButton;
+
     [SerializeField] private TMP_FontAsset Autmon;
     [SerializeField] private TMP_FontAsset Amari;
 
-    [SerializeField] private Button ExplainBTN;  
-    [SerializeField] private Button SolveBTN;  
+    [SerializeField] private Button ExplainBTN;
+    [SerializeField] private Button SolveBTN;
 
-    [SerializeField] private TextMeshProUGUI Line;  
-    [SerializeField] private GameObject DivisionLine;  
-    [SerializeField] private GameObject Arrow;  
-    
+    [SerializeField] private TextMeshProUGUI Line;
+    [SerializeField] private GameObject DivisionLine;
+    [SerializeField] private GameObject Arrow;
+
 
     public static string FirstNum;
     public static string SecNum;
@@ -75,7 +75,7 @@ public class SolvingTwoEqs : MonoBehaviour
     private bool IsAdding;
 
     private int FinalYValNue = 0;
-    private int FinalYValDeno = 1;   
+    private int FinalYValDeno = 1;
 
     private int FinalXValNue = 0;
     private int FinalXValDeno = 1;
@@ -199,6 +199,7 @@ public class SolvingTwoEqs : MonoBehaviour
             yield return StartCoroutine(GetSubtractionSixthLineSol());
             yield return StartCoroutine(GetSubtractionSeventhLineSol());
             yield return StartCoroutine(GetSubtractionEightthLineSol());
+            yield return StartCoroutine(GetSubtractionNinethLineSol());
 
         }
         yield return StartCoroutine(GetSolutionSet());
@@ -226,27 +227,27 @@ public class SolvingTwoEqs : MonoBehaviour
         AdditionVoiceSpeaker.NumPlace = NumbersPlace;
         AdditionVoiceSpeaker.VoiceClipsPlace = VoicesPlace;
         AdditionVoiceSpeaker.SpeakerName = SpeakerName;
-        
+
 
         if (int.Parse(ArabicEngConverter.ConvertToEngNumbers(Y1.text)) >= 0)
         {
             Y1Sign = "+";
         }
 
-            yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "First" + SpeakerName, Explain));
+        yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "First" + SpeakerName, Explain));
         yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "write the first equation" + SpeakerName, Explain));
 
-        X1Txt =  TextInstantiator.InstantiateText(FirstNumPlace, X1.text + XSymbol, XPos, YPos, 0, false, 9, 0, Arab);
+        X1Txt = TextInstantiator.InstantiateText(FirstNumPlace, X1.text + XSymbol, XPos, YPos, 0, false, 9, 0, Arab);
 
-        Y1Txt =  TextInstantiator.InstantiateText(FirstNumPlace, Y1Sign + Y1.text + YSymbol,
+        Y1Txt = TextInstantiator.InstantiateText(FirstNumPlace, Y1Sign + Y1.text + YSymbol,
              XPos + 150 * XPosSpacing
             , YPos, 0, false, 10, 0, Arab);
 
         TextInstantiator.InstantiateText(FirstNumPlace, "="
-            , XPos + 280 * XPosSpacing 
+            , XPos + 280 * XPosSpacing
             , YPos, 0, false, 11, 0, Arab);
 
-        Res1Txt =  TextInstantiator.InstantiateText(FirstNumPlace, Res1.text, XPos + 425 * XPosSpacing, YPos, 0, false, 12, 0, Arab);
+        Res1Txt = TextInstantiator.InstantiateText(FirstNumPlace, Res1.text, XPos + 425 * XPosSpacing, YPos, 0, false, 12, 0, Arab);
 
         YPos -= 80;
     }
@@ -263,7 +264,7 @@ public class SolvingTwoEqs : MonoBehaviour
         X2Txt = TextInstantiator.InstantiateText(FirstNumPlace, X2.text + XSymbol, XPos, YPos, 0, false, 9, 0, Arab);
 
         Y2Txt = TextInstantiator.InstantiateText(FirstNumPlace, Y2Sign + Y2.text + YSymbol,
-             XPos + 150 * XPosSpacing 
+             XPos + 150 * XPosSpacing
             , YPos, 0, false, 10, 0, Arab);
 
         TextInstantiator.InstantiateText(FirstNumPlace, "="
@@ -311,43 +312,33 @@ public class SolvingTwoEqs : MonoBehaviour
             yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "so" + SpeakerName, Explain));
 
 
-            if (Math.Abs(int.Parse(ArabicEngConverter.ConvertToEngNumbers(X1.text))) !=1 || Math.Abs(int.Parse(ArabicEngConverter.ConvertToEngNumbers(X2.text))) != 1){
-                yield return SLStaicFunctions.PlayVoiceNumberAndWait(this, Y2.text, Explain);
+            if (Math.Abs(int.Parse(ArabicEngConverter.ConvertToEngNumbers(X1.text))) != 1 || Math.Abs(int.Parse(ArabicEngConverter.ConvertToEngNumbers(X2.text))) != 1) {
+
+                X2Txt.color = Color.red;
                 yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "multiply the first equation by" + SpeakerName, Explain));
 
                 yield return SLStaicFunctions.PlayVoiceNumberAndWait(this, X2.text, Explain);
 
-                X2Txt.color = Color.red;
-                yield return SLStaicFunctions.PlayVoiceNumberAndWait(this, X2.text, Explain);
-                if(!Arab)
-                    TextInstantiator.InstantiateText(FirstNumPlace, "×", XPos + 600 * XPosSpacing, YPos, 0, false, -1, 0, Arab);
+                if (!Arab)
+                    TextInstantiator.InstantiateText(FirstNumPlace, "×", XPos + 600 * XPosSpacing, YPos, 60, false, -1, 0, Arab);
                 else
                 {
-                    TextInstantiator.InstantiateText(FirstNumPlace, "×", XPos + 600 * XPosSpacing, YPos, -30, false, -1, 0, Arab);
+                    TextInstantiator.InstantiateText(FirstNumPlace, "×", XPos + 600 * XPosSpacing, YPos, 30, false, -1, 0, Arab);
 
                 }
                 TextInstantiator.InstantiateText(FirstNumPlace, "(", XPos + 650 * XPosSpacing, YPos, 80, false, -1, 0, Arab);
 
-                FirstMultiplier = TextInstantiator.InstantiateText(FirstNumPlace, X2.text, XPos + 600 * XPosSpacing, YPos, 80, false, -1, 0, Arab);
-                
-                TextInstantiator.InstantiateText(FirstNumPlace, ")", XPos + 750 * XPosSpacing , YPos, 80, false, -1, 0, Arab);
+                FirstMultiplier = TextInstantiator.InstantiateText(FirstNumPlace, X2.text, XPos + 700 * XPosSpacing, YPos, 80, false, -1, 0, Arab);
+
+                TextInstantiator.InstantiateText(FirstNumPlace, ")", XPos + 750 * XPosSpacing, YPos, 80, false, -1, 0, Arab);
 
 
                 X2Txt.color = Color.black;
 
 
-                yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "so" + SpeakerName, Explain));
-
-                yield return SLStaicFunctions.PlayVoiceNumberAndWait(this, Y1.text, Explain);
-                yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "multiply the first equation by" + SpeakerName, Explain));
-
-                yield return SLStaicFunctions.PlayVoiceNumberAndWait(this, X1.text, Explain);
-
-
                 yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "then" + SpeakerName, Explain));
 
 
-                yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "so" + SpeakerName, Explain));
                 yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "multiply the second equation by" + SpeakerName, Explain));
                 X1Txt.color = Color.red;
                 yield return SLStaicFunctions.PlayVoiceNumberAndWait(this, X1.text, Explain);
@@ -362,9 +353,9 @@ public class SolvingTwoEqs : MonoBehaviour
                 }
                 TextInstantiator.InstantiateText(FirstNumPlace, "(", XPos + 650 * XPosSpacing, YPos, 0, false, -1, 0, Arab);
 
-                SecondMultiplier = TextInstantiator.InstantiateText(FirstNumPlace, X1.text, XPos + 600 * XPosSpacing , YPos, 0, false, -1, 0, Arab);
+                SecondMultiplier = TextInstantiator.InstantiateText(FirstNumPlace, X1.text, XPos + 700 * XPosSpacing, YPos, 0, false, -1, 0, Arab);
 
-                TextInstantiator.InstantiateText(FirstNumPlace, ")", XPos + 750 * XPosSpacing, YPos,0, false,-1, 0, Arab);
+                TextInstantiator.InstantiateText(FirstNumPlace, ")", XPos + 750 * XPosSpacing, YPos, 0, false, -1, 0, Arab);
 
                 X1Txt.color = Color.black;
                 yield return StartCoroutine(MutliplyTwoEqs());
@@ -375,11 +366,13 @@ public class SolvingTwoEqs : MonoBehaviour
                 X2Txt = GameObject.Find("16").GetComponent<TextMeshProUGUI>();
                 Y2Txt = GameObject.Find("17").GetComponent<TextMeshProUGUI>();
                 Res2Txt = GameObject.Find("18").GetComponent<TextMeshProUGUI>();
+
+
             }
         }
         else
         {
-            if(int.Parse(ArabicEngConverter.ConvertToEngNumbers(Y1.text)) + int.Parse(ArabicEngConverter.ConvertToEngNumbers(Y2.text)) == 0)
+            if (int.Parse(ArabicEngConverter.ConvertToEngNumbers(Y1.text)) + int.Parse(ArabicEngConverter.ConvertToEngNumbers(Y2.text)) == 0)
             {
                 yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "since y1 plus y2 equals zero" + SpeakerName, Explain));
 
@@ -418,7 +411,7 @@ public class SolvingTwoEqs : MonoBehaviour
 
                 }
 
-                else if(int.Parse(ArabicEngConverter.ConvertToEngNumbers(Y2.text)) < int.Parse(ArabicEngConverter.ConvertToEngNumbers(Y1.text)))
+                else if (int.Parse(ArabicEngConverter.ConvertToEngNumbers(Y2.text)) < int.Parse(ArabicEngConverter.ConvertToEngNumbers(Y1.text)))
                 {
                     yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "so" + SpeakerName, Explain));
 
@@ -484,12 +477,12 @@ public class SolvingTwoEqs : MonoBehaviour
                 , YPos, 0, false, -1, 0, Arab);
 
             yield return AddTwoNumbers(Res1Txt, Res2Txt,
-            XPos + 425 * XPosSpacing , YPos, "", true, 21);
+            XPos + 425 * XPosSpacing, YPos, "", true, 21);
         }
         else
         {
             yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "start subtracting" + SpeakerName, Explain));
-            TextInstantiator.InstantiateText(FirstNumPlace, "-", XPos -50 * XPosSpacing, YPos, 150, false, 0, 0, Arab);
+            TextInstantiator.InstantiateText(FirstNumPlace, "-", XPos - 50 * XPosSpacing, YPos, 150, false, 0, 0, Arab);
 
             Line.gameObject.SetActive(true);
             CharacterProbs.CenterInPos(XPos + (170 * XPosSpacing), YPos + 70, ref Line, FirstNumPlace);
@@ -500,17 +493,17 @@ public class SolvingTwoEqs : MonoBehaviour
                 XPos + 180 * XPosSpacing, YPos, YSymbol, false, 20);
 
             TextInstantiator.InstantiateText(FirstNumPlace, "="
-                , XPos + 300 * XPosSpacing 
+                , XPos + 300 * XPosSpacing
                 , YPos, 0, false, -1, 0, Arab);
 
             yield return SubtractingTwoNumbers(Res1Txt, Res2Txt,
-            XPos + 425 * XPosSpacing , YPos, "", true, 21);
+            XPos + 425 * XPosSpacing, YPos, "", true, 21);
         }
-            YPos -= 80;
+        YPos -= 80;
     }
     public IEnumerator GetSubtractionFifthLineSol()
     {
-        FinalYValNue =int.Parse(ArabicEngConverter.ConvertToEngNumbers(ArabicEngConverter.ConvertToEngNumbers(GameObject.Find("20").GetComponent<TextMeshProUGUI>().text)));
+        FinalYValNue = int.Parse(ArabicEngConverter.ConvertToEngNumbers(ArabicEngConverter.ConvertToEngNumbers(GameObject.Find("20").GetComponent<TextMeshProUGUI>().text)));
 
         ResAfterLineFour = int.Parse(ArabicEngConverter.ConvertToEngNumbers(GameObject.Find("21").GetComponent<TextMeshProUGUI>().text));
         yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "so" + SpeakerName, Explain));
@@ -536,39 +529,46 @@ public class SolvingTwoEqs : MonoBehaviour
         Y1Txt.color = Color.red;
         yield return SLStaicFunctions.PlayVoiceNumberAndWait(this, FinalYValNue.ToString(), Explain);
 
-        yield return SLStaicFunctions.SpawnAndAnimate(DivisionLine, new Vector3(XPos + 190 * XPosSpacing, YPos - 80, 0), "SmallLine", FirstNumPlace, Explain, 0);
-
-        yield return SLStaicFunctions.SpawnAndAnimate(DivisionLine, new Vector3(XPos + 440 * XPosSpacing, YPos - 80, 0), "SmallLine", FirstNumPlace, Explain, 0);
-
-
-        TextInstantiator.InstantiateText(FirstNumPlace, FinalYValNue.ToString(), XPos + 440 * XPosSpacing, YPos, -100, false, -1, 0, Arab);
-
-        TextInstantiator.InstantiateText(FirstNumPlace, FinalYValNue.ToString(), XPos + 190 * XPosSpacing, YPos,-100, false, -1, 0, Arab);
-
-        YPos -= 120;
 
         yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "so" + SpeakerName, Explain));
         yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "y" + SpeakerName, Explain));
         yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "equal" + SpeakerName, Explain));
 
 
-        TextInstantiator.InstantiateText(FirstNumPlace, YSymbol+" = "
+        TextInstantiator.InstantiateText(FirstNumPlace, YSymbol + " = "
         , XPos + 220 * XPosSpacing
         , YPos, -100, false, -1, 0, Arab);
 
-        yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, ResAfterLineFour, int.Parse(ArabicEngConverter.ConvertToEngNumbers(FinalYValNue.ToString())), XPos + 400 * XPosSpacing, YPos-100, 22, Explain, true , Arab);
+        yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, ResAfterLineFour, int.Parse(ArabicEngConverter.ConvertToEngNumbers(FinalYValNue.ToString())), XPos + 400 * XPosSpacing, YPos - 100, 22, Explain, true, Arab);
         FinalYValDeno = ResAfterLineFour;
 
         (FinalYValDeno, FinalYValNue) = (FinalYValNue, FinalYValDeno);
 
+        int gcf = MathTricks.GetGCF(FinalYValNue, FinalYValDeno);
+
+        FinalYValNue /= gcf;
+        FinalYValDeno /= gcf;
+
+        if (gcf != 1)
+        {
+            yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "equal" + SpeakerName, Explain));
+
+
+            TextInstantiator.InstantiateText(FirstNumPlace, " = "
+            , XPos + 500 * XPosSpacing
+            , YPos, -100, false, -1, 0, Arab);
+
+            yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, int.Parse(ArabicEngConverter.ConvertToEngNumbers(FinalYValNue.ToString())), int.Parse(ArabicEngConverter.ConvertToEngNumbers(FinalYValDeno.ToString())), XPos + 600 * XPosSpacing, YPos - 100, 22, Explain, true, Arab);
+
+        }
         if (FinalYValNue % FinalYValDeno != 0)
         {
             YPos -= 270;
         }
         else
             YPos -= 200;
-    }        
-     
+    }
+
     public IEnumerator ByReplacingStep(bool IsX)
     {
         TextMeshProUGUI SecEqX = FindingScript.GetFirstGameObjectWithName("9").GetComponent<TextMeshProUGUI>();
@@ -577,7 +577,7 @@ public class SolvingTwoEqs : MonoBehaviour
         TextMeshProUGUI SecEqRes = FindingScript.GetFirstGameObjectWithName("12").GetComponent<TextMeshProUGUI>();
 
         yield return SLStaicFunctions.PlayByAddress(this, "by replacing" + SpeakerName, Explain);
-        if(!IsX)
+        if (!IsX)
             yield return SLStaicFunctions.PlayByAddress(this, "y" + SpeakerName, Explain);
         else
         {
@@ -587,16 +587,16 @@ public class SolvingTwoEqs : MonoBehaviour
 
         SecEqX.color = Color.red;
         yield return new WaitForSeconds(0.3f);
-        SecEqX.color = Color.black;     
-        
+        SecEqX.color = Color.black;
+
         SecEqY.color = Color.red;
         yield return new WaitForSeconds(0.3f);
-        SecEqY.color = Color.black;          
-        
+        SecEqY.color = Color.black;
+
         SecEqEqual.color = Color.red;
         yield return new WaitForSeconds(0.3f);
-        SecEqEqual.color = Color.black;    
-        
+        SecEqEqual.color = Color.black;
+
         SecEqRes.color = Color.red;
         yield return new WaitForSeconds(0.3f);
         SecEqRes.color = Color.black;
@@ -605,7 +605,7 @@ public class SolvingTwoEqs : MonoBehaviour
     {
         yield return SLStaicFunctions.PlayByAddress(this, "so" + SpeakerName, Explain);
 
-        yield return SLStaicFunctions.PlayVoiceNumberAndWait(this,X2.text,Explain);
+        yield return SLStaicFunctions.PlayVoiceNumberAndWait(this, X2.text, Explain);
 
         yield return SLStaicFunctions.PlayByAddress(this, "x" + SpeakerName, Explain);
 
@@ -625,7 +625,7 @@ public class SolvingTwoEqs : MonoBehaviour
              XPos + 150 * XPosSpacing
             , YPos, 0, false, 23, 0, Arab);
 
-        yield return SLStaicFunctions.WriteFraction(this,FirstNumPlace,DivisionLine,Explain,FinalYValNue , FinalYValDeno, XPos + 300 * XPosSpacing , YPos , 24,Explain , true, Arab);
+        yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, FinalYValNue, FinalYValDeno, XPos + 300 * XPosSpacing, YPos, 24, Explain, true, Arab);
 
         yield return SLStaicFunctions.PlayByAddress(this, "equal" + SpeakerName, Explain);
 
@@ -673,11 +673,14 @@ public class SolvingTwoEqs : MonoBehaviour
 
         FinalXValNue = FinalYValNue;
         FinalXValDeno = FinalYValDeno;
+
         FractionCalculator.MultiplyFractionByInteger(ref FinalXValNue, ref FinalXValDeno, int.Parse(ArabicEngConverter.ConvertToEngNumbers(Y2.text)));
+
 
         yield return SLStaicFunctions.PlayFraction(this, FinalXValNue.ToString(), FinalXValDeno.ToString(), Explain);
 
-        if ((float)FinalXValNue / FinalXValDeno  >= 0)
+
+        if ((float)FinalXValNue / FinalXValDeno >= 0)
         {
             Y2Sign = "+";
         }
@@ -686,15 +689,15 @@ public class SolvingTwoEqs : MonoBehaviour
             Y2Sign = "";
         }
 
-        X2Txt = TextInstantiator.InstantiateText(FirstNumPlace, X2.text + XSymbol +" "+Y2Sign, XPos + 15 * XPosSpacing, YPos, 0, false, -1, 0, Arab);
+        X2Txt = TextInstantiator.InstantiateText(FirstNumPlace, X2.text + XSymbol + " " + Y2Sign, XPos + 15 * XPosSpacing, YPos, 0, false, -1, 0, Arab);
 
 
-        yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, FinalXValNue, FinalYValDeno, XPos + 170 * XPosSpacing, YPos, 25,Explain,true,Arab);
+        yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, FinalXValNue, FinalXValDeno, XPos + 170 * XPosSpacing, YPos, 25, Explain, true, Arab);
 
 
         Res2Txt = TextInstantiator.InstantiateText(FirstNumPlace, " = ", XPos + 270 * XPosSpacing, YPos, 0, false, -1, 0, Arab);
 
-        Res2Txt = TextInstantiator.InstantiateText(FirstNumPlace, Res2.text, XPos + 320 * XPosSpacing, YPos,0, false, 26, 0, Arab);
+        Res2Txt = TextInstantiator.InstantiateText(FirstNumPlace, Res2.text, XPos + 320 * XPosSpacing, YPos, 0, false, 26, 0, Arab);
 
 
         yield return SLStaicFunctions.PlayByAddress(this, "so" + SpeakerName, Explain);
@@ -718,7 +721,7 @@ public class SolvingTwoEqs : MonoBehaviour
         Arrow.SetActive(true);
         if (!Arab)
         {
-            CharacterProbs.CenterInPos(1* XPosSpacing,YPos+50,ref Arrow,FirstNumPlace);
+            CharacterProbs.CenterInPos(1 * XPosSpacing, YPos + 50, ref Arrow, FirstNumPlace);
         }
         else
         {
@@ -726,11 +729,22 @@ public class SolvingTwoEqs : MonoBehaviour
         }
         Arrow.transform.rotation = ArrowRotation;
 
-        TextInstantiator.InstantiateText(FirstNumPlace, "+", XPos + 550 * XPosSpacing, YPos, 0, false, -1, 0, Arab);
+        if (FinalXValNue >= 0 && FinalXValDeno >= 0)
+        {
+            TextInstantiator.InstantiateText(FirstNumPlace, "+", XPos + 550 * XPosSpacing, YPos, 0, false, -1, 0, Arab);
+            yield return SLStaicFunctions.PlayByAddress(this, "becomes" + SpeakerName, Explain);
 
-        yield return SLStaicFunctions.PlayByAddress(this, "becomes" + SpeakerName, Explain);
+            yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, FinalXValNue, FinalXValDeno, XPos + 650 * XPosSpacing, YPos, 27, Explain, true, Arab);
 
-        yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, FinalXValNue, FinalYValDeno, XPos + 650 * XPosSpacing, YPos,27, Explain, true, Arab);
+        }
+        else
+        {
+            TextInstantiator.InstantiateText(FirstNumPlace, "-", XPos + 550 * XPosSpacing, YPos, 0, false, -1, 0, Arab);
+            yield return SLStaicFunctions.PlayByAddress(this, "becomes" + SpeakerName, Explain);
+
+            yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, Math.Abs(FinalXValNue), Math.Abs(FinalXValDeno), XPos + 650 * XPosSpacing, YPos, 27, Explain, true, Arab);
+
+        }
 
 
         if (FinalXValNue % FinalXValDeno != 0)
@@ -784,80 +798,56 @@ public class SolvingTwoEqs : MonoBehaviour
         yield return SLStaicFunctions.PlayByAddress(this, "equal" + SpeakerName, Explain);
         FractionCalculator.SubtractFractionFromNumber(int.Parse(ArabicEngConverter.ConvertToEngNumbers(Res2Txt.text)), ref FinalXValNue, ref FinalXValDeno);
 
-        X1Txt = TextInstantiator.InstantiateText(FirstNumPlace, "=", XPos + 150 * XPosSpacing, YPos, 0, false, 28, 0, Arab);
+        X1Txt = TextInstantiator.InstantiateText(FirstNumPlace, "=", XPos + 120 * XPosSpacing, YPos, 0, false, 28, 0, Arab);
 
-        yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, FinalXValNue, FinalXValDeno, XPos + 250 * XPosSpacing, YPos, 29, Explain, true, Arab);
-
-
-    }
-    public IEnumerator GetSubtractionNinethLineSol()
-    {
-
-        if (!X2.text.Equals("1")){
-
-            yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "now" + SpeakerName, Explain));
-            yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "divide both sides by" + SpeakerName, Explain));
-
-            yield return SLStaicFunctions.SpawnAndAnimate(DivisionLine, new Vector3(XPos + 20 * XPosSpacing, YPos - 80, 0), "SmallLine", FirstNumPlace, Explain, 0);
-            TextInstantiator.InstantiateText(FirstNumPlace, X2.text, XPos , YPos-120, 0, false, 28, 0, Arab);
-
-
-            TextInstantiator.InstantiateText(FirstNumPlace, "×", XPos + 380 * XPosSpacing, YPos - 50, 0, false, 28, 0, Arab);
-
-            yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, 1, int.Parse(ArabicEngConverter.ConvertToEngNumbers(X2.text)), XPos + 450 * XPosSpacing, YPos - 50, 30, Explain, true, Arab);
-
-            yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "so" + SpeakerName, Explain));
-            yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "x" + SpeakerName, Explain));
-            yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "equal" + SpeakerName, Explain));
-
-
-            yield return SLStaicFunctions.PlayFraction(this, FinalXValNue.ToString(), FinalXValDeno.ToString(),Explain);
-            GameObject.Find("29").GetComponent<TextMeshProUGUI>().color = Color.red;
-            try
-            {
-                GameObject.Find("841").GetComponent<TextMeshProUGUI>().color = Color.red;
-            }
-            catch (Exception e)
-            {
-
-                Debug.Log(e.Message);
-            }
-            yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "time" + SpeakerName, Explain));
-            yield return SLStaicFunctions.PlayFraction(this, "1", X2.text, Explain);
-
-            GameObject.Find("30").GetComponent<TextMeshProUGUI>().color = Color.red;
-            try
-            {
-                GameObject.Find("900").GetComponent<TextMeshProUGUI>().color = Color.red;
-            }
-            catch (Exception e)
-            {
-                Debug.Log(e);
-            }
-            yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "equal" + SpeakerName, Explain));
-
-            FinalYValDeno*= int.Parse(ArabicEngConverter.ConvertToEngNumbers(X2.text));
-
-            yield return SLStaicFunctions.PlayFraction(this, FinalXValNue.ToString(), FinalXValDeno.ToString(), Explain);
-
-        }
+        yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, FinalXValNue, FinalXValDeno, XPos + 220 * XPosSpacing, YPos, 29, Explain, true, Arab);
 
         if (FinalXValNue % FinalXValDeno != 0)
         {
             YPos -= 200;
         }
         else
-            YPos -= 150;
+            YPos -= 120;
 
-        yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "so" + SpeakerName, Explain));
-        yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "x" + SpeakerName, Explain));
-        yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "equal" + SpeakerName, Explain));
+    }
+    public IEnumerator GetSubtractionNinethLineSol()
+    {
 
-        TextInstantiator.InstantiateText(FirstNumPlace, XSymbol + " = ", XPos + 50*XPosSpacing, YPos-50, 0, false, -1, 0, Arab);
-        yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, FinalXValNue, FinalXValDeno, XPos +     150 * XPosSpacing, YPos-50, 29, Explain, true, Arab);
+        yield return SLStaicFunctions.PlayByAddress(this, "so" + SpeakerName, Explain);
+        yield return SLStaicFunctions.PlayByAddress(this, "x" + SpeakerName, Explain);
+        yield return SLStaicFunctions.PlayByAddress(this, "equal" + SpeakerName, Explain);
+        TextInstantiator.InstantiateText(FirstNumPlace, XSymbol + " = ", XPos, YPos, 0, false, 28, 0, Arab);
+        yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, FinalXValNue, FinalXValDeno, XPos + 120 * XPosSpacing, YPos, 29, Explain, true, Arab);
+        yield return SLStaicFunctions.PlayByAddress(this, "divide" + SpeakerName, Explain);
+        TextInstantiator.InstantiateText(FirstNumPlace, "÷", XPos + 250 * XPosSpacing, YPos, 0, false, 28, 0, Arab);
+        yield return SLStaicFunctions.PlayVoiceNumberAndWait(this, X2.text, Explain);
+        TextInstantiator.InstantiateText(FirstNumPlace, ArabicEngConverter.ConvertToEngNumbers(X2.text), XPos + 300 * XPosSpacing, YPos, 0, false, 28, 0, Arab);
 
+        yield return SLStaicFunctions.PlayByAddress(this, "equal" + SpeakerName, Explain);
+        TextInstantiator.InstantiateText(FirstNumPlace, " = ", XPos + 350 * XPosSpacing, YPos, 0, false, 28, 0, Arab);
+
+        FinalXValDeno *= int.Parse(X2.text);
+
+        yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, FinalXValNue, FinalXValDeno, XPos + 450 * XPosSpacing, YPos, 29, Explain, true, Arab);
+
+        int gcf = MathTricks.GetGCF(FinalXValNue, FinalXValDeno);
+
+        FinalXValNue /= gcf;
+        FinalXValDeno /= gcf;
+
+        if (gcf != 1)
+        {
+            yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "equal" + SpeakerName, Explain));
+
+
+            TextInstantiator.InstantiateText(FirstNumPlace, " = "
+            , XPos + 550 * XPosSpacing
+            , YPos, 0, false, -1, 0, Arab);
+
+            yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, int.Parse(ArabicEngConverter.ConvertToEngNumbers(FinalXValNue.ToString())), int.Parse(ArabicEngConverter.ConvertToEngNumbers(FinalXValDeno.ToString())), XPos + 650 * XPosSpacing, YPos, 22, Explain, true, Arab);
+
+        }
         YPos -= 270;
-
     }
 
 
@@ -866,16 +856,16 @@ public class SolvingTwoEqs : MonoBehaviour
         yield return SLStaicFunctions.PlayByAddress(this, "so" + SpeakerName, Explain);
         yield return SLStaicFunctions.PlayByAddress(this, "the solution set is" + SpeakerName, Explain);
 
-        if(Arab)
-            TextInstantiator.InstantiateText(FirstNumPlace, "م.ح", XPos , YPos, 0, false, -1, 0, Arab);
+        if (Arab)
+            TextInstantiator.InstantiateText(FirstNumPlace, "م.ح", XPos, YPos, 0, false, -1, 0, Arab);
         else
         {
-            TextInstantiator.InstantiateText(FirstNumPlace, "S.S", XPos , YPos, 0, false, -1, 0, Arab);
+            TextInstantiator.InstantiateText(FirstNumPlace, "S.S", XPos, YPos, 0, false, -1, 0, Arab);
 
         }
         TextInstantiator.InstantiateText(FirstNumPlace, "{(", XPos + 100 * XPosSpacing, YPos, 0, false, -1, 0, Arab);
 
-        yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, FinalXValNue, FinalXValDeno, XPos + 200 * XPosSpacing, YPos, -1 , Explain, true, Arab);
+        yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, FinalXValNue, FinalXValDeno, XPos + 200 * XPosSpacing, YPos, -1, Explain, true, Arab);
 
         yield return SLStaicFunctions.PlayByAddress(this, "and" + SpeakerName, Explain);
 
@@ -917,16 +907,6 @@ public class SolvingTwoEqs : MonoBehaviour
         Y1Txt.color = Color.red;
         yield return SLStaicFunctions.PlayVoiceNumberAndWait(this, FinalXValNue.ToString(), Explain);
 
-        yield return SLStaicFunctions.SpawnAndAnimate(DivisionLine, new Vector3(XPos , YPos - 80, 0), "SmallLine", FirstNumPlace, Explain, 0);
-
-        yield return SLStaicFunctions.SpawnAndAnimate(DivisionLine, new Vector3(XPos + 200 * XPosSpacing, YPos - 80, 0), "SmallLine", FirstNumPlace, Explain, 0);
-
-
-        TextInstantiator.InstantiateText(FirstNumPlace, FinalXValNue.ToString(), XPos + 190 * XPosSpacing, YPos, -100, false, -1, 0, Arab);
-
-        TextInstantiator.InstantiateText(FirstNumPlace, FinalXValNue.ToString(), XPos , YPos, -100, false, -1, 0, Arab);
-
-        YPos -= 120;
 
         yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "so" + SpeakerName, Explain));
         yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "x" + SpeakerName, Explain));
@@ -934,7 +914,7 @@ public class SolvingTwoEqs : MonoBehaviour
 
 
         TextInstantiator.InstantiateText(FirstNumPlace, XSymbol + " = "
-        , XPos 
+        , XPos
         , YPos, -100, false, -1, 0, Arab);
 
         yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, ResAfterLineFour, int.Parse(ArabicEngConverter.ConvertToEngNumbers(FinalXValNue.ToString())), XPos + 180 * XPosSpacing, YPos - 100, 22, Explain, true, Arab);
@@ -959,8 +939,8 @@ public class SolvingTwoEqs : MonoBehaviour
 
         yield return SLStaicFunctions.PlayByAddress(this, "time" + SpeakerName, Explain);
 
-        X2Txt = TextInstantiator.InstantiateText(FirstNumPlace,  X2.text + " × ",
-             XPos 
+        X2Txt = TextInstantiator.InstantiateText(FirstNumPlace, X2.text + " × ",
+             XPos
             , YPos, 0, false, 23, 0, Arab);
 
 
@@ -977,7 +957,7 @@ public class SolvingTwoEqs : MonoBehaviour
         yield return SLStaicFunctions.PlayByAddress(this, "y" + SpeakerName, Explain);
 
 
-        Y2Txt = TextInstantiator.InstantiateText(FirstNumPlace, Y2Sign + Y2.text + YSymbol, XPos +300 * XPosSpacing, YPos, 0, false, -1, 0, Arab);
+        Y2Txt = TextInstantiator.InstantiateText(FirstNumPlace, Y2Sign + Y2.text + YSymbol, XPos + 300 * XPosSpacing, YPos, 0, false, -1, 0, Arab);
 
         yield return SLStaicFunctions.PlayByAddress(this, "equal" + SpeakerName, Explain);
 
@@ -1026,11 +1006,10 @@ public class SolvingTwoEqs : MonoBehaviour
 
         FinalYValNue = FinalXValNue;
         FinalYValDeno = FinalXValDeno;
-        Debug.Log("Final y nue "+FinalYValNue+ " Final y deno " + FinalYValDeno);
         FractionCalculator.MultiplyFractionByInteger(ref FinalYValNue, ref FinalYValDeno, int.Parse(ArabicEngConverter.ConvertToEngNumbers(X2.text)));
 
 
-        yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, FinalYValNue, FinalYValDeno, XPos , YPos, 25,Explain,true,Arab);
+        yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, FinalYValNue, FinalYValDeno, XPos, YPos, 25, Explain, true, Arab);
 
         Y2Txt = TextInstantiator.InstantiateText(FirstNumPlace, Y2Sign + Y2.text + YSymbol, XPos + 150 * XPosSpacing, YPos, 0, false, -1, 0, Arab);
 
@@ -1123,85 +1102,73 @@ public class SolvingTwoEqs : MonoBehaviour
         yield return SLStaicFunctions.PlayByAddress(this, "equal" + SpeakerName, Explain);
         FractionCalculator.SubtractFractionFromNumber(int.Parse(ArabicEngConverter.ConvertToEngNumbers(Res2Txt.text)), ref FinalYValNue, ref FinalYValDeno);
 
-        X1Txt = TextInstantiator.InstantiateText(FirstNumPlace, "=", XPos + 150 * XPosSpacing, YPos, -50, false, 28, 0, Arab);
+        X1Txt = TextInstantiator.InstantiateText(FirstNumPlace, "=", XPos + 150 * XPosSpacing, YPos, 0, false, 28, 0, Arab);
 
-        yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, FinalYValNue, FinalYValDeno, XPos + 250 * XPosSpacing, YPos-50, 29, Explain, true, Arab);
-
-
-    }
-
-    public IEnumerator GetAdditionNinethLineSol()
-    {
-
-        if (!Y2.text.Equals("1"))
-        {
-
-
-            yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "now" + SpeakerName, Explain));
-            yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "divide both sides by" + SpeakerName, Explain));
-
-            yield return SLStaicFunctions.SpawnAndAnimate(DivisionLine, new Vector3(XPos + 20 * XPosSpacing, YPos - 80, 0), "SmallLine", FirstNumPlace, Explain, 0);
-            TextInstantiator.InstantiateText(FirstNumPlace, Y2.text, XPos, YPos - 120, 0, false, 28, 0, Arab);
-
-
-            TextInstantiator.InstantiateText(FirstNumPlace, "×", XPos + 380 * XPosSpacing, YPos-50, 0, false, 28, 0, Arab);
-
-            yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, 1, int.Parse(ArabicEngConverter.ConvertToEngNumbers(Y2.text)), XPos + 450 * XPosSpacing, YPos - 50, 30, Explain, true, Arab);
-
-            yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "so" + SpeakerName, Explain));
-            yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "y" + SpeakerName, Explain));
-            yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "equal" + SpeakerName, Explain));
-
-
-            yield return SLStaicFunctions.PlayFraction(this, FinalYValNue.ToString(), FinalYValDeno.ToString(), Explain);
-            GameObject.Find("29").GetComponent<TextMeshProUGUI>().color = Color.red;
-            try
-            {
-                GameObject.Find("841").GetComponent<TextMeshProUGUI>().color = Color.red;
-            }
-            catch (Exception e)
-            {
-
-                Debug.Log(e.Message);
-            }
-
-            yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "time" + SpeakerName, Explain));
-            yield return SLStaicFunctions.PlayFraction(this, "1", Y2.text, Explain);
-
-            GameObject.Find("30").GetComponent<TextMeshProUGUI>().color = Color.red;
-            try
-            {
-                GameObject.Find("900").GetComponent<TextMeshProUGUI>().color = Color.red;
-            }
-            catch (Exception e)
-            {
-                Debug.Log(e);
-            }
-
-            yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "equal" + SpeakerName, Explain));
-
-            FinalYValDeno *= int.Parse(ArabicEngConverter.ConvertToEngNumbers(Y2.text));
-
-            yield return SLStaicFunctions.PlayFraction(this, FinalYValNue.ToString(), FinalYValDeno.ToString(), Explain);
-
-        }
+        yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, FinalYValNue, FinalYValDeno, XPos + 250 * XPosSpacing, YPos, 29, Explain, true, Arab);
 
         if (FinalYValNue % FinalYValDeno != 0)
         {
             YPos -= 200;
         }
         else
-            YPos -= 180;
+            YPos -= 150;
 
-        yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "so" + SpeakerName, Explain));
-        yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "y" + SpeakerName, Explain));
-        yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "equal" + SpeakerName, Explain));
+    }
 
-        TextInstantiator.InstantiateText(FirstNumPlace, YSymbol + " = ", XPos +50 * XPosSpacing, YPos, 0, false, -1, 0, Arab);
-        yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, FinalYValNue, FinalYValDeno, XPos + 200 * XPosSpacing, YPos, 29, Explain, true, Arab);
+    public IEnumerator GetAdditionNinethLineSol()
+    {
+
+        yield return SLStaicFunctions.PlayByAddress(this, "so" + SpeakerName, Explain);
+        yield return SLStaicFunctions.PlayByAddress(this, "y" + SpeakerName, Explain);
+        yield return SLStaicFunctions.PlayByAddress(this, "equal" + SpeakerName, Explain);
+
+        if(!Arab)
+            TextInstantiator.InstantiateText(FirstNumPlace, YSymbol + " = ", XPos, YPos, 0, false, 28, 0, Arab);
+        else
+            TextInstantiator.InstantiateText(FirstNumPlace, YSymbol + " = ", XPos, YPos, -30, false, 28, 0, Arab);
+
+        yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, FinalYValNue, FinalYValDeno, XPos + 120 * XPosSpacing, YPos, 29, Explain, true, Arab);
+        yield return SLStaicFunctions.PlayByAddress(this, "divide" + SpeakerName, Explain);
+
+        if(!Arab)
+            TextInstantiator.InstantiateText(FirstNumPlace, "÷", XPos + 230 * XPosSpacing, YPos, 0, false, 28, 0, Arab);
+        else
+            TextInstantiator.InstantiateText(FirstNumPlace, "÷", XPos + 230 * XPosSpacing, YPos, -30, false, 28, 0, Arab);
+
+        yield return SLStaicFunctions.PlayVoiceNumberAndWait(this, Y2.text, Explain);
+        TextInstantiator.InstantiateText(FirstNumPlace, ArabicEngConverter.ConvertToEngNumbers(Y2.text), XPos + 300 * XPosSpacing, YPos, 0, false, 28, 0, Arab);
+
+        yield return SLStaicFunctions.PlayByAddress(this, "equal" + SpeakerName, Explain);
 
 
-        YPos -= 270;
+        if (!Arab)
+            TextInstantiator.InstantiateText(FirstNumPlace, " = ", XPos + 350 * XPosSpacing, YPos, 0, false, 28, 0, Arab);
+        else
+            TextInstantiator.InstantiateText(FirstNumPlace, " = ", XPos + 350 * XPosSpacing, YPos, -30, false, 28, 0, Arab);
+
+
+        FinalYValDeno *= int.Parse(Y2.text);
+
+        yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, FinalYValNue, FinalYValDeno, XPos + 450 * XPosSpacing, YPos, 29, Explain, true, Arab);
+
+        int gcf = MathTricks.GetGCF(FinalYValNue, FinalYValDeno);
+
+        FinalYValNue /= gcf;
+        FinalYValDeno /= gcf;
+
+        if (gcf != 1)
+        {
+            yield return StartCoroutine(SLStaicFunctions.PlayByAddress(this, "equal" + SpeakerName, Explain));
+
+
+            TextInstantiator.InstantiateText(FirstNumPlace, " = "
+            , XPos + 550 * XPosSpacing
+            , YPos, 0, false, -1, 0, Arab);
+
+            yield return SLStaicFunctions.WriteFraction(this, FirstNumPlace, DivisionLine, Explain, int.Parse(ArabicEngConverter.ConvertToEngNumbers(FinalYValNue.ToString())), int.Parse(ArabicEngConverter.ConvertToEngNumbers(FinalYValDeno.ToString())), XPos + 650 * XPosSpacing, YPos, 22, Explain, true, Arab);
+
+        }
+        YPos -= 150;
 
     }
 
@@ -1335,9 +1302,19 @@ public class SolvingTwoEqs : MonoBehaviour
             else
                 TextInstantiator.InstantiateText(FirstNumPlace, "+", NewXpos - 50 * XPosSpacing, NewYPos, -20, false, 0, 0, Arab);
         }
-        TextInstantiator.InstantiateText(FirstNumPlace, (int.Parse(ArabicEngConverter.ConvertToEngNumbers(FirstMultiplier)) * int.Parse(ArabicEngConverter.ConvertToEngNumbers(SecMultiplier))).ToString(), NewXpos, NewYPos, 0, false, counter,0,Arab);
+        if (!Arab)
+        {
+            TextInstantiator.InstantiateText(FirstNumPlace, (int.Parse(ArabicEngConverter.ConvertToEngNumbers(FirstMultiplier)) * int.Parse(ArabicEngConverter.ConvertToEngNumbers(SecMultiplier))).ToString(), NewXpos, NewYPos, 0, false, counter, 0, Arab);
 
-        TextInstantiator.InstantiateText(FirstNumPlace, Symbol, NewXpos+ (int.Parse(ArabicEngConverter.ConvertToEngNumbers(FirstMultiplier)) * int.Parse(ArabicEngConverter.ConvertToEngNumbers(SecMultiplier))).ToString().Length * 10 * XPosSpacing + 40*XPosSpacing, NewYPos , 0, false, 0, 0, Arab);
+        }
+        else
+        {
+            TextInstantiator.InstantiateText(FirstNumPlace, ArabicEngConverter.ReverseString((int.Parse(ArabicEngConverter.ConvertToEngNumbers(FirstMultiplier)) * int.Parse(ArabicEngConverter.ConvertToEngNumbers(SecMultiplier))).ToString()), NewXpos, NewYPos, 0, false, counter, 0, Arab);
+
+        }
+
+
+        TextInstantiator.InstantiateText(FirstNumPlace, Symbol, NewXpos + (int.Parse(ArabicEngConverter.ConvertToEngNumbers(FirstMultiplier)) * int.Parse(ArabicEngConverter.ConvertToEngNumbers(SecMultiplier))).ToString().Length * 10 * XPosSpacing + 40 * XPosSpacing, NewYPos, 0, false, 0, 0, Arab);
 
         SNum.color = Color.black;
         FNum.color = Color.black;

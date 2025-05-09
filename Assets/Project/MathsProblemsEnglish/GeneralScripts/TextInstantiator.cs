@@ -52,7 +52,7 @@ public class TextInstantiator : MonoBehaviour
 
             }
             txt = ArabicEngConverter.ConvertToArabicNumbers(txt);
-            txt = new string(txt.Reverse().ToArray());
+            txt = ArabicEngConverter.ReverseString(txt);
         }
         newTextMesh.text = txt;
         newTextMesh.font = FirstNumPlace.font;
